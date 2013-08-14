@@ -537,6 +537,12 @@ void Game::MainLoop() {
 		if(dInfo.isStarted) {
 	      if(imageManager.tBackGround2)
 			driver->draw2DImage(imageManager.tBackGround2, Resize(0, 0, 1024, 640), recti(0, 0, imageManager.tBackGround->getOriginalSize().Width, imageManager.tBackGround->getOriginalSize().Height));
+			
+		  if(mainGame->dInfo.lp[LocalPlayer(0)] <= mainGame->dInfo.lp[LocalPlayer(1)]/2)
+			  Game::PlayMusic("./sound/song-disadvantage.mp3",true);
+		  else if(mainGame->dInfo.lp[LocalPlayer(0)] >= mainGame->dInfo.lp[LocalPlayer(1)]*2)
+			  Game::PlayMusic("./sound/song-advantage.mp3",true);
+		  else
 			Game::PlayMusic("./sound/song.mp3",true);
 			DrawBackGround();
 			DrawCards();
