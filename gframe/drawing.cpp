@@ -67,9 +67,9 @@ void Game::DrawBackGround() {
 	//draw field spell card
 	int fieldCode = -1;
 	bool drawField = false;
-	if (mainGame->dField.szone[0][5]) {
+	if (mainGame->dField.szone[0][5] && mainGame->dField.szone[0][5]->position & POS_FACEUP) {
 		fieldCode = mainGame->dField.szone[0][5]->code;
-	} else if (mainGame->dField.szone[1][5]) {
+	} else if (mainGame->dField.szone[1][5]&& mainGame->dField.szone[1][5]->position & POS_FACEUP) {
 		fieldCode = mainGame->dField.szone[1][5]->code;
 	}
 	if (fieldCode > 0) {
