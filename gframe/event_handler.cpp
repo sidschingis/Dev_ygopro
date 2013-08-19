@@ -761,7 +761,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				mainGame->lstANCard->clear();
 				ancard.clear();
 				for(auto cit = dataManager._strings.begin(); cit != dataManager._strings.end(); ++cit) {
-					if(wcsstr(cit->second.name, pname) != 0) {
+					if(DeckBuilder::CardNameCompare(cit->second.name, pname)) {
 						auto cp = dataManager.GetCodePointer(cit->first);
 						if(!cp->second.alias) {
 							mainGame->lstANCard->addItem(cit->second.name);
