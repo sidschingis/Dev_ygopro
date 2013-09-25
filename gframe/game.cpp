@@ -426,6 +426,7 @@ bool Game::Initialize() {
 	ebCardName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	btnEffectFilter = env->addButton(rect<s32>(345, 28, 390, 69), wFilter, BUTTON_EFFECT_FILTER, dataManager.GetSysString(1326));
 	btnStartFilter = env->addButton(rect<s32>(210, 96, 390, 118), wFilter, BUTTON_START_FILTER, dataManager.GetSysString(1327));
+	btnClearFilter = env->addButton(rect<s32>(155, 96, 205, 118), wFilter, BUTTON_CLEAR_FILTER, dataManager.GetSysString(1304));
 	wCategories = env->addWindow(rect<s32>(450, 60, 1000, 270), false, dataManager.strBuffer);
 	wCategories->getCloseButton()->setVisible(false);
 	wCategories->setDrawTitlebar(false);
@@ -1070,6 +1071,7 @@ void Game::OnResize()
 	ebCardName->setRelativePosition(Resize(260, 72, 390, 92));
 	btnEffectFilter->setRelativePosition(Resize(345, 28, 390, 69));
 	btnStartFilter->setRelativePosition(Resize(210, 96, 390, 118));
+	btnClearFilter->setRelativePosition(Resize(155, 96, 205, 118));
 	
 	stLabel1->setRelativePosition(ResizeWin(10, 9, 100, 29));
 	stLabel2->setRelativePosition(ResizeWin(10, 39, 100, 59));

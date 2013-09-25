@@ -22,6 +22,18 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				deckManager.current_deck.side.clear();
 				break;
 			}
+			case BUTTON_CLEAR_FILTER:{
+				mainGame->cbAttribute->setSelected(0);
+				mainGame->cbRace->setSelected(0);
+				mainGame->cbLimit->setSelected(0);
+				mainGame->ebAttack->setText(L"");
+				mainGame->ebDefence->setText(L"");
+				mainGame->ebStar->setText(L"");
+				filter_effect = 0;
+				for(int i = 0; i < 32; ++i)
+					mainGame->chkCategory[i]->setChecked(false);
+				break;
+			}
 			case BUTTON_SORT_DECK: {
 				std::sort(deckManager.current_deck.main.begin(), deckManager.current_deck.main.end(), ClientCard::deck_sort_lv);
 				std::sort(deckManager.current_deck.extra.begin(), deckManager.current_deck.extra.end(), ClientCard::deck_sort_lv);
@@ -734,15 +746,6 @@ void DeckBuilder::FilterCards() {
 		mainGame->scrFilter->setPos(0);
 	}
 	std::sort(results.begin(), results.end(), ClientCard::deck_sort_lv);
-	mainGame->cbAttribute->setSelected(0);
-	mainGame->cbRace->setSelected(0);
-	mainGame->cbLimit->setSelected(0);
-	mainGame->ebAttack->setText(L"");
-	mainGame->ebDefence->setText(L"");
-	mainGame->ebStar->setText(L"");
-	filter_effect = 0;
-	for(int i = 0; i < 32; ++i)
-		mainGame->chkCategory[i]->setChecked(false);
 }
 
 bool DeckBuilder::CardNameCompare(const wchar_t *sa, const wchar_t *sb)

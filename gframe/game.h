@@ -344,6 +344,7 @@ public:
 	irr::gui::IGUIButton* btnClearDeck;
 	irr::gui::IGUIButton* btnSortDeck;
 	irr::gui::IGUIButton* btnShuffleDeck;
+	irr::gui::IGUIButton* btnClearFilter;
 	irr::gui::IGUIButton* btnSaveDeck;
 	irr::gui::IGUIButton* btnSaveDeckAs;
 	irr::gui::IGUIButton* btnDBExit;
@@ -504,4 +505,5 @@ extern Game* mainGame;
 #define BUTTON_CANCEL_SINGLEPLAY	352
 #define CHECKBOX_ENABLE_SOUND		353
 #define CHECKBOX_ENABLE_MUSIC		354
+#define BUTTON_CLEAR_FILTER			1001
 #endif // GAME_H
