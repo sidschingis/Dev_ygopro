@@ -98,100 +98,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_START_FILTER: {
-				filter_type = mainGame->cbCardType->getSelected();
-				filter_type2 = mainGame->cbCardType2->getItemData(mainGame->cbCardType2->getSelected());
-				filter_lm = mainGame->cbLimit->getSelected();
-				if(filter_type > 1) {
-					FilterCards();
-					break;
-				}
-				filter_attrib = mainGame->cbAttribute->getItemData(mainGame->cbAttribute->getSelected());
-				filter_race = mainGame->cbRace->getItemData(mainGame->cbRace->getSelected());
-				const wchar_t* pstr = mainGame->ebAttack->getText();
-				if(*pstr == 0) filter_atktype = 0;
-				else {
-					if(*pstr == L'=') {
-						filter_atktype = 1;
-						filter_atk = BufferIO::GetVal(pstr + 1);
-					} else if(*pstr >= L'0' && *pstr <= L'9') {
-						filter_atktype = 1;
-						filter_atk = BufferIO::GetVal(pstr);
-					} else if(*pstr == L'>') {
-						if(*(pstr + 1) == L'=') {
-							filter_atktype = 2;
-							filter_atk = BufferIO::GetVal(pstr + 2);
-						} else {
-							filter_atktype = 3;
-							filter_atk = BufferIO::GetVal(pstr + 1);
-						}
-					} else if(*pstr == L'<') {
-						if(*(pstr + 1) == L'=') {
-							filter_atktype = 4;
-							filter_atk = BufferIO::GetVal(pstr + 2);
-						} else {
-							filter_atktype = 5;
-							filter_atk = BufferIO::GetVal(pstr + 1);
-						}
-					} else if(*pstr == L'?') {
-						filter_atktype = 6;
-					} else filter_atktype = 0;
-				}
-				pstr = mainGame->ebDefence->getText();
-				if(*pstr == 0) filter_deftype = 0;
-				else {
-					if(*pstr == L'=') {
-						filter_deftype = 1;
-						filter_def = BufferIO::GetVal(pstr + 1);
-					} else if(*pstr >= L'0' && *pstr <= L'9') {
-						filter_deftype = 1;
-						filter_def = BufferIO::GetVal(pstr);
-					} else if(*pstr == L'>') {
-						if(*(pstr + 1) == L'=') {
-							filter_deftype = 2;
-							filter_def = BufferIO::GetVal(pstr + 2);
-						} else {
-							filter_deftype = 3;
-							filter_def = BufferIO::GetVal(pstr + 1);
-						}
-					} else if(*pstr == L'<') {
-						if(*(pstr + 1) == L'=') {
-							filter_deftype = 4;
-							filter_def = BufferIO::GetVal(pstr + 2);
-						} else {
-							filter_deftype = 5;
-							filter_def = BufferIO::GetVal(pstr + 1);
-						}
-					} else if(*pstr == L'?') {
-						filter_deftype = 6;
-					} else filter_deftype = 0;
-				}
-				pstr = mainGame->ebStar->getText();
-				if(*pstr == 0) filter_lvtype = 0;
-				else {
-					if(*pstr == L'=') {
-						filter_lvtype = 1;
-						filter_lv = BufferIO::GetVal(pstr + 1);
-					} else if(*pstr >= L'0' && *pstr <= L'9') {
-						filter_lvtype = 1;
-						filter_lv = BufferIO::GetVal(pstr);
-					} else if(*pstr == L'>') {
-						if(*(pstr + 1) == L'=') {
-							filter_lvtype = 2;
-							filter_lv = BufferIO::GetVal(pstr + 2);
-						} else {
-							filter_lvtype = 3;
-							filter_lv = BufferIO::GetVal(pstr + 1);
-						}
-					} else if(*pstr == L'<') {
-						if(*(pstr + 1) == L'=') {
-							filter_lvtype = 4;
-							filter_lv = BufferIO::GetVal(pstr + 2);
-						} else {
-							filter_lvtype = 5;
-							filter_lv = BufferIO::GetVal(pstr + 1);
-						}
-					} else filter_lvtype = 0;
-				}
+				FilterStart();
 				FilterCards();
 				break;
 			}
@@ -235,6 +142,19 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				me.GUIEvent.Caller = mainGame->btnStartFilter;
 				me.GUIEvent.Element = mainGame->btnStartFilter;
 				mainGame->device->postEventFromUser(me);
+				break;
+			}
+			}
+			break;
+		}
+		case irr::gui::EGET_EDITBOX_CHANGED: {
+			switch(id) {
+			case SCROLL_KEYWORD: {
+				stringw filter = mainGame->ebCardName->getText();
+				if(filter.size() > 3){
+					FilterStart();
+					FilterCards();
+				}
 				break;
 			}
 			}
@@ -652,6 +572,103 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 	default: break;
 	}
 	return false;
+}
+
+void DeckBuilder::FilterStart(){
+	filter_type = mainGame->cbCardType->getSelected();
+				filter_type2 = mainGame->cbCardType2->getItemData(mainGame->cbCardType2->getSelected());
+				filter_lm = mainGame->cbLimit->getSelected();
+				if(filter_type > 1) {
+					FilterCards();
+					return;
+				}
+				filter_attrib = mainGame->cbAttribute->getItemData(mainGame->cbAttribute->getSelected());
+				filter_race = mainGame->cbRace->getItemData(mainGame->cbRace->getSelected());
+				const wchar_t* pstr = mainGame->ebAttack->getText();
+				if(*pstr == 0) filter_atktype = 0;
+				else {
+					if(*pstr == L'=') {
+						filter_atktype = 1;
+						filter_atk = BufferIO::GetVal(pstr + 1);
+					} else if(*pstr >= L'0' && *pstr <= L'9') {
+						filter_atktype = 1;
+						filter_atk = BufferIO::GetVal(pstr);
+					} else if(*pstr == L'>') {
+						if(*(pstr + 1) == L'=') {
+							filter_atktype = 2;
+							filter_atk = BufferIO::GetVal(pstr + 2);
+						} else {
+							filter_atktype = 3;
+							filter_atk = BufferIO::GetVal(pstr + 1);
+						}
+					} else if(*pstr == L'<') {
+						if(*(pstr + 1) == L'=') {
+							filter_atktype = 4;
+							filter_atk = BufferIO::GetVal(pstr + 2);
+						} else {
+							filter_atktype = 5;
+							filter_atk = BufferIO::GetVal(pstr + 1);
+						}
+					} else if(*pstr == L'?') {
+						filter_atktype = 6;
+					} else filter_atktype = 0;
+				}
+				pstr = mainGame->ebDefence->getText();
+				if(*pstr == 0) filter_deftype = 0;
+				else {
+					if(*pstr == L'=') {
+						filter_deftype = 1;
+						filter_def = BufferIO::GetVal(pstr + 1);
+					} else if(*pstr >= L'0' && *pstr <= L'9') {
+						filter_deftype = 1;
+						filter_def = BufferIO::GetVal(pstr);
+					} else if(*pstr == L'>') {
+						if(*(pstr + 1) == L'=') {
+							filter_deftype = 2;
+							filter_def = BufferIO::GetVal(pstr + 2);
+						} else {
+							filter_deftype = 3;
+							filter_def = BufferIO::GetVal(pstr + 1);
+						}
+					} else if(*pstr == L'<') {
+						if(*(pstr + 1) == L'=') {
+							filter_deftype = 4;
+							filter_def = BufferIO::GetVal(pstr + 2);
+						} else {
+							filter_deftype = 5;
+							filter_def = BufferIO::GetVal(pstr + 1);
+						}
+					} else if(*pstr == L'?') {
+						filter_deftype = 6;
+					} else filter_deftype = 0;
+				}
+				pstr = mainGame->ebStar->getText();
+				if(*pstr == 0) filter_lvtype = 0;
+				else {
+					if(*pstr == L'=') {
+						filter_lvtype = 1;
+						filter_lv = BufferIO::GetVal(pstr + 1);
+					} else if(*pstr >= L'0' && *pstr <= L'9') {
+						filter_lvtype = 1;
+						filter_lv = BufferIO::GetVal(pstr);
+					} else if(*pstr == L'>') {
+						if(*(pstr + 1) == L'=') {
+							filter_lvtype = 2;
+							filter_lv = BufferIO::GetVal(pstr + 2);
+						} else {
+							filter_lvtype = 3;
+							filter_lv = BufferIO::GetVal(pstr + 1);
+						}
+					} else if(*pstr == L'<') {
+						if(*(pstr + 1) == L'=') {
+							filter_lvtype = 4;
+							filter_lv = BufferIO::GetVal(pstr + 2);
+						} else {
+							filter_lvtype = 5;
+							filter_lv = BufferIO::GetVal(pstr + 1);
+						}
+					} else filter_lvtype = 0;
+				}
 }
 
 void DeckBuilder::FilterCards() {

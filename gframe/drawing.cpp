@@ -866,9 +866,15 @@ void Game::DrawDeckBd() {
 	wchar_t textBuffer[128];
 	recti loc;
 	//main deck
-	DrawRectangle(driver, mainGame->Resize(310, 137, 410, 157));
+	DrawRectangle(driver, mainGame->Resize(310, 137, 797, 157));
 	DrawShadowA(textFont, dataManager.GetSysString(1330), mainGame->Resize(314, 136, 409, 156));
-	DrawShadowA(numFont, dataManager.numStrings[deckManager.current_deck.main.size()], mainGame->Resize(379, 137, 439, 157));
+	DrawShadowA(numFont, dataManager.numStrings[deckManager.current_deck.main.size()],mainGame->Resize(379, 137, 439, 157));
+	recti mainpos = mainGame->Resize(310, 137, 797, 157);
+	DrawShadowA(textFont, 
+		stringw(dataManager.GetSysString(1312)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.main,TYPE_MONSTER)) + " " +
+		stringw(dataManager.GetSysString(1313)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.main,TYPE_SPELL)) + " " +
+		stringw(dataManager.GetSysString(1314)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.main,TYPE_TRAP))
+		, recti(mainpos.LowerRightCorner.X - 157, mainpos.UpperLeftCorner.Y, mainpos.LowerRightCorner.X, mainpos.LowerRightCorner.Y));
 	DrawRectangle(driver, mainGame->Resize(310, 160, 797, 436));
 
 	int lx;
@@ -887,9 +893,15 @@ void Game::DrawDeckBd() {
 	}
 
 	//extra deck
-	DrawRectangle(driver, mainGame->Resize(310, 440, 410, 460));
+	DrawRectangle(driver, mainGame->Resize(310, 440, 797, 460));
 	DrawShadowA(textFont, dataManager.GetSysString(1331), mainGame->Resize(314, 439, 409, 459));
 	DrawShadowA(numFont, dataManager.numStrings[deckManager.current_deck.extra.size()], mainGame->Resize(379, 440, 439, 460));
+	recti extrapos = mainGame->Resize(310, 440, 797, 460);
+	DrawShadowA(textFont, 
+		stringw(dataManager.GetSysString(1056)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.extra,TYPE_FUSION)) + " " +
+		stringw(dataManager.GetSysString(1073)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.extra,TYPE_XYZ)) + " " +
+		stringw(dataManager.GetSysString(1063)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.extra,TYPE_SYNCHRO))
+		, recti(extrapos.LowerRightCorner.X - 157, extrapos.UpperLeftCorner.Y, extrapos.LowerRightCorner.X, extrapos.LowerRightCorner.Y));
 	DrawRectangle(driver, mainGame->Resize(310, 463, 797, 533));
 
 	if(deckManager.current_deck.extra.size() <= 10)
@@ -902,9 +914,15 @@ void Game::DrawDeckBd() {
 	}
 
 	//side deck
-	DrawRectangle(driver, mainGame->Resize(310, 537, 410, 557));
+	DrawRectangle(driver, mainGame->Resize(310, 537, 797, 557));
 	DrawShadowA(textFont, dataManager.GetSysString(1332), mainGame->Resize(314, 536, 409, 556));
 	DrawShadowA(numFont, dataManager.numStrings[deckManager.current_deck.side.size()], mainGame->Resize(379, 537, 439, 557));
+	recti sidepos = mainGame->Resize(310, 537, 797, 557);
+	DrawShadowA(textFont, 
+		stringw(dataManager.GetSysString(1312)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.side,TYPE_MONSTER)) + " " +
+		stringw(dataManager.GetSysString(1313)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.side,TYPE_SPELL)) + " " +
+		stringw(dataManager.GetSysString(1314)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.side,TYPE_TRAP))
+		, recti(sidepos.LowerRightCorner.X - 145, sidepos.UpperLeftCorner.Y, sidepos.LowerRightCorner.X, sidepos.LowerRightCorner.Y));
 	DrawRectangle(driver, mainGame->Resize(310, 560, 797, 630));
 
 	if(deckManager.current_deck.side.size() <= 10)
@@ -917,7 +935,7 @@ void Game::DrawDeckBd() {
 	}
 
 	//search results
-	DrawRectangle(driver, mainGame->Resize(805, 137, 915, 157));
+	DrawRectangle(driver, mainGame->Resize(805, 137, 1020, 157));
 	DrawShadowA(textFont, dataManager.GetSysString(1333), mainGame->Resize(809, 136, 914, 156));
 	DrawShadowA(numFont, deckBuilder.result_string, mainGame->Resize(874, 136, 934, 156));
 	DrawRectangle(driver, mainGame->Resize(805, 160, 1020, 630));
