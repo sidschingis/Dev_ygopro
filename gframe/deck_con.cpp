@@ -130,6 +130,29 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				DuelClient::SendBufferToServer(CTOS_UPDATE_DECK, deckbuf, pdeck - deckbuf);
 				break;
 			}
+			case BUTTON_DELETE_DECK: {
+
+				mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)dataManager.GetSysString(2025));
+				mainGame->PopupElement(mainGame->wQuery);
+				break;
+			}
+			case BUTTON_YES: {
+				mainGame->HideElement(mainGame->wQuery);				
+				std::wstring filestr(L"./deck/");
+				filestr += mainGame->cbDBDecks->getItem(mainGame->cbDBDecks->getSelected());
+				filestr += L".ydk";				
+				if(_wremove(filestr.c_str()) == 0){
+					mainGame->cbDBDecks->removeItem(mainGame->cbDBDecks->getSelected());
+					deckManager.current_deck.main.clear();
+					deckManager.current_deck.extra.clear();
+					deckManager.current_deck.side.clear();
+				}
+				break;
+			}
+			case BUTTON_NO: {
+				mainGame->HideElement(mainGame->wQuery);
+				break;
+			}
 			}
 			break;
 		}

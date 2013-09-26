@@ -349,6 +349,7 @@ public:
 	irr::gui::IGUIButton* btnSaveDeckAs;
 	irr::gui::IGUIButton* btnDBExit;
 	irr::gui::IGUIButton* btnSideOK;
+	irr::gui::IGUIButton* btnDeleteDeck;
 	irr::gui::IGUIEditBox* ebDeckname;
 	//deck edit labels
 	irr::gui::IGUIStaticText* stLabel1;
@@ -506,4 +507,5 @@ extern Game* mainGame;
 #define CHECKBOX_ENABLE_SOUND		353
 #define CHECKBOX_ENABLE_MUSIC		354
 #define BUTTON_CLEAR_FILTER			1001
+#define BUTTON_DELETE_DECK			1002
 #endif // GAME_H

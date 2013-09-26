@@ -381,6 +381,7 @@ bool Game::Initialize() {
 	btnShuffleDeck = env->addButton(rect<s32>(130, 95, 180, 116), wDeckEdit, BUTTON_SHUFFLE_DECK, dataManager.GetSysString(1307));
 	btnDBExit = env->addButton(rect<s32>(10, 95, 90, 116), wDeckEdit, BUTTON_DBEXIT, dataManager.GetSysString(1306));
 	btnSideOK = env->addButton(rect<s32>(510, 40, 820, 80), 0, BUTTON_SIDE_OK, dataManager.GetSysString(1334));
+	btnDeleteDeck = env->addButton(rect<s32>(10, 68, 75,89), wDeckEdit, BUTTON_DELETE_DECK, dataManager.GetSysString(2027));
 	btnSideOK->setVisible(false);
 	//filters
 	wFilter = env->addStaticText(L"", rect<s32>(610, 8, 1020, 130), true, false, 0, -1, true);
@@ -1085,6 +1086,7 @@ void Game::OnResize()
 	stLabel10->setRelativePosition(ResizeWin(205, 74, 280, 94));
 
 	btnSideOK->setRelativePosition(Resize(510, 40, 820, 80));
+	btnDeleteDeck->setRelativePosition(Resize(10, 68, 75,89));
 
 	wPhase->setRelativePosition(Resize(475, 310, 850, 330));
 	btnDP->setRelativePosition(Resize(0, 0, 50, 20));
