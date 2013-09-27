@@ -870,11 +870,12 @@ void Game::DrawDeckBd() {
 	DrawShadowA(textFont, dataManager.GetSysString(1330), mainGame->Resize(314, 136, 409, 156));
 	DrawShadowA(numFont, dataManager.numStrings[deckManager.current_deck.main.size()],mainGame->Resize(379, 137, 439, 157));
 	recti mainpos = mainGame->Resize(310, 137, 797, 157);
-	DrawShadowA(textFont, 
-		stringw(dataManager.GetSysString(1312)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.main,TYPE_MONSTER)) + " " +
+	stringw mainDeckTypeCount = stringw(dataManager.GetSysString(1312)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.main,TYPE_MONSTER)) + " " +
 		stringw(dataManager.GetSysString(1313)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.main,TYPE_SPELL)) + " " +
-		stringw(dataManager.GetSysString(1314)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.main,TYPE_TRAP))
-		, recti(mainpos.LowerRightCorner.X - 157, mainpos.UpperLeftCorner.Y, mainpos.LowerRightCorner.X, mainpos.LowerRightCorner.Y));
+		stringw(dataManager.GetSysString(1314)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.main,TYPE_TRAP));
+	irr::core::dimension2d<u32> mainDeckTypeSize = textFont->getDimension(mainDeckTypeCount);
+	DrawShadowA(textFont, mainDeckTypeCount, 
+		recti(mainpos.LowerRightCorner.X - mainDeckTypeSize.Width - 5, mainpos.UpperLeftCorner.Y, mainpos.LowerRightCorner.X, mainpos.LowerRightCorner.Y));
 	DrawRectangle(driver, mainGame->Resize(310, 160, 797, 436));
 
 	int lx;
@@ -897,11 +898,13 @@ void Game::DrawDeckBd() {
 	DrawShadowA(textFont, dataManager.GetSysString(1331), mainGame->Resize(314, 439, 409, 459));
 	DrawShadowA(numFont, dataManager.numStrings[deckManager.current_deck.extra.size()], mainGame->Resize(379, 440, 439, 460));
 	recti extrapos = mainGame->Resize(310, 440, 797, 460);
-	DrawShadowA(textFont, 
-		stringw(dataManager.GetSysString(1056)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.extra,TYPE_FUSION)) + " " +
+	stringw extraDeckTypeCount = stringw(dataManager.GetSysString(1056)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.extra,TYPE_FUSION)) + " " +
 		stringw(dataManager.GetSysString(1073)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.extra,TYPE_XYZ)) + " " +
-		stringw(dataManager.GetSysString(1063)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.extra,TYPE_SYNCHRO))
-		, recti(extrapos.LowerRightCorner.X - 157, extrapos.UpperLeftCorner.Y, extrapos.LowerRightCorner.X, extrapos.LowerRightCorner.Y));
+		stringw(dataManager.GetSysString(1063)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.extra,TYPE_SYNCHRO));
+	irr::core::dimension2d<u32> extraDeckTypeSize = textFont->getDimension(extraDeckTypeCount);
+	DrawShadowA(textFont, extraDeckTypeCount, 
+		recti(extrapos.LowerRightCorner.X - extraDeckTypeSize.Width - 5, extrapos.UpperLeftCorner.Y, 
+		extrapos.LowerRightCorner.X, extrapos.LowerRightCorner.Y));
 	DrawRectangle(driver, mainGame->Resize(310, 463, 797, 533));
 
 	if(deckManager.current_deck.extra.size() <= 10)
@@ -918,11 +921,13 @@ void Game::DrawDeckBd() {
 	DrawShadowA(textFont, dataManager.GetSysString(1332), mainGame->Resize(314, 536, 409, 556));
 	DrawShadowA(numFont, dataManager.numStrings[deckManager.current_deck.side.size()], mainGame->Resize(379, 537, 439, 557));
 	recti sidepos = mainGame->Resize(310, 537, 797, 557);
-	DrawShadowA(textFont, 
-		stringw(dataManager.GetSysString(1312)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.side,TYPE_MONSTER)) + " " +
+	stringw sideDeckTypeCount = stringw(dataManager.GetSysString(1312)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.side,TYPE_MONSTER)) + " " +
 		stringw(dataManager.GetSysString(1313)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.side,TYPE_SPELL)) + " " +
-		stringw(dataManager.GetSysString(1314)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.side,TYPE_TRAP))
-		, recti(sidepos.LowerRightCorner.X - 145, sidepos.UpperLeftCorner.Y, sidepos.LowerRightCorner.X, sidepos.LowerRightCorner.Y));
+		stringw(dataManager.GetSysString(1314)) + " " + stringw(deckManager.TypeCount(deckManager.current_deck.side,TYPE_TRAP));
+	irr::core::dimension2d<u32> sideDeckTypeSize = textFont->getDimension(sideDeckTypeCount);
+	DrawShadowA(textFont,sideDeckTypeCount,
+		recti(sidepos.LowerRightCorner.X - sideDeckTypeSize.Width - 5, sidepos.UpperLeftCorner.Y, 
+		sidepos.LowerRightCorner.X, sidepos.LowerRightCorner.Y));
 	DrawRectangle(driver, mainGame->Resize(310, 560, 797, 630));
 
 	if(deckManager.current_deck.side.size() <= 10)
