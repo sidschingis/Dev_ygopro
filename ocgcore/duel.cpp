@@ -15,6 +15,7 @@
 #include <memory.h>
 
 duel::duel() {
+	canary=0x010101;
 	lua = new interpreter(this);
 	game_field = new field(this);
 	game_field->temp_card = new_card(0);

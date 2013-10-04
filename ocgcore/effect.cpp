@@ -275,6 +275,8 @@ int32 effect::is_condition_check(uint8 playerid, tevent& e) {
 		return FALSE;
 	if(!condition)
 		return TRUE;
+	if(pduel->canary!=0x010101)
+		return FALSE;
 	effect* oreason = pduel->game_field->core.reason_effect;
 	uint8 op = pduel->game_field->core.reason_player;
 	pduel->game_field->core.reason_effect = this;
