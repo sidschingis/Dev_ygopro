@@ -220,7 +220,10 @@ void Game::DrawCard(ClientCard* pcard) {
 	driver->setTransform(irr::video::ETS_WORLD, pcard->mTransform);
 	driver->setMaterial(matManager.mCard);
 	driver->drawVertexPrimitiveList(matManager.vCardFront, 4, matManager.iRectangle, 2);
-	matManager.mCard.setTexture(0, imageManager.tCover);
+	if(pcard->owner == 0 || !imageManager.tCover2)
+		matManager.mCard.setTexture(0, imageManager.tCover);
+	else
+		matManager.mCard.setTexture(0, imageManager.tCover2);
 	driver->setMaterial(matManager.mCard);
 	driver->drawVertexPrimitiveList(matManager.vCardBack, 4, matManager.iRectangle, 2);
 	if(pcard->is_showequip) {
