@@ -8,6 +8,7 @@
 #include "duelclient.h"
 #include "netserver.h"
 #include "single_mode.h"
+#include <sstream>
 
 #ifndef WIN32
 #include <sys/types.h>
@@ -35,6 +36,7 @@ bool Game::Initialize() {
 		return false;
 
 	// Apply skin
+	unsigned int special_color = 0xFF0000FF;
 	if (gameConf.skin_index >= 0)
 	{
 		skinSystem = new CGUISkinSystem("skins", device);
@@ -42,7 +44,20 @@ bool Game::Initialize() {
 		if ((size_t)gameConf.skin_index < skins.size())
 		{
 			int index = skins.size() - gameConf.skin_index - 1; // reverse index
-			skinSystem->applySkin(skins[index].c_str());
+			if (skinSystem->applySkin(skins[index].c_str()))
+			{
+				// Convert and apply special color
+				stringw spccolor = skinSystem->getProperty(L"SpecialColor");
+				if (!spccolor.empty())
+				{
+					unsigned int x;
+					std::wstringstream ss;
+					ss << std::hex << spccolor.c_str();
+					ss >> x;
+					if (!ss.fail())
+						special_color = x;
+				}
+			}
 		}
 	}
 
@@ -216,9 +231,9 @@ bool Game::Initialize() {
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
 	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
-	stInfo->setOverrideColor(SColor(255, 0, 0, 255));
+	stInfo->setOverrideColor(special_color);
 	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfo, -1, false);
-	stDataInfo->setOverrideColor(SColor(255, 0, 0, 255));
+	stDataInfo->setOverrideColor(special_color);
 	stText = env->addStaticText(L"", rect<s32>(15, 83, 296, 324), false, true, tabInfo, -1, false);
 	//log
 	irr::gui::IGUITab* tabLog =  wInfos->addTab(dataManager.GetSysString(1271));
@@ -347,6 +362,7 @@ bool Game::Initialize() {
 	stHintMsg->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stHintMsg->setVisible(false);
 	stTip = env->addStaticText(L"", rect<s32>(0, 0, 150, 150), false, true, 0, -1, true);
+	stTip->setOverrideColor(0xff000000);
 	stTip->setBackgroundColor(0xc0ffffff);
 	stTip->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stTip->setVisible(false);
