@@ -270,7 +270,7 @@ int32 scriptlib::group_is_exists(lua_State *L) {
 			}
 		}
 	}
-	lua_pushboolean(L, result);;
+	lua_pushboolean(L, result);
 	return 1;
 }
 int32 scriptlib::group_check_with_sum_equal(lua_State *L) {
