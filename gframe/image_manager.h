@@ -24,6 +24,7 @@ public:
 	irr::IrrlichtDevice* device;
 	irr::video::IVideoDriver* driver;
 	irr::video::ITexture* tCover;
+	irr::video::ITexture* tCover2;
 	irr::video::ITexture* tUnknown;
 	irr::video::ITexture* tAct;
 	irr::video::ITexture* tAttack;

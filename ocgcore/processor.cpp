@@ -2095,7 +2095,7 @@ int32 field::process_quick_effect(int16 step, int32 special, uint8 priority) {
 		return FALSE;
 	}
 	case 2: {
-		if(core.select_chains.size() && returns.ivalue[0] != -1) {
+		if(core.select_chains.size() && returns.ivalue[0] >= 0) {
 			chain newchain = core.select_chains[returns.ivalue[0]];
 			core.new_chains.push_back(newchain);
 			core.delayed_quick.erase(make_pair(newchain.triggering_effect, newchain.evt));

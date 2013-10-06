@@ -25,6 +25,7 @@ struct duel_arg {
 };
 class duel {
 public:
+	uint32 canary;
 	char strbuffer[256];
 	byte buffer[0x1000];
 	uint32 bufferlen;

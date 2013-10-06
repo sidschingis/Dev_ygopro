@@ -672,6 +672,7 @@ void interpreter::add_param(ptr param, int32 type, bool front) {
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	uint32 type;
 	int32 pushed = 0;
+	lua_checkstack(L,params.size() + 5);
 	for (auto it = params.begin(); it != params.end(); ++it) {
 		type = it->second;
 		switch(type) {
