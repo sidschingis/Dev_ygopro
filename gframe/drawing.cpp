@@ -965,10 +965,12 @@ void Game::DrawDeckBd() {
 			else if(ptr->second.defence < 0)
 				myswprintf(textBuffer, L"%d/?", ptr->second.attack);
 			else myswprintf(textBuffer, L"%d/%d", ptr->second.attack, ptr->second.defence);
-			if((ptr->second.ot & 0x3) == 1)
+			if((ptr->second.ot & 0x7) == 1)
 				wcscat(textBuffer, L" [OCG]");
-			else if((ptr->second.ot & 0x3) == 2)
+			else if((ptr->second.ot & 0x7) == 2)
 				wcscat(textBuffer, L" [TCG]");
+			else if((ptr->second.ot & 0x7) == 4)
+				wcscat(textBuffer, L" [Anime]");
 			DrawShadowB(textFont, textBuffer, mainGame->Resize(859, 208 + i * 66, 955, 229 + i * 66));
 		} else {
 			myswprintf(textBuffer, L"%ls", dataManager.GetName(ptr->first));
@@ -976,10 +978,12 @@ void Game::DrawDeckBd() {
 			const wchar_t* ptype = dataManager.FormatType(ptr->second.type);
 			DrawShadowB(textFont, ptype, mainGame->Resize(859, 186 + i * 66, 955, 207 + i * 66));
 			textBuffer[0] = 0;
-			if((ptr->second.ot & 0x3) == 1)
+			if((ptr->second.ot & 0x7) == 1)
 				wcscat(textBuffer, L"[OCG]");
-			else if((ptr->second.ot & 0x3) == 2)
+			else if((ptr->second.ot & 0x7) == 2)
 				wcscat(textBuffer, L"[TCG]");
+			else if((ptr->second.ot & 0x7) == 4)
+				wcscat(textBuffer, L"[Anime]");
 			DrawShadowB(textFont, textBuffer, mainGame->Resize(859, 208 + i * 66, 955, 229 + i * 66));
 		}
 	}
