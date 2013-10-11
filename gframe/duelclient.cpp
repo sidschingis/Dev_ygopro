@@ -192,6 +192,15 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		ClientAnalyze(pdata, len - 1);
 		break;
 	}
+	case STOC_UPDATE_SLEEVE: {
+		char* site = new char[256];
+		char* dir = new char[256];
+		int player = BufferIO::ReadInt16(pdata);
+		BufferIO::CopyWStr(pdata, site, 256);
+		BufferIO::CopyWStr(pdata, dir, 256);
+		ygo::imageManager.LoadSleeve(player,site,dir);
+		break;
+	}
 	case STOC_ERROR_MSG: {
 		STOC_ErrorMsg* pkt = (STOC_ErrorMsg*)pdata;
 		switch(pkt->msg) {

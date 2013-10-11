@@ -13,6 +13,7 @@ public:
 	void SetDevice(irr::IrrlichtDevice* dev);
 	void ClearTexture();
 	void RemoveTexture(int code);
+	void LoadSleeve(int player,char* site,char* dir);
 	Mutex mutex;
 	irr::video::ITexture* GetTexture(int code);
 	irr::video::ITexture* GetTextureThumb(int code);

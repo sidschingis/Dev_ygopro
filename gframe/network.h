@@ -84,6 +84,11 @@ struct STOC_Chat {
 	unsigned short player;
 	unsigned short msg[256];
 };
+struct STOC_Sleeve {
+	unsigned short player;
+	unsigned short site[256];
+	unsigned short dir[256];
+};
 struct STOC_HS_PlayerEnter {
 	unsigned short name[20];
 	unsigned char pos;
@@ -196,6 +201,7 @@ public:
 #define STOC_HS_PLAYER_ENTER	0x20
 #define STOC_HS_PLAYER_CHANGE	0x21
 #define STOC_HS_WATCH_CHANGE	0x22
+#define STOC_UPDATE_SLEEVE		0x30
 
 #define PLAYERCHANGE_OBSERVE	0x8
 #define PLAYERCHANGE_READY		0x9

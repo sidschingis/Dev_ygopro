@@ -1,4 +1,5 @@
 #include "image_manager.h"
+#include <SFML/Network.hpp>
 
 namespace ygo {
 
@@ -26,8 +27,29 @@ bool ImageManager::Initial() {
 	tBackGround2 = driver->getTexture("textures/bg2.jpg"); 
 	tField = driver->getTexture("textures/field.png");
 	tFieldTransparent = driver->getTexture("textures/field-transparent.png");
+	//LoadSleeve(1,"http://ygopro.de/","/launcher/Covers/Test.jpg");
 	return true;
 }
+void ImageManager::LoadSleeve(int player,char* site,char* dir) {
+
+    sf::Http::Request request(dir, sf::Http::Request::Get);
+    sf::Http http(site);
+    sf::Http::Response response = http.sendRequest(request);
+	std::string test = site;
+	std::string test2 = dir;
+
+    if (response.getStatus() == sf::Http::Response::Ok){
+        std::string *body = new std::string(response.getBody());
+        void *memory = (void *)body->c_str();
+        IReadFile *f = device->getFileSystem()->createMemoryReadFile(memory, body->size(), "cover.jpg", false);
+        if(player == 0)
+			tCover = driver->getTexture(f);
+		else
+			tCover2 = driver->getTexture(f);
+    }
+
+}
+
 void ImageManager::SetDevice(irr::IrrlichtDevice* dev) {
 	device = dev;
 	driver = dev->getVideoDriver();
