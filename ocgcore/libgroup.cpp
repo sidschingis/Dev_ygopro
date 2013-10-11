@@ -156,7 +156,8 @@ int32 scriptlib::group_filter(lua_State *L) {
 	group* new_group = pduel->new_group();
 	uint32 extraargs = lua_gettop(L) - 3;
 	group::card_set::iterator it;
-	for (it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
+	auto temp = pgroup->container;
+	for (auto it = temp.begin(); it != temp.end(); ++it) {
 		if((*it) != pexception && pduel->lua->check_matching(*it, 2, extraargs)) {
 			new_group->container.insert(*it);
 		}
