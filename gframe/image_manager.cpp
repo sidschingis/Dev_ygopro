@@ -27,16 +27,17 @@ bool ImageManager::Initial() {
 	tBackGround2 = driver->getTexture("textures/bg2.jpg"); 
 	tField = driver->getTexture("textures/field.png");
 	tFieldTransparent = driver->getTexture("textures/field-transparent.png");
-	//LoadSleeve(1,"http://ygopro.de/","/launcher/Covers/Test.jpg");
+	//LoadSleeve(1,L"http://ygopro.de/",L"/launcher/Covers/Test.jpg");
 	return true;
 }
-void ImageManager::LoadSleeve(int player,char* site,char* dir) {
-
-    sf::Http::Request request(dir, sf::Http::Request::Get);
-    sf::Http http(site);
+void ImageManager::LoadSleeve(int player,wchar_t* site,wchar_t* dir) {
+	char* siteurl = new char[256];
+	char* sitedir = new char[256];
+	std::wcstombs(siteurl,site,256);
+	std::wcstombs(sitedir, dir,256);
+    sf::Http::Request request(sitedir, sf::Http::Request::Get);
+    sf::Http http(siteurl);
     sf::Http::Response response = http.sendRequest(request);
-	std::string test = site;
-	std::string test2 = dir;
 
     if (response.getStatus() == sf::Http::Response::Ok){
         std::string *body = new std::string(response.getBody());
