@@ -644,18 +644,34 @@ void Game::BuildProjectionMatrix(irr::core::matrix4& mProjection, f32 left, f32 
 	mProjection[14] = znear * zfar / (znear - zfar);
 }
 void Game::SetStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, irr::gui::CGUITTFont* font, wchar_t* text) {
-	int pbuffer = 0;
-	unsigned int _width = 0, w = 0;
+	int pbuffer = 0, lsnz = 0;
+	unsigned int _width = 0, s = font->getCharDimension(L' ').Width;
 	for(int i = 0; text[i] != 0 && i < 1023; ++i) {
-		w = font->getCharDimension(text[i]).Width;
-		if(text[i] == L'\n')
-			_width = 0;
-		else if(_width > 0 && _width + w > cWidth) {
+		if (text[i] == L' ') {
+			lsnz = i;
+			if (_width + s > cWidth) {
+				dataManager.strBuffer[pbuffer++] = L'\n';
+				_width = 0;
+			}
+			else {
+				dataManager.strBuffer[pbuffer++] = L' ';
+				_width += s;
+			}
+		}
+		else if(text[i] == L'\n') {
 			dataManager.strBuffer[pbuffer++] = L'\n';
 			_width = 0;
 		}
-		_width += w;
-		dataManager.strBuffer[pbuffer++] = text[i];
+		else {
+			if((_width += font->getCharDimension(text[i]).Width) > cWidth) {
+				dataManager.strBuffer[lsnz] = L'\n';
+				_width = 0;
+				for(int j = lsnz + 1; j < i; j++) {
+					_width += font->getCharDimension(text[j]).Width;
+				}
+			}
+			dataManager.strBuffer[pbuffer++] = text[i];
+		}
 	}
 	dataManager.strBuffer[pbuffer] = 0;
 	pControl->setText(dataManager.strBuffer);
@@ -801,7 +817,7 @@ void Game::LoadConfig() {
 			BufferIO::CopyWStr(wstr, gameConf.nickname, 20);
 		} else if(!strcmp(strbuf, "gamename")) {
 			BufferIO::DecodeUTF8(valbuf, wstr);
-			BufferIO::CopyWStr(wstr, gameConf.gamename, 20);
+			BufferIO::CopyWStr(wstr, gameConf.gamename, 30);
 		} else if(!strcmp(strbuf, "lastdeck")) {
 			BufferIO::DecodeUTF8(valbuf, wstr);
 			BufferIO::CopyWStr(wstr, gameConf.lastdeck, 64);
@@ -855,7 +871,7 @@ void Game::LoadConfig() {
 }
 void Game::SaveConfig() {
 	FILE* fp = fopen("system.conf", "w");
-	fprintf(fp, "#config file\n#nickname & gamename should be less than 20 characters\n");
+	fprintf(fp, "#config file\n#nickname should be less than 20 characters and 30 for gamename \n");
 	char linebuf[256];
 	fprintf(fp, "use_d3d = %d\n", gameConf.use_d3d ? 1 : 0);
 	fprintf(fp, "antialias = %d\n", gameConf.antialias);

@@ -109,7 +109,7 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 		if(create_game) {
 			CTOS_CreateGame cscg;
 			BufferIO::CopyWStr(mainGame->ebServerName->getText(), cscg.name, 20);
-			BufferIO::CopyWStr(mainGame->ebServerPass->getText(), cscg.pass, 20);
+			BufferIO::CopyWStr(mainGame->ebServerPass->getText(), cscg.pass, 30);
 			cscg.info.rule = mainGame->cbRule->getSelected();
 			cscg.info.mode = mainGame->cbMatchMode->getSelected();
 			cscg.info.start_hand = _wtoi(mainGame->ebStartHand->getText());
@@ -125,7 +125,7 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 			CTOS_JoinGame csjg;
 			csjg.version = PRO_VERSION;
 			csjg.gameid = 0;
-			BufferIO::CopyWStr(mainGame->ebJoinPass->getText(), csjg.pass, 20);
+			BufferIO::CopyWStr(mainGame->ebJoinPass->getText(), csjg.pass, 30);
 			SendPacketToServer(CTOS_JOIN_GAME, csjg);
 		}
 		bufferevent_enable(bev, EV_READ);
@@ -3293,8 +3293,8 @@ void DuelClient::BroadcastReply(evutil_socket_t fd, short events, void * arg) {
 				hoststr.append(dataManager.GetSysString(1280));
 			else hoststr.append(dataManager.GetSysString(1281));
 			hoststr.append(L"]");
-			wchar_t gamename[20];
-			BufferIO::CopyWStr(pHP->name, gamename, 20);
+			wchar_t gamename[30];
+			BufferIO::CopyWStr(pHP->name, gamename, 30);
 			hoststr.append(gamename);
 			mainGame->lstHostList->addItem(hoststr.c_str());
 			mainGame->gMutex.Unlock();

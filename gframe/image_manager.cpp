@@ -31,8 +31,8 @@ bool ImageManager::Initial() {
 	return true;
 }
 void ImageManager::LoadSleeve(int player,wchar_t* site,wchar_t* dir) {
-	char* siteurl = new char[256];
-	char* sitedir = new char[256];
+	char siteurl[256];
+	char sitedir[256];
 	std::wcstombs(siteurl,site,256);
 	std::wcstombs(sitedir, dir,256);
     sf::Http::Request request(sitedir, sf::Http::Request::Get);

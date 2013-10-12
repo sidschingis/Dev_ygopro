@@ -57,8 +57,8 @@ void SingleDuel::JoinGame(DuelPlayer* dp, void* pdata, bool is_creater) {
 			NetServer::DisconnectPlayer(dp);
 			return;
 		}
-		wchar_t jpass[20];
-		BufferIO::CopyWStr(pkt->pass, jpass, 20);
+		wchar_t jpass[30];
+		BufferIO::CopyWStr(pkt->pass, jpass, 30);
 		if(wcscmp(jpass, pass)) {
 			STOC_ErrorMsg scem;
 			scem.msg = ERRMSG_JOINERROR;
