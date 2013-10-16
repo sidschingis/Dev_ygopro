@@ -99,7 +99,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_START_FILTER: {
 				FilterStart();
-				FilterCards();
+				FilterCards(true);
 				break;
 			}
 			case BUTTON_CATEGORY_OK: {
@@ -174,9 +174,9 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			switch(id) {
 			case SCROLL_KEYWORD: {
 				stringw filter = mainGame->ebCardName->getText();
-				if(filter.size() > 3){
+				if(filter.size() > 2){
 					FilterStart();
-					FilterCards();
+					FilterCards(false);
 				}
 				break;
 			}
@@ -602,7 +602,7 @@ void DeckBuilder::FilterStart(){
 				filter_type2 = mainGame->cbCardType2->getItemData(mainGame->cbCardType2->getSelected());
 				filter_lm = mainGame->cbLimit->getSelected();
 				if(filter_type > 1) {
-					FilterCards();
+					FilterCards(true);
 					return;
 				}
 				filter_attrib = mainGame->cbAttribute->getItemData(mainGame->cbAttribute->getSelected());
@@ -694,7 +694,8 @@ void DeckBuilder::FilterStart(){
 				}
 }
 
-void DeckBuilder::FilterCards() {
+void DeckBuilder::FilterCards(bool checkDescription) {
+	int start = GetTickCount();
 	results.clear();
 	const wchar_t* pstr = mainGame->ebCardName->getText();
 	int trycode = BufferIO::GetVal(pstr);
@@ -771,7 +772,10 @@ void DeckBuilder::FilterCards() {
 				continue;
 		}
 		if(pstr) {
-			if (!CardNameCompare(text.name, pstr) && !CardNameCompare(text.text, pstr))
+			bool ok = CardNameCompare(text.name, pstr);
+			if (!ok && checkDescription)
+				ok = CardNameCompare(text.text, pstr);
+			if (!ok)
 				continue;
 		}
 		results.push_back(ptr);
@@ -786,6 +790,8 @@ void DeckBuilder::FilterCards() {
 		mainGame->scrFilter->setPos(0);
 	}
 	std::sort(results.begin(), results.end(), ClientCard::deck_sort_lv);
+	int end = GetTickCount();
+	std::cout << "result : " << (end - start) << std::endl;
 }
 
 bool DeckBuilder::CardNameCompare(const wchar_t *sa, const wchar_t *sb)
@@ -801,6 +807,8 @@ bool DeckBuilder::CardNameCompare(const wchar_t *sa, const wchar_t *sb)
 	{
 		ca = towupper(sa[i]);
 		cb = towupper(sb[j]);
+		if (ca == '-') ca = ' ';
+		if (cb == '-') cb = ' ';
 		if (ca == cb)
 		{
 			j++;
