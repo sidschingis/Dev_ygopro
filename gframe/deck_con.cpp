@@ -695,7 +695,6 @@ void DeckBuilder::FilterStart(){
 }
 
 void DeckBuilder::FilterCards(bool checkDescription) {
-	int start = GetTickCount();
 	results.clear();
 	const wchar_t* pstr = mainGame->ebCardName->getText();
 	int trycode = BufferIO::GetVal(pstr);
@@ -790,8 +789,6 @@ void DeckBuilder::FilterCards(bool checkDescription) {
 		mainGame->scrFilter->setPos(0);
 	}
 	std::sort(results.begin(), results.end(), ClientCard::deck_sort_lv);
-	int end = GetTickCount();
-	std::cout << "result : " << (end - start) << std::endl;
 }
 
 bool DeckBuilder::CardNameCompare(const wchar_t *sa, const wchar_t *sb)
