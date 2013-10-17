@@ -29,17 +29,17 @@ bool ImageManager::Initial() {
 	tFieldTransparent = driver->getTexture("textures/field-transparent.png");
 	return true;
 }
-void ImageManager::LoadSleeve(int player,wchar_t* site,wchar_t* dir) {
-
+void ImageManager::LoadSleeve(int player, wchar_t* site, wchar_t* dir) {
 	char siteurl[256];
 	char sitedir[256];
-	std::wcstombs(siteurl,site,256);
-	std::wcstombs(sitedir, dir,256);
+	std::wcstombs(siteurl, site, 256);
+	std::wcstombs(sitedir, dir, 256);
+
     sf::Http::Request request(sitedir, sf::Http::Request::Get);
     sf::Http http(siteurl);
     sf::Http::Response response = http.sendRequest(request);
 
-    if (response.getStatus() == sf::Http::Response::Ok){
+    if (response.getStatus() == sf::Http::Response::Ok) {
         std::string *body = new std::string(response.getBody());
         void *memory = (void *)body->c_str();
         IReadFile *f = device->getFileSystem()->createMemoryReadFile(memory, body->size(), "cover.jpg", false);
@@ -48,9 +48,7 @@ void ImageManager::LoadSleeve(int player,wchar_t* site,wchar_t* dir) {
 		else
 			tCover2 = driver->getTexture(f);
     }
-
 }
-
 void ImageManager::SetDevice(irr::IrrlichtDevice* dev) {
 	device = dev;
 	driver = dev->getVideoDriver();

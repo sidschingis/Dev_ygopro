@@ -6,6 +6,6 @@ project "Irrlicht"
     flags { "NoExceptions", "NoRTTI" }
     files { "**.cpp", "**.c", "**.cxx", "**.hpp", "**.h" }
     configuration { "vs*" }
-        defines { "IRRLICHT_FAST_MATH" }
+        defines { "IRRLICHT_FAST_MATH", "UNICODE", "_UNICODE" }
     configuration { "windows" }
         links { "imm32" }
