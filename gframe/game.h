@@ -22,11 +22,11 @@ struct Config {
 	wchar_t lastip[20];
 	wchar_t lastport[10];
 	wchar_t nickname[20];
-	wchar_t gamename[30];
+	wchar_t gamename[20];
 	wchar_t lastdeck[64];
 	wchar_t textfont[256];
 	wchar_t numfont[256];
-	wchar_t roompass[20];
+	wchar_t roompass[30];
 	wchar_t lastreplay[256];
 	wchar_t lastpuzzle[256];
 	bool autoplace;
@@ -37,6 +37,7 @@ struct Config {
 	bool enablemusic;
 	int skin_index;
 	bool fullscreen;
+	bool enablesleeveloading;
 };
 
 struct DuelInfo {

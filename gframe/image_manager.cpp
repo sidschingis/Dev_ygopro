@@ -27,10 +27,10 @@ bool ImageManager::Initial() {
 	tBackGround2 = driver->getTexture("textures/bg2.jpg"); 
 	tField = driver->getTexture("textures/field.png");
 	tFieldTransparent = driver->getTexture("textures/field-transparent.png");
-	//LoadSleeve(1,L"http://ygopro.de/",L"/launcher/Covers/Test.jpg");
 	return true;
 }
 void ImageManager::LoadSleeve(int player,wchar_t* site,wchar_t* dir) {
+
 	char siteurl[256];
 	char sitedir[256];
 	std::wcstombs(siteurl,site,256);

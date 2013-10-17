@@ -800,6 +800,7 @@ void Game::LoadConfig() {
 	gameConf.enablesound = true;
 	gameConf.skin_index = -1;
 	gameConf.fullscreen = false;
+	gameConf.enablesleeveloading = true;
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -817,7 +818,7 @@ void Game::LoadConfig() {
 			BufferIO::CopyWStr(wstr, gameConf.nickname, 20);
 		} else if(!strcmp(strbuf, "gamename")) {
 			BufferIO::DecodeUTF8(valbuf, wstr);
-			BufferIO::CopyWStr(wstr, gameConf.gamename, 30);
+			BufferIO::CopyWStr(wstr, gameConf.gamename, 20);
 		} else if(!strcmp(strbuf, "lastdeck")) {
 			BufferIO::DecodeUTF8(valbuf, wstr);
 			BufferIO::CopyWStr(wstr, gameConf.lastdeck, 64);
@@ -842,7 +843,7 @@ void Game::LoadConfig() {
 			BufferIO::CopyWStr(wstr, gameConf.lastport, 20);
 		} else if(!strcmp(strbuf, "roompass")) {
 			BufferIO::DecodeUTF8(valbuf, wstr);
-			BufferIO::CopyWStr(wstr, gameConf.roompass, 20);
+			BufferIO::CopyWStr(wstr, gameConf.roompass, 30);
 		} else if(!strcmp(strbuf,"auto_card_placing")) {
 			gameConf.autoplace = atoi(valbuf) > 0;
 		} else if(!strcmp(strbuf,"random_card_placing")) {
@@ -865,13 +866,15 @@ void Game::LoadConfig() {
 		} else if(!strcmp(strbuf,"lastreplay")) {
 			BufferIO::DecodeUTF8(valbuf, wstr);
 			BufferIO::CopyWStr(wstr, gameConf.lastreplay, 256);
+		} else if(!strcmp(strbuf,"enable_sleeve_loading")) {
+			gameConf.enablesleeveloading = atoi(valbuf) > 0;
 		}
 	}
 	fclose(fp);
 }
 void Game::SaveConfig() {
 	FILE* fp = fopen("system.conf", "w");
-	fprintf(fp, "#config file\n#nickname should be less than 20 characters and 30 for gamename \n");
+	fprintf(fp, "#config file\n#nickname should be less than 20 characters and 30 for roompass \n");
 	char linebuf[256];
 	fprintf(fp, "use_d3d = %d\n", gameConf.use_d3d ? 1 : 0);
 	fprintf(fp, "antialias = %d\n", gameConf.antialias);
@@ -892,7 +895,6 @@ void Game::SaveConfig() {
 	fprintf(fp, "lastip = %s\n", linebuf);
 	BufferIO::EncodeUTF8(gameConf.lastport, linebuf);
 	fprintf(fp, "lastport = %s\n", linebuf);
-	//fprintf(fp, "auto_card_placing = %s\n", gameConf.autoplace ? 1 : 0);
 	fclose(fp);
 }
 void Game::PlayMusic(char* song, bool loop){

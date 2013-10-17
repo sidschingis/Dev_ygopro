@@ -198,7 +198,8 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		wchar_t dir[256];
 		BufferIO::CopyWStr(pkt->site, site, 256);
 		BufferIO::CopyWStr(pkt->dir, dir, 256);
-		ygo::imageManager.LoadSleeve(pkt->player,site,dir);
+		if(mainGame->gameConf.enablesleeveloading)
+			ygo::imageManager.LoadSleeve(pkt->player,site,dir);
 		break;
 	}
 	case STOC_ERROR_MSG: {
@@ -3293,8 +3294,8 @@ void DuelClient::BroadcastReply(evutil_socket_t fd, short events, void * arg) {
 				hoststr.append(dataManager.GetSysString(1280));
 			else hoststr.append(dataManager.GetSysString(1281));
 			hoststr.append(L"]");
-			wchar_t gamename[30];
-			BufferIO::CopyWStr(pHP->name, gamename, 30);
+			wchar_t gamename[20];
+			BufferIO::CopyWStr(pHP->name, gamename, 20);
 			hoststr.append(gamename);
 			mainGame->lstHostList->addItem(hoststr.c_str());
 			mainGame->gMutex.Unlock();
