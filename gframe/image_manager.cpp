@@ -108,7 +108,7 @@ irr::video::ITexture* ImageManager::GetTextureThumb(int code) {
 		irr::video::ITexture* img = driver->getTexture(file);
 		if(img == NULL) {
 			tThumb[code] = NULL;
-			return tUnknown;
+			return GetTexture(code);
 		} else {
 			tThumb[code] = img;
 			return img;
@@ -117,7 +117,7 @@ irr::video::ITexture* ImageManager::GetTextureThumb(int code) {
 	if(tit->second)
 		return tit->second;
 	else
-		return tUnknown;
+		return GetTexture(code);
 }
 irr::video::ITexture* ImageManager::GetTextureField(int code) {
 	if(code == 0)
