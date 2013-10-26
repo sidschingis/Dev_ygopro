@@ -198,8 +198,10 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		wchar_t dir[256];
 		BufferIO::CopyWStr(pkt->site, site, 256);
 		BufferIO::CopyWStr(pkt->dir, dir, 256);
+		mainGame->gMutex.Lock();
 		if(mainGame->gameConf.enablesleeveloading)
 			ygo::imageManager.LoadSleeve(pkt->player,site,dir);
+		mainGame->gMutex.Unlock();
 		break;
 	}
 	case STOC_ERROR_MSG: {

@@ -7,6 +7,13 @@
 
 namespace ygo {
 
+struct SleeveData
+{
+	int player;
+	char siteurl[256];
+	char sitedir[256];
+};
+
 class ImageManager {
 public:
 	bool Initial();
@@ -14,6 +21,7 @@ public:
 	void ClearTexture();
 	void RemoveTexture(int code);
 	void LoadSleeve(int player,wchar_t* site,wchar_t* dir);
+	void LoadPendingSleeves();
 	Mutex mutex;
 	irr::video::ITexture* GetTexture(int code);
 	irr::video::ITexture* GetTextureThumb(int code);
@@ -43,6 +51,9 @@ public:
 	irr::video::ITexture* tBackGround2;
 	irr::video::ITexture* tField;
 	irr::video::ITexture* tFieldTransparent;
+
+private:
+	std::vector<SleeveData *> pendingSleeves;
 };
 
 extern ImageManager imageManager;

@@ -29,26 +29,6 @@ bool ImageManager::Initial() {
 	tFieldTransparent = driver->getTexture("textures/field-transparent.png");
 	return true;
 }
-void ImageManager::LoadSleeve(int player, wchar_t* site, wchar_t* dir) {
-	char siteurl[256];
-	char sitedir[256];
-	std::wcstombs(siteurl, site, 256);
-	std::wcstombs(sitedir, dir, 256);
-
-    sf::Http::Request request(sitedir, sf::Http::Request::Get);
-    sf::Http http(siteurl);
-    sf::Http::Response response = http.sendRequest(request);
-
-    if (response.getStatus() == sf::Http::Response::Ok) {
-        std::string *body = new std::string(response.getBody());
-        void *memory = (void *)body->c_str();
-        IReadFile *f = device->getFileSystem()->createMemoryReadFile(memory, body->size(), "cover.jpg", false);
-        if(player == 0)
-			tCover = driver->getTexture(f);
-		else
-			tCover2 = driver->getTexture(f);
-    }
-}
 void ImageManager::SetDevice(irr::IrrlichtDevice* dev) {
 	device = dev;
 	driver = dev->getVideoDriver();
@@ -140,5 +120,41 @@ irr::video::ITexture* ImageManager::GetTextureField(int code) {
 		return tit->second;
 	else
 		return NULL;
+}
+void ImageManager::LoadSleeve(int player, wchar_t* site, wchar_t* dir)
+{
+	SleeveData *sleeve = new SleeveData;
+	sleeve->player = player;
+	std::wcstombs(sleeve->siteurl, site, 256);
+	std::wcstombs(sleeve->sitedir, dir, 256);
+	pendingSleeves.push_back(sleeve);
+}
+void ImageManager::LoadPendingSleeves()
+{
+	while (!pendingSleeves.empty())
+	{
+		SleeveData *sleeve(pendingSleeves.back());
+		pendingSleeves.pop_back();
+
+		sf::Http::Request request(sleeve->sitedir, sf::Http::Request::Get);
+		sf::Http http(sleeve->siteurl);
+		sf::Http::Response response = http.sendRequest(request);
+
+		if (response.getStatus() == sf::Http::Response::Ok)
+		{
+			std::string *body = new std::string(response.getBody());
+			void *memory = (void *)body->c_str();
+			IReadFile *f = device->getFileSystem()->createMemoryReadFile(memory, body->size(), "cover.jpg", false);
+			ITexture *texture = driver->getTexture(f);
+			if (texture)
+			{
+				if (sleeve->player == 0)
+					tCover = texture;
+				else
+					tCover2 = texture;
+			}
+		}
+		delete sleeve;
+	}
 }
 }
