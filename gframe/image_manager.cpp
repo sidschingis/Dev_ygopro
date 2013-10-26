@@ -144,7 +144,8 @@ void ImageManager::LoadPendingSleeves()
 		{
 			std::string *body = new std::string(response.getBody());
 			void *memory = (void *)body->c_str();
-			IReadFile *f = device->getFileSystem()->createMemoryReadFile(memory, body->size(), "cover.jpg", false);
+			char *fakename = sleeve->player == 0 ? "cover0.jpg" : "cover1.jpg";
+			IReadFile *f = device->getFileSystem()->createMemoryReadFile(memory, body->size(), fakename, false);
 			ITexture *texture = driver->getTexture(f);
 			if (texture)
 			{
