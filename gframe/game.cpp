@@ -306,14 +306,14 @@ bool Game::Initialize() {
 	btnPSAU->setImageScale(core::vector2df(0.5, 0.5));
 	btnPSAD = irr::gui::CGUIImageButton::addImageButton(env, rect<s32>(155, 45, 295, 185), wPosSelect, BUTTON_POS_AD);
 	btnPSAD->setImageScale(core::vector2df(0.5, 0.5));
-	btnPSAD->setImage(imageManager.tCover, rect<s32>(0, 0, 177, 254));
+	btnPSAD->setImage(imageManager.tCover[0], rect<s32>(0, 0, 177, 254));
 	btnPSDU = irr::gui::CGUIImageButton::addImageButton(env, rect<s32>(300, 45, 440, 185), wPosSelect, BUTTON_POS_DU);
 	btnPSDU->setImageScale(core::vector2df(0.5, 0.5));
 	btnPSDU->setImageRotation(270);
 	btnPSDD = irr::gui::CGUIImageButton::addImageButton(env, rect<s32>(445, 45, 585, 185), wPosSelect, BUTTON_POS_DD);
 	btnPSDD->setImageScale(core::vector2df(0.5, 0.5));
 	btnPSDD->setImageRotation(270);
-	btnPSDD->setImage(imageManager.tCover, rect<s32>(0, 0, 177, 254));
+	btnPSDD->setImage(imageManager.tCover[0], rect<s32>(0, 0, 177, 254));
 	//card select
 	wCardSelect = env->addWindow(rect<s32>(320, 100, 1000, 400), false, L"");
 	wCardSelect->getCloseButton()->setVisible(false);
@@ -554,7 +554,7 @@ void Game::MainLoop() {
 		if(dInfo.isStarted) {
 	      if(imageManager.tBackGround2)
 			driver->draw2DImage(imageManager.tBackGround2, Resize(0, 0, 1024, 640), recti(0, 0, imageManager.tBackGround->getOriginalSize().Width, imageManager.tBackGround->getOriginalSize().Height));
-		  imageManager.LoadPendingSleeves();
+		  imageManager.LoadPendingTextures();
 		  if(mainGame->showcardcode == 1 || mainGame->showcardcode == 3)
 			  Game::PlayMusic("./sound/duelwin.mp3",true);
 		  else if(mainGame->showcardcode == 2)

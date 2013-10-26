@@ -7,11 +7,19 @@
 
 namespace ygo {
 
-struct SleeveData
+enum TextureType
 {
+	SLEEVE = 0,
+	AVATAR = 1
+};
+
+struct TextureData
+{
+	TextureType type;
 	int player;
-	char siteurl[256];
-	char sitedir[256];
+	char hostname[256];
+	char filename[256];
+	char *fakename;
 };
 
 class ImageManager {
@@ -20,8 +28,8 @@ public:
 	void SetDevice(irr::IrrlichtDevice* dev);
 	void ClearTexture();
 	void RemoveTexture(int code);
-	void LoadSleeve(int player,wchar_t* site,wchar_t* dir);
-	void LoadPendingSleeves();
+	void LoadSleeve(int player, wchar_t* site, wchar_t* dir);
+	void LoadPendingTextures();
 	Mutex mutex;
 	irr::video::ITexture* GetTexture(int code);
 	irr::video::ITexture* GetTextureThumb(int code);
@@ -32,8 +40,7 @@ public:
 	std::unordered_map<int, irr::video::ITexture*> tFields;
 	irr::IrrlichtDevice* device;
 	irr::video::IVideoDriver* driver;
-	irr::video::ITexture* tCover;
-	irr::video::ITexture* tCover2;
+	irr::video::ITexture* tCover[2];
 	irr::video::ITexture* tUnknown;
 	irr::video::ITexture* tAct;
 	irr::video::ITexture* tAttack;
@@ -51,9 +58,12 @@ public:
 	irr::video::ITexture* tBackGround2;
 	irr::video::ITexture* tField;
 	irr::video::ITexture* tFieldTransparent;
+	irr::video::ITexture* tAvatar[4];
 
 private:
-	std::vector<SleeveData *> pendingSleeves;
+	ITexture* DownloadTexture(TextureData *textureData);
+	void ApplyTexture(TextureData *textureData, ITexture *texture);
+	std::vector<TextureData *> pendingTextures;
 };
 
 extern ImageManager imageManager;

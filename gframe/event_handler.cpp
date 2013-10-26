@@ -727,7 +727,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					if(selectable_cards[i + pos]->code)
 						mainGame->btnCardSelect[i]->setImage(imageManager.GetTexture(selectable_cards[i + pos]->code));
 					else
-						mainGame->btnCardSelect[i]->setImage(imageManager.tCover);
+						mainGame->btnCardSelect[i]->setImage(imageManager.tCover[0]);
 					mainGame->btnCardSelect[i]->setRelativePosition(rect<s32>(30 + i * 125, 55, 30 + 120 + i * 125, 225));
 					myswprintf(formatBuffer, L"%ls[%d]", dataManager.FormatLocation(selectable_cards[i + pos]->location),
 					           selectable_cards[i + pos]->sequence + 1);
@@ -831,7 +831,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				if(mcard->code) {
 					mainGame->ShowCardInfo(mcard->code);
 				} else {
-					mainGame->imgCard->setImage(imageManager.tCover);
+					mainGame->imgCard->setImage(imageManager.tCover[0]);
 					mainGame->stName->setText(L"");
 					mainGame->stInfo->setText(L"");
 					mainGame->stDataInfo->setText(L"");
@@ -1431,7 +1431,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 						}
 					} else {
 						mainGame->stTip->setVisible(false);
-						mainGame->imgCard->setImage(imageManager.tCover);
+						mainGame->imgCard->setImage(imageManager.tCover[0]);
 						mainGame->stName->setText(L"");
 						mainGame->stInfo->setText(L"");
 						mainGame->stDataInfo->setText(L"");

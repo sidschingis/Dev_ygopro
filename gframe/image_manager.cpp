@@ -6,8 +6,8 @@ namespace ygo {
 ImageManager imageManager;
 
 bool ImageManager::Initial() {
-	tCover = driver->getTexture("textures/cover.jpg");
-	tCover2 = driver->getTexture("textures/cover2.jpg");
+	tCover[0] = driver->getTexture("textures/cover.jpg");
+	tCover[1] = driver->getTexture("textures/cover2.jpg");
 	tUnknown = driver->getTexture("textures/unknown.jpg");
 	tAct = driver->getTexture("textures/act.png");
 	tAttack = driver->getTexture("textures/attack.png");
@@ -27,6 +27,8 @@ bool ImageManager::Initial() {
 	tBackGround2 = driver->getTexture("textures/bg2.jpg"); 
 	tField = driver->getTexture("textures/field.png");
 	tFieldTransparent = driver->getTexture("textures/field-transparent.png");
+	for (int i = 0; i < 4; ++i)
+		tAvatar[i] = NULL;
 	return true;
 }
 void ImageManager::SetDevice(irr::IrrlichtDevice* dev) {
@@ -123,39 +125,54 @@ irr::video::ITexture* ImageManager::GetTextureField(int code) {
 }
 void ImageManager::LoadSleeve(int player, wchar_t* site, wchar_t* dir)
 {
-	SleeveData *sleeve = new SleeveData;
+	TextureData *sleeve = new TextureData;
+	sleeve->type = SLEEVE;
 	sleeve->player = player;
-	std::wcstombs(sleeve->siteurl, site, 256);
-	std::wcstombs(sleeve->sitedir, dir, 256);
-	pendingSleeves.push_back(sleeve);
+	std::wcstombs(sleeve->hostname, site, 256);
+	std::wcstombs(sleeve->filename, dir, 256);
+	sleeve->fakename = player == 0 ? "cover0.jpg" : "cover1.jpg";
+	pendingTextures.push_back(sleeve);
 }
-void ImageManager::LoadPendingSleeves()
+void ImageManager::LoadPendingTextures()
 {
-	while (!pendingSleeves.empty())
+	while (!pendingTextures.empty())
 	{
-		SleeveData *sleeve(pendingSleeves.back());
-		pendingSleeves.pop_back();
-
-		sf::Http::Request request(sleeve->sitedir, sf::Http::Request::Get);
-		sf::Http http(sleeve->siteurl);
-		sf::Http::Response response = http.sendRequest(request);
-
-		if (response.getStatus() == sf::Http::Response::Ok)
-		{
-			std::string *body = new std::string(response.getBody());
-			void *memory = (void *)body->c_str();
-			char *fakename = sleeve->player == 0 ? "cover0.jpg" : "cover1.jpg";
-			IReadFile *f = device->getFileSystem()->createMemoryReadFile(memory, body->size(), fakename, false);
-			ITexture *texture = driver->getTexture(f);
-			if (texture)
-			{
-				if (sleeve->player == 0)
-					tCover = texture;
-				else
-					tCover2 = texture;
-			}
-		}
-		delete sleeve;
+		TextureData *textureData(pendingTextures.back());
+		pendingTextures.pop_back();
+		ITexture *texture = DownloadTexture(textureData);
+		if (texture)
+			ApplyTexture(textureData, texture);
+		delete textureData;
+	}
+}
+ITexture* ImageManager::DownloadTexture(TextureData *textureData)
+{
+	sf::Http::Request request(textureData->filename, sf::Http::Request::Get);
+	sf::Http http(textureData->hostname);
+	sf::Http::Response response = http.sendRequest(request);
+	
+	if (response.getStatus() == sf::Http::Response::Ok)
+	{
+		std::string *body = new std::string(response.getBody());
+		void *memory = (void *)body->c_str();
+		IReadFile *f = device->getFileSystem()->createMemoryReadFile(memory, body->size(), textureData->fakename, false);
+		ITexture *texture = driver->getTexture(f);
+		return texture;
+	}
+	return NULL;
+}
+void ImageManager::ApplyTexture(TextureData *textureData, ITexture *texture)
+{
+	switch (textureData->type)
+	{
+	case SLEEVE:
+		if (textureData->player >= 0 && textureData->player < 2)
+			tCover[textureData->player] = texture;
+		break;
+	case AVATAR:
+		if (textureData->player >= 0 && textureData->player < 4)
+			tAvatar[textureData->player] = texture;
+		break;
 	}
 }
 }

@@ -338,7 +338,7 @@ void ClientField::ShowSelectCard(bool buttonok) {
 			if(selectable_cards[i]->code)
 				mainGame->imageLoading.insert(std::make_pair(mainGame->btnCardSelect[i], selectable_cards[i]->code));
 			else
-				mainGame->btnCardSelect[i]->setImage(imageManager.tCover);
+				mainGame->btnCardSelect[i]->setImage(imageManager.tCover[0]);
 			mainGame->btnCardSelect[i]->setRelativePosition(rect<s32>(startpos + i * 125, 55, startpos + 120 + i * 125, 225));
 			mainGame->btnCardSelect[i]->setPressed(false);
 			mainGame->btnCardSelect[i]->setVisible(true);
@@ -369,7 +369,7 @@ void ClientField::ShowSelectCard(bool buttonok) {
 			if(selectable_cards[i]->code)
 				mainGame->imageLoading.insert(std::make_pair(mainGame->btnCardSelect[i], selectable_cards[i]->code));
 			else
-				mainGame->btnCardSelect[i]->setImage(imageManager.tCover);
+				mainGame->btnCardSelect[i]->setImage(imageManager.tCover[0]);
 			mainGame->btnCardSelect[i]->setRelativePosition(rect<s32>(30 + i * 125, 55, 30 + 120 + i * 125, 225));
 			mainGame->btnCardSelect[i]->setPressed(false);
 			mainGame->btnCardSelect[i]->setVisible(true);
