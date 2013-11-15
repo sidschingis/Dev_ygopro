@@ -701,18 +701,15 @@ void Game::DrawSpec() {
 
 
 	bool showChat=true;
-	if(hideChat)
-	{
+	if(hideChat) {
 	    showChat=false;
 	    hideChatTimer = 10;
 	}
-	else if (hideChatTimer > 0)
-	{
+	else if (hideChatTimer > 0) {
 	    showChat= false;
 	    hideChatTimer--;
 	}
-	int maxChatLines = mainGame->dInfo.isStarted?5:8;
-
+	int maxChatLines = mainGame->dInfo.isStarted? 5 : 8;
 	for(int i = 0; i < maxChatLines ; ++i) {
 		static unsigned int chatColor[] = {0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xff8080ff, 0xffff4040, 0xffff4040,
 						   0xffff4040,0xff40ff40,0xff4040ff,0xff40ffff,0xffff40ff,0xffffff40,0xffffffff,0xff808080,0xff404040};
@@ -720,7 +717,7 @@ void Game::DrawSpec() {
 		if(chatTiming[i]) {
 			chatTiming[i]--;
 
-			if(!showChat && i >2)
+			if(!showChat && i > 2)
                 continue;
 
 			int w = textFont->getDimension(chatMsg[i].c_str()).Width;

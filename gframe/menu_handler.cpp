@@ -135,6 +135,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->stInfo->setText(L"");
 				mainGame->stDataInfo->setText(L"");
 				mainGame->stText->setText(L"");
+				mainGame->scrCardText->setVisible(false);
 				mainGame->wReplayControl->setVisible(true);
 				mainGame->btnReplayStart->setVisible(false);
 				mainGame->btnReplayPause->setVisible(true);
