@@ -181,9 +181,9 @@ struct processor {
 	chain_list flip_chain_b;
 	chain_list new_ochain_h;
 	chain_list new_chains;
-    delayed_effect_collection delayed_quick_tmp;
-    delayed_effect_collection delayed_quick_break;
-    delayed_effect_collection delayed_quick;
+	delayed_effect_collection delayed_quick_tmp;
+	delayed_effect_collection delayed_quick_break;
+	delayed_effect_collection delayed_quick;
 	instant_f_list quick_f_chain;
 	card_set leave_confirmed;
 	card_set special_summoning;
@@ -350,7 +350,7 @@ public:
 	int32 pay_lp_cost(uint32 step, uint8 playerid, uint32 cost);
 
 	uint32 get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype);
-	int32 effect_replace_check(uint32 code, tevent& e);
+	int32 effect_replace_check(uint32 code, const tevent& e);
 	int32 get_attack_target(card* pcard, card_vector* v, uint8 chain_attack = FALSE);
 	void attack_all_target_check();
 	int32 check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max);
@@ -612,7 +612,7 @@ public:
 #define PROCESSOR_CONTROL_ADJUST	76
 #define PROCESSOR_PAY_LPCOST		80
 #define PROCESSOR_REMOVE_COUNTER	81
-#define PROCESSOR_ATTACK_DISABLE	82 
+#define PROCESSOR_ATTACK_DISABLE	82
 
 #define PROCESSOR_DESTROY_S			100
 #define PROCESSOR_RELEASE_S			101

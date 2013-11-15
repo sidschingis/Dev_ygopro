@@ -647,10 +647,10 @@ int32 scriptlib::duel_confirm_decktop(lua_State *L) {
 		pduel->write_buffer8((*cit)->current.controler);
 		pduel->write_buffer8((*cit)->current.location);
 		pduel->write_buffer8((*cit)->current.sequence);
-		cset.insert(*cit); 
+		cset.insert(*cit);
 	}
-	pduel->game_field->raise_event(&cset, EVENT_CONFIRM_DECKTOP, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, 0, 0); 
-	pduel->game_field->process_instant_event(); 
+	pduel->game_field->raise_event(&cset, EVENT_CONFIRM_DECKTOP, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, 0, 0);
+	pduel->game_field->process_instant_event();
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_confirm_cards(lua_State *L) {
@@ -692,7 +692,7 @@ int32 scriptlib::duel_confirm_cards(lua_State *L) {
 		pduel->game_field->raise_event(pcard, EVENT_CONFIRM_CARDS, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, 0, 0);
 	else
 		pduel->game_field->raise_event(&pgroup->container, EVENT_CONFIRM_CARDS, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, 0, 0);
-	pduel->game_field->process_instant_event(); 
+	pduel->game_field->process_instant_event();
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_sort_decktop(lua_State *L) {
@@ -1461,8 +1461,8 @@ int32 scriptlib::duel_get_attack_target(lua_State *L) {
 }
 int32 scriptlib::duel_disable_attack(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
-    pduel->game_field->add_process(PROCESSOR_ATTACK_DISABLE, 0, 0, 0, 0, 0);
-    return lua_yield(L, 0); 
+	pduel->game_field->add_process(PROCESSOR_ATTACK_DISABLE, 0, 0, 0, 0, 0);
+	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_chain_attack(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);

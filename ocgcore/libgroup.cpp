@@ -156,8 +156,7 @@ int32 scriptlib::group_filter(lua_State *L) {
 	group* new_group = pduel->new_group();
 	uint32 extraargs = lua_gettop(L) - 3;
 	group::card_set::iterator it;
-	auto temp = pgroup->container;
-	for (auto it = temp.begin(); it != temp.end(); ++it) {
+	for (it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
 		if((*it) != pexception && pduel->lua->check_matching(*it, 2, extraargs)) {
 			new_group->container.insert(*it);
 		}
@@ -183,7 +182,7 @@ int32 scriptlib::group_filter_count(lua_State *L) {
 		if((*it) != pexception && pduel->lua->check_matching(*it, 2, extraargs))
 			count++;
 	}
-	lua_pushinteger(L, count);;
+	lua_pushinteger(L, count);
 	return 1;
 }
 int32 scriptlib::group_filter_select(lua_State *L) {
@@ -262,8 +261,7 @@ int32 scriptlib::group_is_exists(lua_State *L) {
 	uint32 extraargs = lua_gettop(L) - 4;
 	uint32 fcount = 0;
 	uint32 result = FALSE;
-	auto temp =  pgroup->container;
-	for (auto it = temp.begin(); it != temp.end(); ++it) {
+	for (auto it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
 		if((*it) != pcard && pduel->lua->check_matching(*it, 2, extraargs)) {
 			fcount++;
 			if(fcount >= count) {
@@ -494,10 +492,7 @@ int32 scriptlib::group_merge(lua_State *L) {
 	group* mgroup = *(group**) lua_touserdata(L, 2);
 	if(pgroup->is_readonly == 1)
 		return 0;
-	group::card_set::iterator cit;
-	for (cit = mgroup->container.begin(); cit != mgroup->container.end(); ++cit) {
-		pgroup->container.insert(*cit);
-	}
+	pgroup->container.insert(mgroup->container.begin(), mgroup->container.end());
 	return 0;
 }
 int32 scriptlib::group_sub(lua_State *L) {
