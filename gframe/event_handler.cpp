@@ -742,7 +742,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 			}
 			case SCROLL_CARDTEXT: {
 				u32 pos = mainGame->scrCardText->getPos();
-				mainGame->SetStaticText(mainGame->stText, mainGame->stText->getRelativePosition().getWidth()-25, mainGame->textFont, mainGame->showingtext, pos);
+				mainGame->SetStaticText(mainGame->stText, mainGame->stText->getRelativePosition().getWidth()-30, mainGame->textFont, mainGame->showingtext, pos);
 				break;
 			}
 			break;
