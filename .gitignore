@@ -3,3 +3,8 @@ obj
 build
 *.o
 *.dll
+*.vcxproj*
+*.sln
+*.sdf
+*.opensdf*
+*.suo
