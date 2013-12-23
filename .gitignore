@@ -1,6 +1,7 @@
 bin
 obj
 build
+release
 *.o
 *.dll
 *.vcxproj*
