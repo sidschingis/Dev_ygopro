@@ -390,9 +390,11 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 		core.operated_set = drawed_set->container;
 		delete drawed_set;
 		returns.ivalue[0] = count;
+		shuffle(playerid, LOCATION_HAND);
 		return TRUE;
 	}
 	}
+	shuffle(playerid, LOCATION_HAND);
 	return TRUE;
 }
 int32 field::damage(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, card* reason_card, uint8 playerid, uint32 amount) {
