@@ -2584,6 +2584,12 @@ int32 field::process_idle_command(uint16 step) {
 		core.units.begin()->step = 10;
 		return FALSE;
 	}
+	//test	
+	case 13: {
+		//shuffle(core.units.begin()->arg1,LOCATION_HAND);
+		shuffle(0,LOCATION_HAND);
+		return TRUE;
+	}
 	}
 	return TRUE;
 }

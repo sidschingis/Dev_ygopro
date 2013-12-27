@@ -243,6 +243,8 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 7;
 			count = BufferIO::ReadInt8(pbuf);
+			pbuf += count * 7;
+			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 11 + 2;
 			ReplayRefresh();
 			return ReadReplayResponse();

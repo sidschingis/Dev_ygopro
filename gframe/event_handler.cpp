@@ -463,6 +463,13 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				ShowSelectCard(true);
 				break;
 			}
+			case BUTTON_CMD_SHUFFLE: {
+				if (mainGame->dInfo.curMsg == MSG_SELECT_IDLECMD) {
+					DuelClient::SetResponseI(6);
+					DuelClient::SendResponse();
+				}
+				break;
+			}
 			case BUTTON_BP: {
 				if(mainGame->dInfo.curMsg == MSG_SELECT_IDLECMD) {
 					DuelClient::SetResponseI(6);
@@ -1624,7 +1631,13 @@ void ClientField::ShowMenu(int flag, int x, int y) {
 		mainGame->wCmdMenu->setVisible(false);
 		return;
 	}
-	int height = 1;
+	int height = 1;	
+	if (flag & COMMAND_SHUFFLE) {
+		mainGame->btnShuffle->setVisible(true);
+		mainGame->btnShuffle->setRelativePosition(position2di(1, height));
+		height += 21;
+	}
+	else mainGame->btnShuffle->setVisible(false);
 	if(flag & COMMAND_ACTIVATE) {
 		mainGame->btnActivate->setVisible(true);
 		mainGame->btnActivate->setRelativePosition(position2di(1, height));
