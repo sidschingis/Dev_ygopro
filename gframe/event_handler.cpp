@@ -465,7 +465,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_CMD_SHUFFLE: {
 				if (mainGame->dInfo.curMsg == MSG_SELECT_IDLECMD) {
-					DuelClient::SetResponseI(6);
+					DuelClient::SetResponseI(8);
 					DuelClient::SendResponse();
 				}
 				break;
