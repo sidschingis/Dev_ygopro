@@ -2487,7 +2487,7 @@ int32 field::process_idle_command(uint16 step) {
 		} else if (ctype == 8){
 			shuffle(0, LOCATION_HAND);
 			core.units.begin()->step = -1;
-			return TRUE;
+			return FALSE;
 		} else {
 			core.units.begin()->step = 9;
 			pduel->write_buffer8(MSG_HINT);
