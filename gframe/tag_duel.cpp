@@ -570,6 +570,8 @@ int TagDuel::Analyze(char* msgbuffer, unsigned int len) {
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 7;
 			count = BufferIO::ReadInt8(pbuf);
+			pbuf += count * 7;
+			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 11 + 2;
 			RefreshMzone(0);
 			RefreshMzone(1);
