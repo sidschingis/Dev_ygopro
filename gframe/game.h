@@ -110,6 +110,7 @@ public:
 	void PlayMusic(char* song, bool loop);
 	void PlaySound(char* sound);
 
+	int shufflecount;
 	int LocalPlayer(int player);
 	const wchar_t* LocalName(int local_player);
 	
