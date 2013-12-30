@@ -974,15 +974,17 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		int code, desc, count, con, loc, seq;
 		ClientCard* pcard;	
 		mainGame->dField.shuffle_cards.clear();
-		count = BufferIO::ReadInt8(pbuf);
-		for (int i = 0; i < count; ++i) {
-			code = BufferIO::ReadInt32(pbuf);
-			con = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
-			loc = BufferIO::ReadInt8(pbuf);
-			seq = BufferIO::ReadInt8(pbuf);
-			pcard = mainGame->dField.GetCard(con, loc, seq);
-			mainGame->dField.shuffle_cards.push_back(pcard);
-			pcard->cmdFlag |= COMMAND_SHUFFLE;
+		if(!mainGame->gameConf.checkmatemode) {
+			count = BufferIO::ReadInt8(pbuf);
+			for (int i = 0; i < count; ++i) {
+				code = BufferIO::ReadInt32(pbuf);
+				con = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
+				loc = BufferIO::ReadInt8(pbuf);
+				seq = BufferIO::ReadInt8(pbuf);
+				pcard = mainGame->dField.GetCard(con, loc, seq);
+				mainGame->dField.shuffle_cards.push_back(pcard);
+				pcard->cmdFlag |= COMMAND_SHUFFLE;
+			}
 		}
 		mainGame->dField.summonable_cards.clear();
 		count = BufferIO::ReadInt8(pbuf);
