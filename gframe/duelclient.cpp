@@ -1066,11 +1066,10 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->btnEP->setEnabled(true);
 			mainGame->btnEP->setPressed(false);
 		}
-		if(!mainGame->gameConf.checkmatemode) {
-			if(BufferIO::ReadInt8(pbuf))
-				mainGame->canShuffle = true;
-			else
-				mainGame->canShuffle = false;
+		if(BufferIO::ReadInt8(pbuf)) {
+			mainGame->canShuffle = true;
+		} else {
+			mainGame->canShuffle = false;
 		}
 		return false;
 	}

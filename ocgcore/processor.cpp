@@ -2484,10 +2484,10 @@ int32 field::process_idle_command(uint16 step) {
 		} else if(ctype == 4) {
 			core.units.begin()->step = 8;
 			return FALSE;
-		} else if (ctype == 8){
-			infos.shuffle_count++;
-			shuffle(0, LOCATION_HAND);
+		} else if(ctype == 8) {
 			core.units.begin()->step = -1;
+			shuffle(infos.turn_player, LOCATION_HAND);
+			infos.shuffle_count++;
 			return FALSE;
 		} else {
 			core.units.begin()->step = 9;

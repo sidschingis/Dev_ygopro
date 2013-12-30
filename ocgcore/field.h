@@ -109,10 +109,10 @@ struct field_info {
 	int16 copy_id;
 	int16 turn_id;
 	int16 card_id;
-	int16 shuffle_count;
 	uint8 phase;
 	uint8 turn_player;
 	uint8 priorities[2];
+	uint8 shuffle_count;
 };
 struct lpcost {
 	int32 count;
