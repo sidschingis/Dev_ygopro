@@ -973,19 +973,6 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		/*int selecting_player = */BufferIO::ReadInt8(pbuf);
 		int code, desc, count, con, loc, seq;
 		ClientCard* pcard;	
-		mainGame->dField.shuffle_cards.clear();
-		if(!mainGame->gameConf.checkmatemode) {
-			count = BufferIO::ReadInt8(pbuf);
-			for (int i = 0; i < count; ++i) {
-				code = BufferIO::ReadInt32(pbuf);
-				con = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
-				loc = BufferIO::ReadInt8(pbuf);
-				seq = BufferIO::ReadInt8(pbuf);
-				pcard = mainGame->dField.GetCard(con, loc, seq);
-				mainGame->dField.shuffle_cards.push_back(pcard);
-				pcard->cmdFlag |= COMMAND_SHUFFLE;
-			}
-		}
 		mainGame->dField.summonable_cards.clear();
 		count = BufferIO::ReadInt8(pbuf);
 		for (int i = 0; i < count; ++i) {
@@ -1078,6 +1065,12 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->btnEP->setVisible(true);
 			mainGame->btnEP->setEnabled(true);
 			mainGame->btnEP->setPressed(false);
+		}
+		if(!mainGame->gameConf.checkmatemode) {
+			if(BufferIO::ReadInt8(pbuf))
+				mainGame->canShuffle = true;
+			else
+				mainGame->canShuffle = false;
 		}
 		return false;
 	}

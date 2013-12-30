@@ -29,7 +29,6 @@ public:
 	std::vector<ClientCard*> remove[2];
 	std::vector<ClientCard*> extra[2];
 	std::set<ClientCard*> overlay_cards;
-	std::vector<ClientCard*> shuffle_cards;
 	std::vector<ClientCard*> summonable_cards;
 	std::vector<ClientCard*> spsummonable_cards;
 	std::vector<ClientCard*> msetable_cards;

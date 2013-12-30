@@ -297,8 +297,6 @@ void ClientField::ClearCommandFlag() {
 	std::vector<ClientCard*>::iterator cit;
 	for(cit = activatable_cards.begin(); cit != activatable_cards.end(); ++cit)
 		(*cit)->cmdFlag = 0;
-	for (cit = shuffle_cards.begin(); cit != shuffle_cards.end(); ++cit)
-		(*cit)->cmdFlag = 0;
 	for(cit = summonable_cards.begin(); cit != summonable_cards.end(); ++cit)
 		(*cit)->cmdFlag = 0;
 	for(cit = spsummonable_cards.begin(); cit != spsummonable_cards.end(); ++cit)
