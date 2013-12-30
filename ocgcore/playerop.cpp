@@ -74,14 +74,18 @@ int32 field::select_idle_command(uint16 step, uint8 playerid) {
 		pduel->write_buffer8(MSG_SELECT_IDLECMD);
 		pduel->write_buffer8(playerid);
 		//shuffle
-		pduel->write_buffer8(player[(uint32)playerid].list_hand.size());
-		for (i = 0; i < player[(uint32)playerid].list_hand.size(); ++i) {
-			pcard = player[(uint32)playerid].list_hand[i];
-			pduel->write_buffer32(pcard->data.code);
-			pduel->write_buffer8(pcard->current.controler);
-			pduel->write_buffer8(pcard->current.location);
-			pduel->write_buffer8(pcard->current.sequence);
+		if(infos.shuffle_count <5 && player[(uint32)playerid].list_hand.size() > 1){
+			pduel->write_buffer8(player[(uint32)playerid].list_hand.size());
+			for (i = 0; i < player[(uint32)playerid].list_hand.size(); ++i) {
+				pcard = player[(uint32)playerid].list_hand[i];
+				pduel->write_buffer32(pcard->data.code);
+				pduel->write_buffer8(pcard->current.controler);
+				pduel->write_buffer8(pcard->current.location);
+				pduel->write_buffer8(pcard->current.sequence);
+			}
 		}
+		else
+			pduel->write_buffer8(0);
 		//idle summon
 		pduel->write_buffer8(core.summonable_cards.size());
 		for(i = 0; i < core.summonable_cards.size(); ++i) {

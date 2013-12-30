@@ -61,7 +61,6 @@ bool Game::Initialize() {
 		}
 	}
 
-	shufflecount = 0;
 	linePattern = 0x0f0f;
 	waitFrame = 0;
 	signalFrame = 0;

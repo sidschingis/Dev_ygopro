@@ -27,6 +27,7 @@ field::field(duel* pduel) {
 	infos.copy_id = 1;
 	infos.turn_player = 0;
 	infos.turn_id = 0;
+	infos.shuffle_count = 0;
 	infos.field_id = 1;
 	infos.card_id = 1;
 	for (int i = 0; i < 2; ++i) {

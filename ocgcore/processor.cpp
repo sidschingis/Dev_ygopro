@@ -2485,6 +2485,7 @@ int32 field::process_idle_command(uint16 step) {
 			core.units.begin()->step = 8;
 			return FALSE;
 		} else if (ctype == 8){
+			infos.shuffle_count++;
 			shuffle(0, LOCATION_HAND);
 			core.units.begin()->step = -1;
 			return FALSE;
@@ -2576,6 +2577,7 @@ int32 field::process_idle_command(uint16 step) {
 	}
 	case 11: {
 		returns.ivalue[0] = core.units.begin()->arg1;
+		infos.shuffle_count = 0;
 		return TRUE;
 	}
 	case 12: {
