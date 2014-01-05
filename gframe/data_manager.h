@@ -28,11 +28,14 @@ public:
 	const wchar_t* FormatAttribute(int attribute);
 	const wchar_t* FormatRace(int race);
 	const wchar_t* FormatType(int type);
+	const std::vector<wchar_t*> GetSetcodeList();
+	const unsigned int GetSetcode(wchar_t* name);
 
 	std::unordered_map<unsigned int, CardDataC> _datas;
 	std::unordered_map<unsigned int, CardString> _strings;
 	std::unordered_map<unsigned int, wchar_t*> _counterStrings;
 	std::unordered_map<unsigned int, wchar_t*> _victoryStrings;
+	std::unordered_map<wchar_t*, unsigned int> _setcodeStrings;
 
 	wchar_t* _sysStrings[2048];
 	wchar_t numStrings[256][4];

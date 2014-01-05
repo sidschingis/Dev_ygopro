@@ -369,6 +369,7 @@ public:
 	irr::gui::IGUIStaticText* stLabel8;
 	irr::gui::IGUIStaticText* stLabel9;
 	irr::gui::IGUIStaticText* stLabel10;
+	irr::gui::IGUIStaticText* stLabel11;
 	//filter
 	irr::gui::IGUIStaticText* wFilter;
 	irr::gui::IGUIScrollBar* scrFilter;
@@ -386,6 +387,7 @@ public:
 	irr::gui::IGUIWindow* wCategories;
 	irr::gui::IGUICheckBox* chkCategory[32];
 	irr::gui::IGUIButton* btnCategoryOK;
+	irr::gui::IGUIComboBox* cbSetCode;
 	//replay save
 	irr::gui::IGUIWindow* wReplaySave;
 	irr::gui::IGUIEditBox* ebRSName;

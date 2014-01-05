@@ -82,23 +82,29 @@ bool DataManager::LoadStrings(const char* file) {
 			continue;
 		sscanf(linebuf, "!%s", strbuf);
 		if(!strcmp(strbuf, "system")) {
-			sscanf(&linebuf[7], "%d %s", &value, strbuf);
+			sscanf(&linebuf[7], "%d %99[^\n]", &value, strbuf);
 			int len = BufferIO::DecodeUTF8(strbuf, strBuffer);
 			wchar_t* pbuf = new wchar_t[len + 1];
 			wcscpy(pbuf, strBuffer);
 			_sysStrings[value] = pbuf;
 		} else if(!strcmp(strbuf, "victory")) {
-			sscanf(&linebuf[8], "%x %s", &value, strbuf);
+			sscanf(&linebuf[8], "%x %99[^\n]", &value, strbuf);
 			int len = BufferIO::DecodeUTF8(strbuf, strBuffer);
 			wchar_t* pbuf = new wchar_t[len + 1];
 			wcscpy(pbuf, strBuffer);
 			_victoryStrings[value] = pbuf;
 		} else if(!strcmp(strbuf, "counter")) {
-			sscanf(&linebuf[8], "%x %s", &value, strbuf);
+			sscanf(&linebuf[8], "%x %99[^\n]", &value, strbuf);
 			int len = BufferIO::DecodeUTF8(strbuf, strBuffer);
 			wchar_t* pbuf = new wchar_t[len + 1];
 			wcscpy(pbuf, strBuffer);
 			_counterStrings[value] = pbuf;
+		} else if (!strcmp(strbuf, "setcode")) {
+			sscanf(&linebuf[8], "%x %99[^\n]", &value, strbuf);
+			int len = BufferIO::DecodeUTF8(strbuf, strBuffer);
+			wchar_t* pbuf = new wchar_t[len + 1];
+			wcscpy(pbuf, strBuffer);
+			_setcodeStrings[pbuf] = value;
 		}
 	}
 	fclose(fp);
@@ -181,6 +187,20 @@ const wchar_t* DataManager::GetCounterName(int code) {
 }
 const wchar_t* DataManager::GetNumString(int num) {
 	return numStrings[num];
+}
+const unsigned int DataManager::GetSetcode(wchar_t* name) {
+	auto csit = _setcodeStrings.find(name);
+	if (csit == _setcodeStrings.end())
+		return 0;
+	return csit->second;
+}
+const std::vector<wchar_t*> DataManager::GetSetcodeList() {
+	std::vector<wchar_t*> keys;
+	keys.reserve(_setcodeStrings.size());
+	for (auto kv : _setcodeStrings) {
+		keys.push_back(kv.first);
+	}
+	return keys;
 }
 const wchar_t* DataManager::FormatLocation(int location) {
 	int filter = 1, i = 1000;

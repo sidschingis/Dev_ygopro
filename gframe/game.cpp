@@ -380,7 +380,7 @@ bool Game::Initialize() {
 	btnSummon = env->addButton(rect<s32>(1, 22, 99, 42), wCmdMenu, BUTTON_CMD_SUMMON, dataManager.GetSysString(1151));
 	btnSPSummon = env->addButton(rect<s32>(1, 43, 99, 63), wCmdMenu, BUTTON_CMD_SPSUMMON, dataManager.GetSysString(1152));
 	btnMSet = env->addButton(rect<s32>(1, 64, 99, 84), wCmdMenu, BUTTON_CMD_MSET, dataManager.GetSysString(1153));
-	btnSSet = env->addButton(rect<s32>(1, 85, 99, 105), wCmdMenu, BUTTON_CMD_SSET, dataManager.GetSysString(1159));
+	btnSSet = env->addButton(rect<s32>(1, 106, 99, 126), wCmdMenu, BUTTON_CMD_SSET, dataManager.GetSysString(1159));
 	btnRepos = env->addButton(rect<s32>(1, 106, 99, 126), wCmdMenu, BUTTON_CMD_REPOS, dataManager.GetSysString(1154));
 	btnAttack = env->addButton(rect<s32>(1, 127, 99, 147), wCmdMenu, BUTTON_CMD_ATTACK, dataManager.GetSysString(1157));
 	btnShowList = env->addButton(rect<s32>(1, 148, 99, 168), wCmdMenu, BUTTON_CMD_SHOWLIST, dataManager.GetSysString(1158));
@@ -448,8 +448,8 @@ bool Game::Initialize() {
 	ebCardName = env->addEditBox(L"", rect<s32>(260, 72, 390, 92), true, wFilter, EDITBOX_KEYWORD);
 	ebCardName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	btnEffectFilter = env->addButton(rect<s32>(345, 28, 390, 69), wFilter, BUTTON_EFFECT_FILTER, dataManager.GetSysString(1326));
-	btnStartFilter = env->addButton(rect<s32>(210, 96, 390, 118), wFilter, BUTTON_START_FILTER, dataManager.GetSysString(1327));
-	btnClearFilter = env->addButton(rect<s32>(155, 96, 205, 118), wFilter, BUTTON_CLEAR_FILTER, dataManager.GetSysString(1304));
+	btnStartFilter = env->addButton(rect<s32>(260, 96, 390, 118), wFilter, BUTTON_START_FILTER, dataManager.GetSysString(1327));
+	btnClearFilter = env->addButton(rect<s32>(205, 96, 255, 118), wFilter, BUTTON_CLEAR_FILTER, dataManager.GetSysString(1304));
 	wCategories = env->addWindow(rect<s32>(450, 60, 1000, 270), false, dataManager.strBuffer);
 	wCategories->getCloseButton()->setVisible(false);
 	wCategories->setDrawTitlebar(false);
@@ -462,6 +462,11 @@ bool Game::Initialize() {
 	scrFilter->setLargeStep(10);
 	scrFilter->setSmallStep(1);
 	scrFilter->setVisible(false);
+	cbSetCode = env->addComboBox(rect<s32>(60, 96, 190, 118), wFilter, -1);
+	cbSetCode->addItem(L"None", 0);
+	for (auto setcode : dataManager.GetSetcodeList())
+		cbSetCode->addItem(setcode, dataManager.GetSetcode(setcode));
+	stLabel11 = env->addStaticText(dataManager.GetSysString(1393), rect<s32>(10, 100, 70, 122), false, false, wFilter);
 	//replay window
 	wReplay = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1202));
 	wReplay->getCloseButton()->setVisible(false);
@@ -1141,8 +1146,10 @@ void Game::OnResize()
 	ebDefence->setRelativePosition(Resize(260, 49, 340, 69));
 	ebCardName->setRelativePosition(Resize(260, 72, 390, 92));
 	btnEffectFilter->setRelativePosition(Resize(345, 28, 390, 69));
-	btnStartFilter->setRelativePosition(Resize(210, 96, 390, 118));
-	btnClearFilter->setRelativePosition(Resize(155, 96, 205, 118));
+	btnStartFilter->setRelativePosition(Resize(260, 96, 390, 118));
+	btnClearFilter->setRelativePosition(Resize(205, 96, 255, 118));
+	cbSetCode->setRelativePosition(Resize(60, 96, 190, 118));
+	stLabel11->setRelativePosition(Resize(10, 100, 70, 122));
 	
 	stLabel1->setRelativePosition(ResizeWin(10, 9, 100, 29));
 	stLabel2->setRelativePosition(ResizeWin(10, 39, 100, 59));

@@ -26,6 +26,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				mainGame->cbAttribute->setSelected(0);
 				mainGame->cbRace->setSelected(0);
 				mainGame->cbLimit->setSelected(0);
+				mainGame->cbSetCode->setSelected(0);
 				mainGame->ebAttack->setText(L"");
 				mainGame->ebDefence->setText(L"");
 				mainGame->ebStar->setText(L"");
@@ -617,6 +618,7 @@ void DeckBuilder::FilterStart(){
 				}
 				filter_attrib = mainGame->cbAttribute->getItemData(mainGame->cbAttribute->getSelected());
 				filter_race = mainGame->cbRace->getItemData(mainGame->cbRace->getSelected());
+				filter_setcode = mainGame->cbSetCode->getItemData(mainGame->cbSetCode->getSelected());
 				const wchar_t* pstr = mainGame->ebAttack->getText();
 				if(*pstr == 0) filter_atktype = 0;
 				else {
@@ -770,6 +772,12 @@ void DeckBuilder::FilterCards(bool checkDescription) {
 		}
 		if(filter_effect && !(data.category & filter_effect))
 			continue;
+		if (filter_setcode && filter_setcode != 0) {
+			uint32 setcode = data.setcode & 0xffff;
+			uint32 othersetcode = data.setcode >> 16;
+			if (setcode != filter_setcode && othersetcode != filter_setcode)
+				continue;
+		}
 		if(filter_lm) {
 			if(filter_lm <= 3 && (!filterList->count(ptr->first) || (*filterList)[ptr->first] != filter_lm - 1))
 				continue;
