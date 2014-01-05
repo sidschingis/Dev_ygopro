@@ -15,7 +15,7 @@
 #include <dirent.h>
 #endif
 
-const unsigned short PRO_VERSION = 0x1323;
+const unsigned short PRO_VERSION = 0x1322;
 
 namespace ygo {
 
@@ -75,6 +75,7 @@ bool Game::Initialize() {
 	memset(chatTiming, 0, sizeof(chatTiming));
 	deckManager.LoadLFList();
 	driver = device->getVideoDriver();
+	driver->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS, false);
 	driver->setTextureCreationFlag(irr::video::ETCF_OPTIMIZED_FOR_QUALITY, true);
 	imageManager.SetDevice(device);
 	if(!imageManager.Initial())
