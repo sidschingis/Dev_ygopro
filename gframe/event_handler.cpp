@@ -980,7 +980,8 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					if(clicked_card->overlayed.size())
 						command_flag |= COMMAND_LIST;
 					list_command = 0;
-					if(hovered_location & LOCATION_HAND && mainGame->canShuffle)
+					if(hovered_location & LOCATION_HAND && mainGame->canShuffle
+						&& mainGame->dInfo.curMsg == MSG_SELECT_IDLECMD)
 						command_flag |= COMMAND_SHUFFLE;
 					ShowMenu(command_flag, x, y);
 					break;
