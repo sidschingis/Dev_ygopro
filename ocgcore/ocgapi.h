@@ -11,7 +11,7 @@
 #include "common.h"
 #ifdef DLL
 #include <windows.h>
-#define DECL_DLLEXPORT 
+#define DECL_DLLEXPORT __declspec(dllexport)
 #elif _WIN32
 #include <windows.h>
 #define DECL_DLLEXPORT __declspec(dllexport)
