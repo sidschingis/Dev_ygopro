@@ -197,9 +197,9 @@ const unsigned int DataManager::GetSetcode(wchar_t* name) {
 const std::vector<wchar_t*> DataManager::GetSetcodeList() {
 	std::vector<wchar_t*> keys;
 	keys.reserve(_setcodeStrings.size());
-	for (auto kv : _setcodeStrings) {
-		keys.push_back(kv.first);
-	}
+	for(std::unordered_map<wchar_t*, unsigned int>::iterator it = _setcodeStrings.begin(); 
+        it != _setcodeStrings.end(); ++it)
+			keys.push_back(it->first);
 	return keys;
 }
 const wchar_t* DataManager::FormatLocation(int location) {

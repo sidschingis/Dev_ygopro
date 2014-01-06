@@ -464,8 +464,9 @@ bool Game::Initialize() {
 	scrFilter->setVisible(false);
 	cbSetCode = env->addComboBox(rect<s32>(60, 96, 190, 118), wFilter, -1);
 	cbSetCode->addItem(L"None", 0);
-	for (auto setcode : dataManager.GetSetcodeList())
-		cbSetCode->addItem(setcode, dataManager.GetSetcode(setcode));
+	std::vector<wchar_t*> setcodes = dataManager.GetSetcodeList();
+	for (int i = 0; i < (int)setcodes.size(); ++i)
+		cbSetCode->addItem(setcodes[i], dataManager.GetSetcode(setcodes[i]));
 	stLabel11 = env->addStaticText(dataManager.GetSysString(1393), rect<s32>(10, 100, 70, 122), false, false, wFilter);
 	//replay window
 	wReplay = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1202));
