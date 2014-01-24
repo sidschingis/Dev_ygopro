@@ -38,7 +38,6 @@ struct Config {
 	int skin_index;
 	bool fullscreen;
 	bool enablesleeveloading;
-	bool checkmatemode;
 };
 
 struct DuelInfo {

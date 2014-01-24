@@ -836,7 +836,6 @@ void Game::LoadConfig() {
 	gameConf.skin_index = -1;
 	gameConf.fullscreen = false;
 	gameConf.enablesleeveloading = true;
-	gameConf.checkmatemode = false;
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -904,8 +903,6 @@ void Game::LoadConfig() {
 			BufferIO::CopyWStr(wstr, gameConf.lastreplay, 256);
 		} else if(!strcmp(strbuf,"enable_sleeve_loading")) {
 			gameConf.enablesleeveloading = atoi(valbuf) > 0;
-		} else if(!strcmp(strbuf,"checkmate_mode")) {
-			gameConf.checkmatemode = atoi(valbuf) > 0;
 		}
 	}
 	fclose(fp);
