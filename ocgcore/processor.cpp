@@ -480,8 +480,8 @@ int32 field::process() {
 			card* attacker = core.attacker;
 			if(!attacker
 			        || (attacker->fieldid_r != core.pre_field[0])
-					|| (attacker->current.position & POS_FACEDOWN)
-					|| (attacker->current.position & POS_DEFENCE && !(attacker->is_affected_by_effect(EFFECT_DEFENCE_ATTACK)))
+			        || (attacker->current.position & POS_FACEDOWN)
+			        || ((attacker->current.position & POS_DEFENCE) && !(attacker->is_affected_by_effect(EFFECT_DEFENCE_ATTACK)))
 			        || attacker->is_affected_by_effect(EFFECT_ATTACK_DISABLED)
 			        || !attacker->is_affect_by_effect(core.reason_effect)) {
 				returns.ivalue[0] = 0;
@@ -1934,14 +1934,53 @@ int32 field::process_quick_effect(int16 step, int32 special, uint8 priority) {
 		core.ntpchain.clear();
 		if(!core.quick_f_chain.size())
 			return FALSE;
+		bool act = true;
 		for(auto ifit = core.quick_f_chain.begin(); ifit != core.quick_f_chain.end(); ++ifit) {
 			peffect = ifit->first;
 			if(peffect->is_chainable(ifit->second.triggering_player) && peffect->handler->is_has_relation(peffect)) {
-				if(ifit->second.triggering_player == infos.turn_player)
-					core.tpchain.push_back(ifit->second);
-				else
-					core.ntpchain.push_back(ifit->second);
-				peffect->handler->set_status(STATUS_CHAINING, TRUE);
+				if (ifit->second.triggering_player == infos.turn_player){
+					act = true;
+					if (peffect->flag & EFFECT_FLAG_CHAIN_UNIQUE) {
+						for (auto cait = core.tpchain.begin(); cait != core.tpchain.end(); ++cait) {
+							if (cait->triggering_effect->handler->data.code == peffect->handler->data.code) {
+								act = false;
+								break;
+							}
+						}
+						for (auto cait = core.current_chain.begin(); cait != core.current_chain.end(); ++cait) {
+							if ((cait->triggering_effect->handler->data.code == peffect->handler->data.code)
+							        && (cait->triggering_player == infos.turn_player)) {
+								act = false;
+								break;
+							}
+						}
+					}
+					if (act){
+						core.tpchain.push_back(ifit->second);
+						peffect->handler->set_status(STATUS_CHAINING, TRUE);
+					}
+				} else {
+					act = true;
+					if (peffect->flag & EFFECT_FLAG_CHAIN_UNIQUE) {
+						for (auto cait = core.ntpchain.begin(); cait != core.ntpchain.end(); ++cait) {
+							if (cait->triggering_effect->handler->data.code == peffect->handler->data.code) {
+								act = false;
+								break;
+							}
+						}
+						for (auto cait = core.current_chain.begin(); cait != core.current_chain.end(); ++cait) {
+							if ((cait->triggering_effect->handler->data.code == peffect->handler->data.code)
+							        && (cait->triggering_player != infos.turn_player)) {
+								act = false;
+								break;
+							}
+						}
+					}
+					if (act){
+						core.ntpchain.push_back(ifit->second);
+						peffect->handler->set_status(STATUS_CHAINING, TRUE);
+					}
+				}
 			}
 		}
 		core.quick_f_chain.clear();
@@ -2106,7 +2145,7 @@ int32 field::process_quick_effect(int16 step, int32 special, uint8 priority) {
 		return FALSE;
 	}
 	case 2: {
-		if(core.select_chains.size() && returns.ivalue[0] >= 0) {
+		if(core.select_chains.size() && returns.ivalue[0] != -1) {
 			chain newchain = core.select_chains[returns.ivalue[0]];
 			core.new_chains.push_back(newchain);
 			core.delayed_quick.erase(make_pair(newchain.triggering_effect, newchain.evt));

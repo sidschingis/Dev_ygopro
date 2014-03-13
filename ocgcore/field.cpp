@@ -811,8 +811,9 @@ void field::reset_chain() {
 void field::filter_field_effect(uint32 code, effect_set* eset, uint8 sort) {
 	effect* peffect;
 	auto rg = effects.aura_effect.equal_range(code);
-	for (; rg.first != rg.second; ++rg.first) {
+	for (; rg.first != rg.second; ) {
 		peffect = rg.first->second;
+		++rg.first;
 		if (peffect->is_available())
 			eset->add_item(peffect);
 	}
@@ -1503,6 +1504,12 @@ void field::attack_all_target_check() {
 }
 int32 field::check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max) {
 	card* tuner;
+	if(core.global_flag & GLOBALFLAG_MUST_BE_SMATERIAL) {
+		effect_set eset;
+		filter_player_effect(pcard->current.controler, EFFECT_MUST_BE_SMATERIAL, &eset);
+		if(eset.count)
+			return check_tuner_material(pcard, eset[0]->handler, findex1, findex2, min, max);
+	}
 	for(uint8 p = 0; p < 2; ++p) {
 		for(int32 i = 0; i < 5; ++i) {
 			tuner = player[p].list_mzone[i];

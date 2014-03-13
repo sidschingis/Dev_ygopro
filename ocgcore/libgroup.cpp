@@ -261,8 +261,7 @@ int32 scriptlib::group_is_exists(lua_State *L) {
 	uint32 extraargs = lua_gettop(L) - 4;
 	uint32 fcount = 0;
 	uint32 result = FALSE;
-	auto temp =  pgroup->container;
-	for (auto it = temp.begin(); it != temp.end(); ++it) {
+	for (auto it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
 		if((*it) != pcard && pduel->lua->check_matching(*it, 2, extraargs)) {
 			fcount++;
 			if(fcount >= count) {

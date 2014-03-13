@@ -964,6 +964,14 @@ int32 field::control_adjust(uint16 step) {
 		return FALSE;
 	}
 	case 2: {
+		for(auto cit = core.control_adjust_set[0].begin(); cit != core.control_adjust_set[0].end(); ++cit) {
+			if((*cit)->unique_code)
+				remove_unique_card(*cit);
+		}
+		for(auto cit = core.control_adjust_set[1].begin(); cit != core.control_adjust_set[1].end(); ++cit) {
+			if((*cit)->unique_code)
+				remove_unique_card(*cit);
+		}
 		auto cit1 = core.control_adjust_set[0].begin();
 		auto cit2 = core.control_adjust_set[1].begin();
 		while(cit1 != core.control_adjust_set[0].end() && cit2 != core.control_adjust_set[1].end()) {
@@ -1009,6 +1017,8 @@ int32 field::control_adjust(uint16 step) {
 		core.control_adjust_set[0].insert(core.control_adjust_set[1].begin(), core.control_adjust_set[1].end());
 		for(auto cit = core.control_adjust_set[0].begin(); cit != core.control_adjust_set[0].end(); ++cit) {
 			(*cit)->filter_disable_related_cards();
+			if((*cit)->unique_code)
+				add_unique_card(*cit);
 			raise_single_event((*cit), 0, EVENT_CONTROL_CHANGED, 0, REASON_RULE, 0, 0, 0);
 		}
 		raise_event(&core.control_adjust_set[0], EVENT_CONTROL_CHANGED, 0, 0, 0, 0, 0);
@@ -2779,6 +2789,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				pcard->current.reason &= ~REASON_TEMPORARY;
 				pcard->fieldid = infos.field_id++;
 				pcard->reset(RESET_LEAVE, RESET_EVENT);
+				pcard->relate_effect.clear();
 				remove_card(pcard);
 				leave.insert(pcard);
 				continue;
@@ -3572,6 +3583,20 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card * pcard, i
 	switch(step) {
 	case 0: {
 		core.select_cards.clear();
+		if(core.global_flag & GLOBALFLAG_MUST_BE_SMATERIAL) {
+			effect_set eset;
+			filter_player_effect(pcard->current.controler, EFFECT_MUST_BE_SMATERIAL, &eset);
+			if(eset.count) {
+				core.select_cards.push_back(eset[0]->handler);
+				pduel->restore_assumes();
+				pduel->write_buffer8(MSG_HINT);
+				pduel->write_buffer8(HINT_SELECTMSG);
+				pduel->write_buffer8(playerid);
+				pduel->write_buffer32(512);
+				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, 0x10001);
+				return FALSE;
+			}
+		}
 		card* tuner;
 		effect* peffect;
 		for(uint8 p = 0; p < 2; ++p) {

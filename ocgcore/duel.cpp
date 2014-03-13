@@ -106,10 +106,8 @@ void duel::release_script_group() {
 }
 void duel::restore_assumes() {
 	std::set<card*>::iterator sit;
-	for(sit = assumes.begin(); sit != assumes.end(); ++sit) {
-		card* pcard = *sit;
-		pcard->assume_type = 0;
-	}
+	for(sit = assumes.begin(); sit != assumes.end(); ++sit)
+		(*sit)->assume_type = 0;
 	assumes.clear();
 }
 void duel::write_buffer32(uint32 value) {
