@@ -270,27 +270,32 @@ void Game::DrawMisc() {
 	matManager.mTexture.setTexture(0, imageManager.tAct);
 	driver->setMaterial(matManager.mTexture);
 	if(dField.deck_act) {
-		im.setTranslation(vector3df(7.3f, 3.0f, dField.deck[0].size() * 0.01f + 0.02f));
+		im.setTranslation(vector3df(matManager.vFields[0].Pos.X - (matManager.vFields[0].Pos.X - matManager.vFields[1].Pos.X)/2,
+			matManager.vFields[0].Pos.Y - (matManager.vFields[0].Pos.Y - matManager.vFields[3].Pos.Y)/2, dField.deck[0].size() * 0.01f + 0.02f));
 		driver->setTransform(irr::video::ETS_WORLD, im);
 		driver->drawVertexPrimitiveList(matManager.vActivate, 4, matManager.iRectangle, 2);
 	}
 	if(dField.grave_act) {
-		im.setTranslation(vector3df(7.3f, 1.7f, dField.grave[0].size() * 0.01f + 0.02f));
+		im.setTranslation(vector3df(matManager.vFields[4].Pos.X - (matManager.vFields[4].Pos.X - matManager.vFields[5].Pos.X)/2,
+			matManager.vFields[4].Pos.Y - (matManager.vFields[4].Pos.Y - matManager.vFields[6].Pos.Y)/2, dField.grave[0].size() * 0.01f + 0.02f));
 		driver->setTransform(irr::video::ETS_WORLD, im);
 		driver->drawVertexPrimitiveList(matManager.vActivate, 4, matManager.iRectangle, 2);
 	}
 	if(dField.remove_act) {
-		im.setTranslation(vector3df(7.3f, 0.4f, dField.remove[0].size() * 0.01f + 0.02f));
+		im.setTranslation(vector3df(matManager.vFields[12].Pos.X - (matManager.vFields[12].Pos.X - matManager.vFields[13].Pos.X)/2,
+			matManager.vFields[12].Pos.Y - (matManager.vFields[12].Pos.Y - matManager.vFields[14].Pos.Y)/2, dField.remove[0].size() * 0.01f + 0.02f));
 		driver->setTransform(irr::video::ETS_WORLD, im);
 		driver->drawVertexPrimitiveList(matManager.vActivate, 4, matManager.iRectangle, 2);
 	}
 	if(dField.extra_act) {
-		im.setTranslation(vector3df(0.6f, 3.0f, dField.extra[0].size() * 0.01f + 0.02f));
+		im.setTranslation(vector3df(matManager.vFields[8].Pos.X - (matManager.vFields[8].Pos.X - matManager.vFields[9].Pos.X)/2,
+			matManager.vFields[8].Pos.Y - (matManager.vFields[8].Pos.Y - matManager.vFields[10].Pos.Y)/2, dField.extra[0].size() * 0.01f + 0.02f));
 		driver->setTransform(irr::video::ETS_WORLD, im);
 		driver->drawVertexPrimitiveList(matManager.vActivate, 4, matManager.iRectangle, 2);
 	}
 	if(dField.pzone_act) {
-		im.setTranslation(vector3df(-0.4f, 1.7f, 0.03f));
+		im.setTranslation(vector3df(matManager.vFields[60].Pos.X - (matManager.vFields[60].Pos.X - matManager.vFields[61].Pos.X)/2,
+			matManager.vFields[60].Pos.Y - (matManager.vFields[60].Pos.Y - matManager.vFields[62].Pos.Y)/2, 0.03f));
 		driver->setTransform(irr::video::ETS_WORLD, im);
 		driver->drawVertexPrimitiveList(matManager.vActivate, 4, matManager.iRectangle, 2);
 	}
@@ -382,92 +387,92 @@ void Game::DrawMisc() {
 	for(int i = 0; i < 5; ++i) {
 		pcard = dField.mzone[0][i];
 		if(pcard && pcard->code != 0) {
-			int m = 483 + i * 90;
-			adFont->draw(L"/", mainGame->Resize(m - 4, 396, m + 4, 416), 0xff000000, true, false, 0);
-			adFont->draw(L"/", mainGame->Resize(m - 3, 397, m + 5, 417), 0xffffffff, true, false, 0);
+			int m = 463 + i * 90;
+			adFont->draw(L"/", mainGame->Resize(m - 4, 416, m + 4, 436), 0xff000000, true, false, 0);
+			adFont->draw(L"/", mainGame->Resize(m - 3, 417, m + 5, 437), 0xffffffff, true, false, 0);
 			int w = adFont->getDimension(pcard->atkstring).Width;
-			adFont->draw(pcard->atkstring, mainGame->Resize(m - 5, 396, m - 5, 416, -w, 0, 0, 0), 0xff000000, false, false, 0);
-			adFont->draw(pcard->atkstring, mainGame->Resize(m - 4, 397, m - 4, 417, -w, 0, 0, 0),
+			adFont->draw(pcard->atkstring, mainGame->Resize(m - 5, 416, m - 5, 436, -w, 0, 0, 0), 0xff000000, false, false, 0);
+			adFont->draw(pcard->atkstring, mainGame->Resize(m - 4, 417, m - 4, 437, -w, 0, 0, 0),
 			             pcard->attack > pcard->base_attack ? 0xffffff00 : pcard->attack < pcard->base_attack ? 0xffff2090 : 0xffffffff , false, false, 0);
 			w = adFont->getDimension(pcard->defstring).Width;
-			adFont->draw(pcard->defstring, mainGame->Resize(m + 4, 396, m + 4 + w, 416), 0xff000000, false, false, 0);
-			adFont->draw(pcard->defstring, mainGame->Resize(m + 5, 397, m + 5 + w, 417),
+			adFont->draw(pcard->defstring, mainGame->Resize(m + 4, 416, m + 4 + w, 436), 0xff000000, false, false, 0);
+			adFont->draw(pcard->defstring, mainGame->Resize(m + 5, 417, m + 5 + w, 437),
 			             pcard->defence > pcard->base_defence ? 0xffffff00 : pcard->defence < pcard->base_defence ? 0xffff2090 : 0xffffffff , false, false, 0);
-			adFont->draw(pcard->lvstring, mainGame->Resize(463 + i * 85, 346, 495 + i * 85, 366), 0xff000000, false, false, 0);
-			adFont->draw(pcard->lvstring, mainGame->Resize(464 + i * 85, 347, 496 + i * 85, 367),
+			adFont->draw(pcard->lvstring, mainGame->Resize(443 + i * 85, 356, 475 + i * 85, 366), 0xff000000, false, false, 0);
+			adFont->draw(pcard->lvstring, mainGame->Resize(444 + i * 85, 357, 476 + i * 85, 367),
 			             (pcard->type & TYPE_XYZ) ? 0xffff80ff : (pcard->type & TYPE_TUNER) ? 0xffffff00 : 0xffffffff, false, false, 0);
 		}
 	}
 	for(int i = 0; i < 5; ++i) {
 		pcard = dField.mzone[1][i];
 		if(pcard && (pcard->position & POS_FACEUP)) {
-			int m = 810 - i * 73;
-			adFont->draw(L"/", mainGame->Resize(m - 4, 245, m + 4, 265), 0xff000000, true, false, 0);
-			adFont->draw(L"/", mainGame->Resize(m - 3, 246, m + 5, 266), 0xffffffff, true, false, 0);
+			int m = 795 - i * 73;
+			adFont->draw(L"/", mainGame->Resize(m - 4, 235, m + 4, 255), 0xff000000, true, false, 0);
+			adFont->draw(L"/", mainGame->Resize(m - 3, 236, m + 5, 256), 0xffffffff, true, false, 0);
 			int w = adFont->getDimension(pcard->atkstring).Width;
-			adFont->draw(pcard->atkstring, mainGame->Resize(m - 5, 245, m - 5, 265, -w, 0, 0, 0), 0xff000000, false, false, 0);
-			adFont->draw(pcard->atkstring, mainGame->Resize(m - 4, 246, m - 4, 266, -w, 0, 0, 0),
+			adFont->draw(pcard->atkstring, mainGame->Resize(m - 5, 235, m - 5, 255, -w, 0, 0, 0), 0xff000000, false, false, 0);
+			adFont->draw(pcard->atkstring, mainGame->Resize(m - 4, 236, m - 4, 256, -w, 0, 0, 0),
 			             pcard->attack > pcard->base_attack ? 0xffffff00 : pcard->attack < pcard->base_attack ? 0xffff2090 : 0xffffffff , false, false, 0);
 			w = adFont->getDimension(pcard->defstring).Width;
-			adFont->draw(pcard->defstring, mainGame->Resize(m + 4, 245, m + 4 + w, 265), 0xff000000, false, false, 0);
-			adFont->draw(pcard->defstring, mainGame->Resize(m + 5, 246, m + 5 + w, 266),
+			adFont->draw(pcard->defstring, mainGame->Resize(m + 4, 235, m + 4 + w, 255), 0xff000000, false, false, 0);
+			adFont->draw(pcard->defstring, mainGame->Resize(m + 5, 236, m + 5 + w, 256),
 			             pcard->defence > pcard->base_defence ? 0xffffff00 : pcard->defence < pcard->base_defence ? 0xffff2090 : 0xffffffff , false, false, 0);
-			adFont->draw(pcard->lvstring, mainGame->Resize(789 - i * 76, 282, 820 - i * 76, 302), 0xff000000, false, false, 0);
-			adFont->draw(pcard->lvstring, mainGame->Resize(789 - i * 76, 283, 820 - i * 76, 303),
+			adFont->draw(pcard->lvstring, mainGame->Resize(769 - i * 76, 272, 800 - i * 76, 292), 0xff000000, false, false, 0);
+			adFont->draw(pcard->lvstring, mainGame->Resize(769 - i * 76, 273, 800 - i * 76, 293),
 			             (pcard->type & TYPE_XYZ) ? 0xffff80ff : (pcard->type & TYPE_TUNER) ? 0xffffff00 : 0xffffffff, false, false, 0);
 		}
 	}
 	pcard = dField.szone[0][6];
 	if(pcard) {
-		adFont->draw(pcard->lscstring, recti(321, 378, 353, 398), 0xff000000, true, false, 0);
-		adFont->draw(pcard->lscstring, recti(322, 379, 354, 399), 0xffffffff, true, false, 0);
+		adFont->draw(pcard->lscstring, mainGame->Resize(386, 398, 398, 418), 0xff000000, true, false, 0);
+		adFont->draw(pcard->lscstring, mainGame->Resize(387, 399, 399, 419), 0xffffffff, true, false, 0);
 	}
 	pcard = dField.szone[0][7];
 	if(pcard) {
-		adFont->draw(pcard->rscstring, recti(975, 378, 1007, 398), 0xff000000, true, false, 0);
-		adFont->draw(pcard->rscstring, recti(976, 379, 1008, 399), 0xffffffff, true, false, 0);
+		adFont->draw(pcard->rscstring, mainGame->Resize(880, 398, 912, 418), 0xff000000, true, false, 0);
+		adFont->draw(pcard->rscstring, mainGame->Resize(881, 399, 913, 419), 0xffffffff, true, false, 0);
 	}
 	pcard = dField.szone[1][6];
 	if(pcard) {
-		adFont->draw(pcard->lscstring, recti(924, 255, 956, 275), 0xff000000, true, false, 0);
-		adFont->draw(pcard->lscstring, recti(925, 256, 957, 276), 0xffffffff, true, false, 0);
+		adFont->draw(pcard->lscstring, mainGame->Resize(834, 245, 866, 265), 0xff000000, true, false, 0);
+		adFont->draw(pcard->lscstring, mainGame->Resize(835, 246, 867, 266), 0xffffffff, true, false, 0);
 	}
 	pcard = dField.szone[1][7];
 	if(pcard) {
-		adFont->draw(pcard->rscstring, recti(373, 255, 405, 275), 0xff000000, true, false, 0);
-		adFont->draw(pcard->rscstring, recti(374, 256, 406, 276), 0xffffffff, true, false, 0);
+		adFont->draw(pcard->rscstring, mainGame->Resize(428, 245, 460, 265), 0xff000000, true, false, 0);
+		adFont->draw(pcard->rscstring, mainGame->Resize(429, 246, 461, 266), 0xffffffff, true, false, 0);
 	}
 	if(dField.extra[0].size()) {
-		numFont->draw(dataManager.GetNumString(dField.extra[0].size()), mainGame->Resize(305, 532, 381, 552), 0xff000000, true, false, 0);
-		numFont->draw(dataManager.GetNumString(dField.extra[0].size()), mainGame->Resize(305, 533, 383, 553), 0xffffff00, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.extra[0].size()), mainGame->Resize(245, 562, 381, 552), 0xff000000, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.extra[0].size()), mainGame->Resize(245, 563, 383, 553), 0xffffff00, true, false, 0);
 	}
 	if(dField.deck[0].size()) {
-		numFont->draw(dataManager.GetNumString(dField.deck[0].size()), mainGame->Resize(942, 532, 1021, 552), 0xff000000, true, false, 0);
-		numFont->draw(dataManager.GetNumString(dField.deck[0].size()), mainGame->Resize(943, 533, 1023, 553), 0xffffff00, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.deck[0].size()), mainGame->Resize(912, 562, 1021, 552), 0xff000000, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.deck[0].size()), mainGame->Resize(913, 563, 1023, 553), 0xffffff00, true, false, 0);
 	}
 	if(dField.grave[0].size()) {
-		numFont->draw(dataManager.GetNumString(dField.grave[0].size()), mainGame->Resize(917, 436, 984, 456), 0xff000000, true, false, 0);
-		numFont->draw(dataManager.GetNumString(dField.grave[0].size()), mainGame->Resize(917, 437, 986, 457), 0xffffff00, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.grave[0].size()), mainGame->Resize(837, 375, 984, 456), 0xff000000, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.grave[0].size()), mainGame->Resize(837, 376, 986, 457), 0xffffff00, true, false, 0);
 	}
 	if(dField.remove[0].size()) {
-		numFont->draw(dataManager.GetNumString(dField.remove[0].size()), mainGame->Resize(895, 360, 957, 380), 0xff000000, true, false, 0);
-		numFont->draw(dataManager.GetNumString(dField.remove[0].size()), mainGame->Resize(895, 361, 959, 381), 0xffffff00, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.remove[0].size()), mainGame->Resize(1025, 375, 957, 380), 0xff000000, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.remove[0].size()), mainGame->Resize(1025, 376, 959, 381), 0xffffff00, true, false, 0);
 	}
 	if(dField.extra[1].size()) {
-		numFont->draw(dataManager.GetNumString(dField.extra[1].size()), mainGame->Resize(848, 212, 908, 232), 0xff000000, true, false, 0);
-		numFont->draw(dataManager.GetNumString(dField.extra[1].size()), mainGame->Resize(848, 213, 910, 233), 0xffffff00, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.extra[1].size()), mainGame->Resize(808, 207, 908, 232), 0xff000000, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.extra[1].size()), mainGame->Resize(808, 208, 910, 233), 0xffffff00, true, false, 0);
 	}
 	if(dField.deck[1].size()) {
-		numFont->draw(dataManager.GetNumString(dField.deck[1].size()), mainGame->Resize(421, 212, 481, 232), 0xff000000, true, false, 0);
-		numFont->draw(dataManager.GetNumString(dField.deck[1].size()), mainGame->Resize(421, 213, 483, 233), 0xffffff00, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.deck[1].size()), mainGame->Resize(391, 207, 481, 232), 0xff000000, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.deck[1].size()), mainGame->Resize(391, 208, 483, 233), 0xffffff00, true, false, 0);
 	}
 	if(dField.grave[1].size()) {
-		numFont->draw(dataManager.GetNumString(dField.grave[1].size()), mainGame->Resize(408, 261, 462, 281), 0xff000000, true, false, 0);
-		numFont->draw(dataManager.GetNumString(dField.grave[1].size()), mainGame->Resize(408, 262, 464, 282), 0xffffff00, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.grave[1].size()), mainGame->Resize(348, 310, 462, 281), 0xff000000, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.grave[1].size()), mainGame->Resize(348, 311, 464, 282), 0xffffff00, true, false, 0);
 	}
 	if(dField.remove[1].size()) {
-		numFont->draw(dataManager.GetNumString(dField.remove[1].size()), mainGame->Resize(386, 320, 443, 340), 0xff000000, true, false, 0);
-		numFont->draw(dataManager.GetNumString(dField.remove[1].size()), mainGame->Resize(386, 321, 445, 341), 0xffffff00, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.remove[1].size()), mainGame->Resize(216, 310, 443, 340), 0xff000000, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.remove[1].size()), mainGame->Resize(216, 311, 445, 341), 0xffffff00, true, false, 0);
 	}
 }
 void Game::DrawGUI() {
@@ -687,11 +692,11 @@ void Game::DrawSpec() {
 			auto pos = lpcFont->getDimension(lstr);
 			if(showcardp < 10) {
 				int alpha = (showcardp * 25) << 24;
-				lpcFont->draw(lstr, mainGame->ResizeElem(671 - pos.Width / 2 - (9 - showcardp) * 40, 271, 970, 350), alpha);
-				lpcFont->draw(lstr, mainGame->ResizeElem(670 - pos.Width / 2 - (9 - showcardp) * 40, 270, 970, 350), alpha | 0xffffff);
+				lpcFont->draw(lstr, mainGame->ResizeElem(651 - pos.Width / 2 - (9 - showcardp) * 40, 291, 950, 370), alpha);
+				lpcFont->draw(lstr, mainGame->ResizeElem(650 - pos.Width / 2 - (9 - showcardp) * 40, 290, 950, 370), alpha | 0xffffff);
 			} else if(showcardp < showcarddif) {
-				recti loc = mainGame->ResizeElem(670 - pos.Width / 2, 270, 970, 350);
-				lpcFont->draw(lstr, mainGame->ResizeElem(671 - pos.Width / 2, 271, 970, 350), 0xff000000);
+				recti loc = mainGame->ResizeElem(650 - pos.Width / 2, 290, 950, 370);
+				lpcFont->draw(lstr, mainGame->ResizeElem(651 - pos.Width / 2, 291, 950, 370), 0xff000000);
 				lpcFont->draw(lstr, loc, 0xffffffff);
 				if(dInfo.vic_string && (showcardcode == 1 || showcardcode == 2)) {
 					s32 vicx = (260 + pos.Width) / 2 - 260;
@@ -705,8 +710,8 @@ void Game::DrawSpec() {
 				}
 			} else if(showcardp < showcarddif + 10) {
 				int alpha = ((showcarddif + 10 - showcardp) * 25) << 24;
-				lpcFont->draw(lstr, mainGame->ResizeElem(671 - pos.Width / 2 + (showcardp - showcarddif) * 40, 271, 970, 350), alpha);
-				lpcFont->draw(lstr, mainGame->ResizeElem(670 - pos.Width / 2 + (showcardp - showcarddif) * 40, 270, 970, 350), alpha | 0xffffff);
+				lpcFont->draw(lstr, mainGame->ResizeElem(651 - pos.Width / 2 + (showcardp - showcarddif) * 40, 291, 950, 370), alpha);
+				lpcFont->draw(lstr, mainGame->ResizeElem(650 - pos.Width / 2 + (showcardp - showcarddif) * 40, 290, 950, 370), alpha | 0xffffff);
 			}
 			showcardp++;
 			break;
