@@ -25,7 +25,7 @@ bool ImageManager::Initial() {
 	tHand[2] = driver->getTexture("textures/f3.jpg");
 	tBackGround = driver->getTexture("textures/bg.jpg");
 	tBackGround2 = driver->getTexture("textures/bg2.jpg"); 
-	tField = driver->getTexture("textures/field.png");
+	tField = driver->getTexture("textures/field2.png");
 	tFieldTransparent = driver->getTexture("textures/field-transparent.png");
 	for (int i = 0; i < 4; ++i)
 		tAvatar[i] = NULL;

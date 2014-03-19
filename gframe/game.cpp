@@ -204,7 +204,7 @@ bool Game::Initialize() {
 	imgCard = env->addImage(rect<s32>(9, 9, 187, 262), wCardImg);
 	imgCard->setUseAlphaChannel(true);
 	//phase
-	wPhase = env->addStaticText(L"", rect<s32>(475, 310, 850, 330));
+	wPhase = env->addStaticText(L"", rect<s32>(455, 310, 830, 330));
 	wPhase->setVisible(false);
 	btnDP = env->addButton(rect<s32>(0, 0, 50, 20), wPhase, -1, L"\xff24\xff30");
 	btnDP->setEnabled(false);
@@ -539,7 +539,7 @@ void Game::MainLoop() {
 	BuildProjectionMatrix(mProjection, -0.81f, 0.44f, -0.42f, 0.42f, 1.0f, 100.0f);
 	camera->setProjectionMatrix(mProjection);
 
-	mProjection.buildCameraLookAtMatrixLH(vector3df(3.95f, 8.0f, 7.8f), vector3df(3.95f, 0, 0), vector3df(0, 0, 1));
+	mProjection.buildCameraLookAtMatrixLH(vector3df(4.2f, 8.0f, 7.8f), vector3df(4.2f, 0, 0), vector3df(0, 0, 1));
 	camera->setViewMatrixAffector(mProjection);
 	smgr->setAmbientLight(SColorf(1.0f, 1.0f, 1.0f));
 	float atkframe = 0.1f;
@@ -836,7 +836,6 @@ void Game::LoadConfig() {
 	gameConf.skin_index = -1;
 	gameConf.fullscreen = false;
 	gameConf.enablesleeveloading = true;
-	gameConf.checkmatemode = false;
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -904,8 +903,6 @@ void Game::LoadConfig() {
 			BufferIO::CopyWStr(wstr, gameConf.lastreplay, 256);
 		} else if(!strcmp(strbuf,"enable_sleeve_loading")) {
 			gameConf.enablesleeveloading = atoi(valbuf) > 0;
-		} else if(!strcmp(strbuf,"checkmate_mode")) {
-			gameConf.checkmatemode = atoi(valbuf) > 0;
 		}
 	}
 	fclose(fp);
@@ -975,6 +972,11 @@ void Game::ShowCardInfo(int code) {
 			myswprintf(&formatBuffer[cd.level + 3], L"%d/?", cd.attack);
 		else
 			myswprintf(&formatBuffer[cd.level + 3], L"%d/%d", cd.attack, cd.defence);
+		if(cd.type & TYPE_PENDULUM) {
+			wchar_t scaleBuffer[16];
+			myswprintf(scaleBuffer, L" %d/%d", cd.lscale, cd.rscale);
+			wcscat(formatBuffer, scaleBuffer);
+		}
 		stDataInfo->setText(formatBuffer);
 	} else {
 		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));

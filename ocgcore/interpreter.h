@@ -9,7 +9,7 @@
 #define INTERPRETER_H_
 
 extern "C" {
-#ifdef _WIN32
+#ifdef WIN32
 #include <lua/lua.h>
 #include <lua/lauxlib.h>
 #include <lua/lualib.h>

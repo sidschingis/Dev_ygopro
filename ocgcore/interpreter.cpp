@@ -27,6 +27,8 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetRitualLevel", scriptlib::card_get_ritual_level },
 	{ "GetOriginalLevel", scriptlib::card_get_origin_level },
 	{ "IsXyzLevel", scriptlib::card_is_xyz_level },
+	{ "GetLeftScale", scriptlib::card_get_lscale },
+	{ "GetRightScale", scriptlib::card_get_rscale },
 	{ "GetAttribute", scriptlib::card_get_attribute },
 	{ "GetOriginalAttribute", scriptlib::card_get_origin_attribute },
 	{ "GetRace", scriptlib::card_get_race },
@@ -673,7 +675,6 @@ void interpreter::add_param(ptr param, int32 type, bool front) {
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	uint32 type;
 	int32 pushed = 0;
-	lua_checkstack(L,params.size() + 5);
 	for (auto it = params.begin(); it != params.end(); ++it) {
 		type = it->second;
 		switch(type) {
