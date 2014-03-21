@@ -34,10 +34,12 @@ public:
 	irr::video::ITexture* GetTexture(int code);
 	irr::video::ITexture* GetTextureThumb(int code);
 	irr::video::ITexture* GetTextureField(int code);
+	irr::video::ITexture* GetFieldTexture(int code, int player);
 
 	std::unordered_map<int, irr::video::ITexture*> tMap;
 	std::unordered_map<int, irr::video::ITexture*> tThumb;
 	std::unordered_map<int, irr::video::ITexture*> tFields;
+	std::unordered_map<int, irr::video::ITexture*> tSpellFields;
 	irr::IrrlichtDevice* device;
 	irr::video::IVideoDriver* driver;
 	irr::video::ITexture* tCover[2];

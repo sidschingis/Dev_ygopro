@@ -123,6 +123,29 @@ irr::video::ITexture* ImageManager::GetTextureField(int code) {
 	else
 		return NULL;
 }
+
+irr::video::ITexture* ImageManager::GetFieldTexture(int code, int player) {
+	if(code == 0)
+		return NULL;
+	ScopedLock lk(mutex);
+	int fieldcode = code + player;
+	auto tit = tSpellFields.find(fieldcode);
+	if(tit == tSpellFields.end()) {
+		irr::video::ITexture* rt = 0;
+		rt = driver->addRenderTargetTexture(core::dimension2d<u32>(512,512));
+		driver->setRenderTarget(rt, false, false, video::SColor(0,0,0,255));
+		ITexture *texture = imageManager.GetTextureField(code);
+		if(texture)
+			driver->draw2DImage(texture, irr::core::rect<s32>(0,0,512,512),player == 0 ? irr::core::rect<s32>(0,256,512,512) : irr::core::rect<s32>(0,0,512,256));
+		driver->setRenderTarget(0, false, false, 0);
+		tSpellFields[fieldcode] = rt;
+		return rt;
+	}
+
+	if(tit->second)
+		return tit->second;
+}
+
 void ImageManager::LoadSleeve(int player, wchar_t* site, wchar_t* dir)
 {
 	TextureData *sleeve = new TextureData;

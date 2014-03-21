@@ -52,36 +52,53 @@ void Game::DrawBackGround() {
 	matrix4 im = irr::core::IdentityMatrix;
 	im.setTranslation(vector3df(0, 0, -0.01f));
 	driver->setTransform(irr::video::ETS_WORLD, im);
-	//dark shade
-//	matManager.mSelField.AmbientColor = 0xff000000;
-//	matManager.mSelField.DiffuseColor = 0xa0000000;
-//	driver->setMaterial(matManager.mSelField);
-//	for(int i = 0; i < 120; i += 4)
-//		driver->drawVertexPrimitiveList(&matManager.vFields[i], 4, matManager.iRectangle, 2);
-//	driver->setTransform(irr::video::ETS_WORLD, irr::core::IdentityMatrix);
-//	driver->setMaterial(matManager.mBackLine);
-//	driver->drawVertexPrimitiveList(matManager.vBackLine, 76, matManager.iBackLine, 58, irr::video::EVT_STANDARD, irr::scene::EPT_LINES);
 	//draw field
 	driver->setTransform(irr::video::ETS_WORLD, irr::core::IdentityMatrix);
 
 	//draw field spell card
-	int fieldCode = -1;
+	int fieldOneCode = -1;
+	int fieldTwoCode = -1;
 	bool drawField = false;
-	if (mainGame->dField.szone[0][5] && mainGame->dField.szone[0][5]->position & POS_FACEUP) {
-		fieldCode = mainGame->dField.szone[0][5]->code;
-	} else if (mainGame->dField.szone[1][5]&& mainGame->dField.szone[1][5]->position & POS_FACEUP) {
-		fieldCode = mainGame->dField.szone[1][5]->code;
-	}
-	if (fieldCode > 0) {
-		ITexture *texture = imageManager.GetTextureField(fieldCode);
-		if (texture != NULL) {
+	if (mainGame->dField.szone[0][5] && mainGame->dField.szone[0][5]->position & POS_FACEUP)
+		fieldOneCode = mainGame->dField.szone[0][5]->code;
+	if (mainGame->dField.szone[1][5]&& mainGame->dField.szone[1][5]->position & POS_FACEUP)
+		fieldTwoCode = mainGame->dField.szone[1][5]->code;
+
+	if (fieldOneCode > 0) {	
+		ITexture *texture = imageManager.GetFieldTexture(fieldOneCode,0);
+		if (texture) {
 			drawField = true;
-			matManager.mTexture.setTexture(0, imageManager.GetTextureField(fieldCode));
+			matManager.mTexture.setTexture(0, texture);
 			driver->setMaterial(matManager.mTexture);
 			driver->drawVertexPrimitiveList(matManager.vFieldSpell, 4, matManager.iRectangle, 2);
 		}
+		if(fieldTwoCode == -1) {
+			ITexture *texture2 = imageManager.GetFieldTexture(fieldOneCode,1);
+			if (texture) {
+				matManager.mTexture.setTexture(0, texture2);
+				driver->setMaterial(matManager.mTexture);
+				driver->drawVertexPrimitiveList(matManager.vFieldSpell2, 4, matManager.iRectangle, 2);
+			}
+		}
 	}
 
+	if (fieldTwoCode > 0) {
+		ITexture *texture = imageManager.GetFieldTexture(fieldTwoCode,1);
+		if (texture) {
+			drawField = true;
+			matManager.mTexture.setTexture(0, texture);
+			driver->setMaterial(matManager.mTexture);
+			driver->drawVertexPrimitiveList(matManager.vFieldSpell2, 4, matManager.iRectangle, 2);
+		}
+		if(fieldOneCode == -1) {
+			ITexture *texture2 = imageManager.GetFieldTexture(fieldTwoCode,0);
+			if (texture) {
+				matManager.mTexture.setTexture(0, texture2);
+				driver->setMaterial(matManager.mTexture);
+				driver->drawVertexPrimitiveList(matManager.vFieldSpell, 4, matManager.iRectangle, 2);
+			}
+		}
+	}
 	matManager.mTexture.setTexture(0, drawField ? imageManager.tFieldTransparent : imageManager.tField);
 	driver->setMaterial(matManager.mTexture);
 	driver->drawVertexPrimitiveList(matManager.vField, 4, matManager.iRectangle, 2);
