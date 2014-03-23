@@ -3325,9 +3325,13 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 			target->overlay_target->xyz_remove(target);
 		move_card(playerid, target, location, target->temp.sequence);
 		target->current.position = returns.ivalue[0];
+<<<<<<< HEAD
 		if ((target->get_type() & TYPE_TRAPMONSTER) ||  
 			((target->get_type() & TYPE_TRAP) && (target->current.location == LOCATION_MZONE) && (location == LOCATION_SZONE))
 		)
+=======
+		if((target->previous.location & LOCATION_ONFIELD) && (location & LOCATION_ONFIELD))
+>>>>>>> 674210e26d703a47d8048f380565b55ec96b31b8
 			target->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
 		else
 			target->set_status(STATUS_LEAVE_CONFIRMED | STATUS_ACTIVATED, FALSE);
