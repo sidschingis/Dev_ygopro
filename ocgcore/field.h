@@ -176,10 +176,8 @@ struct processor {
 	chain_list new_fchain_s;
 	chain_list new_ochain;
 	chain_list new_ochain_s;
-	chain_list flip_chain;
 	chain_list new_fchain_b;
 	chain_list new_ochain_b;
-	chain_list flip_chain_b;
 	chain_list new_ochain_h;
 	chain_list new_chains;
 	delayed_effect_collection delayed_quick_tmp;
@@ -322,9 +320,9 @@ public:
 	void reset_effect(uint32 id, uint32 reset_type);
 	void reset_phase(uint32 phase);
 	void reset_chain();
-	void add_effect_code(uint32 code);
-	uint32 get_effect_code(uint32 code);
-	void dec_effect_code(uint32 code);
+	void add_effect_code(uint32 code, uint32 playerid);
+	uint32 get_effect_code(uint32 code, uint32 playerid);
+	void dec_effect_code(uint32 code, uint32 playerid);
 	
 	void filter_field_effect(uint32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_affected_cards(effect* peffect, card_set* cset);
