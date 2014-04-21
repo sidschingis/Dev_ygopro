@@ -190,6 +190,7 @@ struct processor {
 	card_set control_adjust_set[2];
 	card_set release_cards;
 	card_set release_cards_ex;
+	card_set release_cards_ex_sum;
 	card_set destroy_set;
 	card_set battle_destroy_rep;
 	card_set fusion_materials;
@@ -234,6 +235,7 @@ struct processor {
 	card* sub_attack_target;
 	card* limit_tuner;
 	group* limit_xyz;
+	group* limit_syn;
 	uint8 attack_cancelable;
 	uint8 effect_damage_step;
 	int32 battle_damage[2];
@@ -333,7 +335,7 @@ public:
 
 	int32 get_release_list(uint8 playerid, card_set* release_list, card_set* ex_list, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exp);
 	int32 check_release_list(uint8 playerid, int32 count, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exp);
-	int32 get_summon_release_list(card* target, card_set* release_list, card_set* ex_list);
+	int32 get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum);
 	int32 get_summon_count_limit(uint8 playerid);
 	int32 get_draw_count(uint8 playerid);
 	void get_ritual_material(uint8 playerid, effect* peffect, card_set* material);
@@ -357,10 +359,11 @@ public:
 	int32 effect_replace_check(uint32 code, const tevent& e);
 	int32 get_attack_target(card* pcard, card_vector* v, uint8 chain_attack = FALSE);
 	void attack_all_target_check();
-	int32 check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max);
-	int32 check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max);
+	int32 check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, group* mg);
+	int32 check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, group* mg);
 	int32 check_with_sum_limit(card_vector* mats, int32 acc, int32 index, int32 count, int32 min, int32 max);
-
+	int32 check_xyz_material(card* pcard, int32 findex, int32 min, int32 max, group* mg);
+	
 	int32 is_player_can_draw(uint8 playerid);
 	int32 is_player_can_discard_deck(uint8 playerid, int32 count);
 	int32 is_player_can_discard_deck_as_cost(uint8 playerid, int32 count);
@@ -472,7 +475,8 @@ public:
 	int32 move_to_field(uint16 step, card* target, uint32 enable, uint32 ret, uint32 is_equip);
 	int32 change_position(uint16 step, group* targets, effect* reason_effect, uint8 reason_player, uint32 enable);
 	int32 operation_replace(uint16 step, effect* replace_effect, group* targets, ptr arg, ptr replace_type);
-	int32 select_synchro_material(int16 step, uint8 playerid, card* pcard, int32 min, int32 max);
+	int32 select_synchro_material(int16 step, uint8 playerid, card* pcard, int32 min, int32 max, group* mg);
+	int32 select_xyz_material(int16 step, uint8 playerid, card* pcard, int32 min, int32 max, group* mg);
 	int32 select_release_cards(int16 step, uint8 playerid, uint8 check_field, uint8 cancelable, int32 min, int32 max);
 	int32 select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, int32 min, int32 max);
 	int32 toss_coin(uint16 step, effect* reason_effect, uint8 reason_player, uint8 playerid, uint8 count);
@@ -553,6 +557,7 @@ public:
 #define GLOBALFLAG_DETACH_EVENT			0x10
 #define GLOBALFLAG_MUST_BE_SMATERIAL	0x20
 #define GLOBALFLAG_SPSUMMON_COUNT		0x40
+#define GLOBALFLAG_XMAT_COUNT_LIMIT		0x80
 //
 #define PROCESSOR_NONE		0
 #define PROCESSOR_WAITING	0x10000
@@ -651,6 +656,7 @@ public:
 #define PROCESSOR_SPSUMMON_STEP_S	136
 #define PROCESSOR_SPSUMMON_COMP_S	137
 #define PROCESSOR_RANDOM_SELECT_S	138
+#define PROCESSOR_SELECT_XMATERIAL	139
 #define PROCESSOR_DRAW_S			140
 #define PROCESSOR_DAMAGE_S			141
 #define PROCESSOR_RECOVER_S			142

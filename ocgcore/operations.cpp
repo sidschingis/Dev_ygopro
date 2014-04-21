@@ -1185,7 +1185,8 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		} else {
 			core.release_cards.clear();
 			core.release_cards_ex.clear();
-			int32 rcount = get_summon_release_list(target, &core.release_cards, &core.release_cards_ex);
+			core.release_cards_ex_sum.clear();
+			int32 rcount = get_summon_release_list(target, &core.release_cards, &core.release_cards_ex, &core.release_cards_ex_sum);
 			if(rcount == 0)
 				returns.bvalue[0] = 0;
 			else {
@@ -1641,7 +1642,8 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 		else {
 			core.release_cards.clear();
 			core.release_cards_ex.clear();
-			int32 rcount = get_summon_release_list(target, &core.release_cards, &core.release_cards_ex);
+			core.release_cards_ex_sum.clear();
+			int32 rcount = get_summon_release_list(target, &core.release_cards, &core.release_cards_ex, &core.release_cards_ex_sum);
 			if(rcount == 0)
 				returns.bvalue[0] = 0;
 			else {
@@ -1929,10 +1931,12 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target) {
 		target->material_cards.clear();
 		card* tuner = core.limit_tuner;
 		group* materials = core.limit_xyz;
+		group* syn = core.limit_syn;
 		target->filter_spsummon_procedure(sumplayer, &eset);
 		target->filter_spsummon_procedure_g(sumplayer, &eset);
 		core.limit_tuner = tuner;
 		core.limit_xyz = materials;
+		core.limit_syn = syn;
 		if(!eset.count)
 			return TRUE;
 		core.select_effects.clear();
@@ -1957,9 +1961,11 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target) {
 		target->summon_type = (peffect->get_value(target) & 0xfffffff) | SUMMON_TYPE_SPECIAL;
 		if(peffect->operation) {
 			pduel->lua->add_param(target, PARAM_TYPE_CARD);
-			if(core.limit_tuner) {
+			if(core.limit_tuner || core.limit_syn) {
 				pduel->lua->add_param(core.limit_tuner, PARAM_TYPE_CARD);
+				pduel->lua->add_param(core.limit_syn, PARAM_TYPE_GROUP);
 				core.limit_tuner = 0;
+				core.limit_syn = 0;
 			}
 			if(core.limit_xyz) {
 				pduel->lua->add_param(core.limit_xyz, PARAM_TYPE_GROUP);
@@ -2173,7 +2179,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target) {
 			if(!pcard->is_status(STATUS_SUMMONING)) {
 				pgroup->container.erase(pcard);
 				if(pcard->current.location == LOCATION_MZONE)
-					cset.insert(*cit);
+					cset.insert(pcard);
 			}
 		}
 		if(cset.size() == 0)
@@ -3729,14 +3735,14 @@ int32 field::operation_replace(uint16 step, effect * replace_effect, group * tar
 	}
 	return TRUE;
 }
-int32 field::select_synchro_material(int16 step, uint8 playerid, card * pcard, int32 min, int32 max) {
+int32 field::select_synchro_material(int16 step, uint8 playerid, card * pcard, int32 min, int32 max, group* mg) {
 	switch(step) {
 	case 0: {
 		core.select_cards.clear();
 		if(core.global_flag & GLOBALFLAG_MUST_BE_SMATERIAL) {
 			effect_set eset;
 			filter_player_effect(pcard->current.controler, EFFECT_MUST_BE_SMATERIAL, &eset);
-			if(eset.count) {
+			if(eset.count && (!mg || mg->has_card(eset[0]->handler))) {
 				core.select_cards.push_back(eset[0]->handler);
 				pduel->restore_assumes();
 				pduel->write_buffer8(MSG_HINT);
@@ -3757,6 +3763,8 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card * pcard, i
 					effect* pcheck = tuner->is_affected_by_effect(EFFECT_SYNCHRO_CHECK);
 					if(pcheck)
 						pcheck->get_value(tuner);
+					if(mg && !mg->has_card(tuner))
+						continue;
 					if(!pduel->lua->check_matching(tuner, -2, 0))
 						continue;
 					if((peffect = tuner->is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL_CUSTOM, pcard))) {
@@ -3778,6 +3786,8 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card * pcard, i
 								if(pm && pm != tuner && pm->is_position(POS_FACEUP) && pm->is_can_be_synchro_material(pcard, tuner)) {
 									if(pcheck)
 										pcheck->get_value(pm);
+									if(mg && !mg->has_card(pm))
+										continue;
 									if(!pduel->lua->check_matching(pm, -1, 0))
 										continue;
 									nsyn.push_back(pm);
@@ -3874,6 +3884,9 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card * pcard, i
 	}
 	return TRUE;
 }
+int32 field::select_xyz_material(int16 step, uint8 playerid, card * pcard, int32 min, int32 max, group* mg) {
+	return TRUE;
+}
 int32 field::select_release_cards(int16 step, uint8 playerid, uint8 check_field, uint8 cancelable, int32 min, int32 max) {
 	switch(step) {
 	case 0: {
@@ -3944,7 +3957,8 @@ int32 field::select_release_cards(int16 step, uint8 playerid, uint8 check_field,
 int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, int32 min, int32 max) {
 	switch(step) {
 	case 0: {
-		if(core.release_cards_ex.size() == 0 || (get_useable_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD) <= 0 && min < 2)) {
+		if(core.release_cards_ex.size() + core.release_cards_ex_sum.size() == 0
+		        || (get_useable_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD) <= 0 && min < 2)) {
 			core.select_cards.clear();
 			for(auto cit = core.release_cards.begin(); cit != core.release_cards.end(); ++cit)
 				core.select_cards.push_back(*cit);
@@ -3968,6 +3982,44 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		}
 		core.operated_set.clear();
 		core.select_cards.clear();
+		int32 rmax = 0;
+		for(auto cit = core.release_cards.begin(); cit != core.release_cards.end(); ++cit)
+			rmax += (*cit)->operation_param;
+		for(auto cit = core.release_cards_ex.begin(); cit != core.release_cards_ex.end(); ++cit)
+			rmax += (*cit)->operation_param;
+		if(rmax < min)
+			returns.ivalue[0] = TRUE;
+		else if(!core.release_cards_ex_sum.empty())
+			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, playerid, 92);
+		else
+			core.units.begin()->step = 2;
+		return FALSE;
+	}
+	case 1: {
+		if(!returns.ivalue[0]) {
+			core.units.begin()->step = 2;
+			return FALSE;
+		}
+		for(auto cit = core.release_cards_ex_sum.begin(); cit != core.release_cards_ex_sum.end(); ++cit)
+			core.select_cards.push_back(*cit);
+		pduel->write_buffer8(MSG_HINT);
+		pduel->write_buffer8(HINT_SELECTMSG);
+		pduel->write_buffer8(playerid);
+		pduel->write_buffer32(500);
+		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, ((uint32)cancelable << 16) + playerid, 0x10001);
+		return FALSE;
+	}
+	case 2: {
+		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
+			card* pcard = core.select_cards[returns.bvalue[i + 1]];
+			core.operated_set.insert(pcard);
+			effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_SUM);
+			if((peffect->flag & EFFECT_FLAG_COUNT_LIMIT) && (peffect->reset_count & 0xf00) > 0)
+				peffect->dec_count();
+		}
+		return FALSE;
+	}
+	case 3: {
 		for(auto cit = core.release_cards_ex.begin(); cit != core.release_cards_ex.end(); ++cit)
 			core.select_cards.push_back(*cit);
 		pduel->write_buffer8(MSG_HINT);
@@ -3977,17 +4029,19 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, ((uint32)cancelable << 16) + playerid, (core.release_cards_ex.size() << 16) + core.release_cards_ex.size());
 		return FALSE;
 	}
-	case 1: {
-		uint32 rmin = returns.bvalue[0];
-		uint32 rmax = 0;
-		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
+	case 4: {
+		for(int32 i = 0; i < returns.bvalue[0]; ++i)
 			core.operated_set.insert(core.select_cards[returns.bvalue[i + 1]]);
-			rmax += core.select_cards[returns.bvalue[i + 1]]->operation_param;
-		}
+		uint32 rmin = core.operated_set.size();
+		uint32 rmax = 0;
+		for(auto cit = core.operated_set.begin(); cit != core.operated_set.end(); ++cit)
+			rmax += (*cit)->operation_param;
 		min -= rmax;
 		max -= rmin;
-		if(min <= 0)
-			return TRUE;
+		if(min <= 0) {
+			core.units.begin()->step = 5;
+			return FALSE;
+		}
 		core.units.begin()->arg2 = (max << 16) + min;
 		core.select_cards.clear();
 		for(auto cit = core.release_cards.begin(); cit != core.release_cards.end(); ++cit)
@@ -3999,9 +4053,12 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		add_process(PROCESSOR_SELECT_TRIBUTE_P, 0, 0, 0, ((uint32)cancelable << 16) + playerid, (max << 16) + min);
 		return FALSE;
 	}
-	case 2: {
+	case 5: {
 		for(int32 i = 0; i < returns.bvalue[0]; ++i)
 			core.operated_set.insert(core.select_cards[returns.bvalue[i + 1]]);
+		return FALSE;
+	}
+	case 6: {
 		core.select_cards.clear();
 		returns.bvalue[0] = core.operated_set.size();
 		int32 i = 0;

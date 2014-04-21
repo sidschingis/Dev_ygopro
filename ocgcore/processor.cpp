@@ -765,7 +765,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_SELECT_SYNCHRO: {
-		if (select_synchro_material(it->step, it->arg1,  (card*)it->ptarget, it->arg2 & 0xffff, it->arg2 >> 16))
+		if (select_synchro_material(it->step, it->arg1,  (card*)it->ptarget, it->arg2 & 0xffff, it->arg2 >> 16, (group*)it->peffect))
 			core.units.pop_front();
 		else
 			core.units.begin()->step++;
@@ -868,6 +868,13 @@ int32 field::process() {
 			pduel->write_buffer32((*cit)->get_info_location());
 		}
 		core.units.pop_front();
+		return pduel->bufferlen;
+	}
+	case PROCESSOR_SELECT_XMATERIAL: {
+		if (select_xyz_material(it->step, it->arg1,  (card*)it->ptarget, it->arg2 & 0xffff, it->arg2 >> 16, (group*)it->peffect))
+			core.units.pop_front();
+		else
+			core.units.begin()->step++;
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_DRAW_S: {
@@ -3329,6 +3336,9 @@ int32 field::process_battle_command(uint16 step) {
 		card* reason_card = 0;
 		uint8 bd[2] = {FALSE};
 		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
+		effect* defattack = core.attacker->is_affected_by_effect(EFFECT_DEFENCE_ATTACK);
+		if(defattack && defattack->get_value(core.attacker) == 1)
+			a = ad;
 		if(core.attack_target) {
 			da = core.attack_target->get_attack();
 			dd = core.attack_target->get_defence();

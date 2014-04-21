@@ -1453,7 +1453,7 @@ int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ign
 		min = -fcount + 1;
 	if(min == 0)
 		return TRUE;
-	int32 m = pduel->game_field->get_summon_release_list(this, 0, 0);
+	int32 m = pduel->game_field->get_summon_release_list(this, 0, 0, 0);
 	if(m >= min)
 		return TRUE;
 	return FALSE;
@@ -1490,7 +1490,7 @@ int32 card::filter_set_procedure(uint8 playerid, effect_set* peset, uint8 ignore
 		min = -fcount + 1;
 	if(min == 0)
 		return TRUE;
-	int32 m = pduel->game_field->get_summon_release_list(this, 0, 0);
+	int32 m = pduel->game_field->get_summon_release_list(this, 0, 0, 0);
 	if(m >= min)
 		return TRUE;
 	return FALSE;
@@ -1646,9 +1646,10 @@ int32 card::is_summonable(effect* peffect) {
 	pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 	pduel->lua->add_param(this, PARAM_TYPE_CARD);
 	uint32 result = FALSE;
-	if(pduel->game_field->core.limit_tuner) {
+	if(pduel->game_field->core.limit_tuner || pduel->game_field->core.limit_syn) {
 		pduel->lua->add_param(pduel->game_field->core.limit_tuner, PARAM_TYPE_CARD);
-		if(pduel->lua->check_condition(peffect->condition, 3))
+		pduel->lua->add_param(pduel->game_field->core.limit_syn, PARAM_TYPE_GROUP);
+		if(pduel->lua->check_condition(peffect->condition, 4))
 			result = TRUE;
 	} else if(pduel->game_field->core.limit_xyz) {
 		pduel->lua->add_param(pduel->game_field->core.limit_xyz, PARAM_TYPE_GROUP);
@@ -1821,6 +1822,7 @@ int32 card::is_special_summonable(uint8 playerid) {
 	filter_spsummon_procedure(playerid, &eset);
 	pduel->game_field->core.limit_tuner = 0;
 	pduel->game_field->core.limit_xyz = 0;
+	pduel->game_field->core.limit_syn = 0;
 	pduel->game_field->restore_lp_cost();
 	return eset.count;
 }
