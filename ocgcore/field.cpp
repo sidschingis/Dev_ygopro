@@ -1656,15 +1656,15 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 min, int32 max,
 			auto iter = m.rbegin();
 			while(iter != m.rend()) {
 				auto cur = iter++;
-				if(cur->first > cset.size()) {
+				if(cur->first > (int)cset.size()) {
 					cset.erase(cur->second);
 					m.erase(cur->first);
 				}
 			}
 		}
-		return cset.size() >= min;
+		return (int)cset.size() >= min;
 	} else {
-		return cset.size() >= min;
+		return (int)cset.size() >= min;
 	}
 	return TRUE;
 }
