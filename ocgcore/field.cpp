@@ -1300,7 +1300,7 @@ void field::get_xyz_material(card* scard, int32 findex) {
 				core.xmaterial_lst.insert(std::make_pair(0, *pcard));
 		}
 		auto iter = core.xmaterial_lst.rbegin();
-		while((iter != core.xmaterial_lst.rend()) && (iter->first > core.xmaterial_lst.size()))
+		while((iter != core.xmaterial_lst.rend()) && (iter->first > (int)core.xmaterial_lst.size()))
 			core.xmaterial_lst.erase((iter++).base());
 	} else {
 		for(auto pcard = cv.begin(); pcard != cv.end(); ++pcard)
@@ -1563,24 +1563,24 @@ void field::attack_all_target_check() {
 	if(!peffect->check_value_condition(1))
 		core.attacker->attack_all_target = FALSE;
 }
-int32 field::check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, group* mg) {
+int32 field::check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg) {
 	card* tuner;
 	if(core.global_flag & GLOBALFLAG_MUST_BE_SMATERIAL) {
 		effect_set eset;
 		filter_player_effect(pcard->current.controler, EFFECT_MUST_BE_SMATERIAL, &eset);
 		if(eset.count)
-			return check_tuner_material(pcard, eset[0]->handler, findex1, findex2, min, max, mg);
+			return check_tuner_material(pcard, eset[0]->handler, findex1, findex2, min, max, smat, mg);
 	}
 	for(uint8 p = 0; p < 2; ++p) {
 		for(int32 i = 0; i < 5; ++i) {
 			tuner = player[p].list_mzone[i];
-			if(check_tuner_material(pcard, tuner, findex1, findex2, min, max, mg))
+			if(check_tuner_material(pcard, tuner, findex1, findex2, min, max, smat, mg))
 				return TRUE;
 		}
 	}
 	return FALSE;
 }
-int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, group* mg) {
+int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg) {
 	effect* peffect;
 	if(tuner && tuner->is_position(POS_FACEUP) && (tuner->get_type()&TYPE_TUNER) && tuner->is_can_be_synchro_material(pcard)) {
 		effect* pcheck = tuner->is_affected_by_effect(EFFECT_SYNCHRO_CHECK);
@@ -1605,6 +1605,38 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 				return TRUE;
 			}
 		} else {
+			int32 l = tuner->get_synchro_level(pcard);
+			int32 l1 = l & 0xffff;
+			//int32 l2 = l >> 16;
+			int32 lv = pcard->get_level();
+			lv -= l1;
+			if(lv <= 0) {
+				pduel->restore_assumes();
+				return FALSE;
+			}
+			if(smat) {
+				if(pcheck)
+					pcheck->get_value(smat);
+				if(!smat->is_position(POS_FACEUP) || !smat->is_can_be_synchro_material(pcard, tuner) || !pduel->lua->check_matching(smat, findex2, 0)) {
+					pduel->restore_assumes();
+					return FALSE;
+				}
+				l = smat->get_synchro_level(pcard);
+				l1 = l & 0xffff;
+				lv -= l1;
+				min--;
+				max--;
+				if(lv <= 0) {
+					pduel->restore_assumes();
+					if(lv == 0 && min == 0)
+						return TRUE;
+					return FALSE;
+				}
+				if(max == 0) {
+					pduel->restore_assumes();
+					return FALSE;
+				}
+			}
 			card_vector nsyn;
 			card* pm;
 			for(uint8 p = 0; p < 2; ++p) {
@@ -1612,7 +1644,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 					pm = player[p].list_mzone[i];
 					if(mg && !mg->has_card(pm))
 						continue;
-					if(pm && pm != tuner && pm->is_position(POS_FACEUP) && pm->is_can_be_synchro_material(pcard, tuner)) {
+					if(pm && pm != tuner && pm != smat && pm->is_position(POS_FACEUP) && pm->is_can_be_synchro_material(pcard, tuner)) {
 						if(pcheck)
 							pcheck->get_value(pm);
 						if(!pduel->lua->check_matching(pm, findex2, 0))
@@ -1622,15 +1654,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 					}
 				}
 			}
-			int32 l = tuner->get_synchro_level(pcard);
-			int32 l1 = l & 0xffff;
-			//int32 l2 = l >> 16;
-			int32 lv = pcard->get_level();
-			if(lv == l1) {
-				pduel->restore_assumes();
-				return FALSE;
-			}
-			if(check_with_sum_limit(&nsyn, lv - l1, 0, 1, min, max)) {
+			if(check_with_sum_limit(&nsyn, lv, 0, 1, min, max)) {
 				pduel->restore_assumes();
 				return TRUE;
 			}
@@ -1668,13 +1692,13 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 min, int32 max,
 					core.xmaterial_lst.insert(std::make_pair(0, *pcard));
 			}
 			auto iter = core.xmaterial_lst.rbegin();
-			while((iter != core.xmaterial_lst.rend()) && (iter->first > core.xmaterial_lst.size()))
+			while((iter != core.xmaterial_lst.rend()) && (iter->first > (int)core.xmaterial_lst.size()))
 				core.xmaterial_lst.erase((iter++).base());
 		}
 	} else {
 		pduel->game_field->get_xyz_material(scard, findex);
 	}
-	return core.xmaterial_lst.size() >= min;
+	return (int)core.xmaterial_lst.size() >= min;
 }
 int32 field::is_player_can_draw(uint8 playerid) {
 	return !is_player_affected_by_effect(playerid, EFFECT_CANNOT_DRAW);
