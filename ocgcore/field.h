@@ -16,6 +16,7 @@
 #include <map>
 #include <list>
 #include <array>
+#include <functional>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -213,7 +214,7 @@ struct processor {
 	std::unordered_map<card*, uint32> readjust_map;
 	std::unordered_set<card*> unique_cards[2];
 	std::unordered_map<uint32, uint32> effect_count_code;
-	std::multimap<int32, card*,std::greater<int32> > xmaterial_lst;
+	std::multimap<int32, card*, std::greater<int32> > xmaterial_lst;
 	ptr temp_var[4];
 	uint32 global_flag;
 	uint16 pre_field[2];
@@ -377,6 +378,7 @@ public:
 	int32 is_player_can_flipsummon(uint8 playerid, card* pcard);
 	int32 is_player_can_spsummon_monster(uint8 playerid, uint8 toplayer, uint8 sumpos, card_data* pdata);
 	int32 is_player_can_release(uint8 playerid, card* pcard);
+	int32 is_player_can_place_counter(uint8 playerid, card* pcard, uint16 countertype, uint16 count);
 	int32 is_player_can_remove_counter(uint8 playerid, card* pcard, uint8 s, uint8 o, uint16 countertype, uint16 count, uint32 reason);
 	int32 is_player_can_remove_overlay_card(uint8 playerid, card* pcard, uint8 s, uint8 o, uint16 count, uint32 reason);
 	int32 is_player_can_send_to_grave(uint8 playerid, card* pcard);
