@@ -144,6 +144,7 @@ irr::video::ITexture* ImageManager::GetFieldTexture(int code, int player) {
 
 	if(tit->second)
 		return tit->second;
+	return NULL;
 }
 
 void ImageManager::LoadSleeve(int player, wchar_t* site, wchar_t* dir)
