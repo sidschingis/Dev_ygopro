@@ -819,17 +819,20 @@ void field::reset_chain() {
 	}
 }
 void field::add_effect_code(uint32 code, uint32 playerid) {
-	core.effect_count_code[code + (playerid << 30)]++;
+	auto& count_map = (code & EFFECT_COUNT_CODE_DUEL) ? core.effect_count_code_duel : core.effect_count_code;
+	count_map[code + (playerid << 30)]++;
 }
 uint32 field::get_effect_code(uint32 code, uint32 playerid) {
-	auto iter = core.effect_count_code.find(code + (playerid << 30));
-	if(iter == core.effect_count_code.end())
+	auto& count_map = (code & EFFECT_COUNT_CODE_DUEL) ? core.effect_count_code_duel : core.effect_count_code;
+	auto iter = count_map.find(code + (playerid << 30));
+	if(iter == count_map.end())
 		return 0;
 	return iter->second;
 }
 void field::dec_effect_code(uint32 code, uint32 playerid) {
-	auto iter = core.effect_count_code.find(code + (playerid << 30));
-	if(iter == core.effect_count_code.end())
+	auto& count_map = (code & EFFECT_COUNT_CODE_DUEL) ? core.effect_count_code_duel : core.effect_count_code;
+	auto iter = count_map.find(code + (playerid << 30));
+	if(iter == count_map.end())
 		return;
 	if(iter->second > 0)
 		iter->second--;
@@ -1642,7 +1645,6 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 			for(uint8 p = 0; p < 2; ++p) {
 				for(int32 i = 0; i < 5; ++i) {
 					pm = player[p].list_mzone[i];
-
 					if(pm && pm != tuner && pm != smat && pm->is_position(POS_FACEUP) && pm->is_can_be_synchro_material(pcard, tuner)) {
 						if(mg && !mg->has_card(pm))
 							continue;
@@ -1679,12 +1681,12 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 min, int32 max,
 	if(mg) {
 		card_vector cv;
 		core.xmaterial_lst.clear();
-		for (auto pcard = mg->container.begin(); pcard != mg->container.end(); ++pcard) {
+		for (auto pcard = mg->container.begin(); pcard != mg->container.end();++pcard) {
 			if(pduel->lua->check_matching(*pcard, findex, 0))
 				cv.push_back(*pcard);
 		}
 		if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
-			for(auto pcard = cv.begin(); pcard != cv.end(); ++pcard) {
+			for(auto pcard = cv.begin(); pcard != cv.end();++pcard) {
 				effect* peffect = (*pcard)->is_affected_by_effect(EFFECT_XMAT_COUNT_LIMIT);
 				if(peffect) {
 					int32 v = peffect->get_value();
@@ -1696,7 +1698,7 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 min, int32 max,
 			while((iter != core.xmaterial_lst.end()) && ((iter->first > (int)core.xmaterial_lst.size()) || (iter->first > max)))
 				core.xmaterial_lst.erase(iter++);
 		} else {
-			for(auto pcard = cv.begin();pcard != cv.end(); ++pcard)
+			for(auto pcard = cv.begin(); pcard != cv.end();++pcard)
 				core.xmaterial_lst.insert(std::make_pair(0, *pcard));
 		}
 	} else {
@@ -1859,7 +1861,18 @@ int32 field::is_player_can_release(uint8 playerid, card * pcard) {
 	return TRUE;
 }
 int32 field::is_player_can_place_counter(uint8 playerid, card * pcard, uint16 countertype, uint16 count) {
-	return !is_player_affected_by_effect(playerid,EFFECT_CANNOT_PLACE_COUNTER);
+	effect_set eset;
+	filter_player_effect(playerid, EFFECT_CANNOT_PLACE_COUNTER, &eset);
+	for(int32 i = 0; i < eset.count; ++i) {
+		if(!eset[i]->target)
+			return FALSE;
+		pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		if (pduel->lua->check_condition(eset[i]->target, 3))
+			return FALSE;
+	}
+	return TRUE;
 }
 int32 field::is_player_can_remove_counter(uint8 playerid, card * pcard, uint8 s, uint8 o, uint16 countertype, uint16 count, uint32 reason) {
 	if((pcard && pcard->get_counter(countertype) >= count) || (!pcard && get_field_counter(playerid, s, o, countertype) >= count))

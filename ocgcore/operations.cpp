@@ -1290,6 +1290,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 			core.sub_solving_event.push_back(nil_event);
 			add_process(PROCESSOR_EXECUTE_OPERATION, 0, proc, 0, sumplayer, 0);
 		}
+		proc->dec_count(sumplayer);
 		return FALSE;
 	}
 	case 5: {
@@ -1693,6 +1694,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 		pduel->lua->add_param(target, PARAM_TYPE_CARD);
 		core.sub_solving_event.push_back(nil_event);
 		add_process(PROCESSOR_EXECUTE_OPERATION, 0, proc, 0, setplayer, 0);
+		proc->dec_count(setplayer);
 		return FALSE;
 	}
 	case 5: {
@@ -1974,6 +1976,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target) {
 			core.sub_solving_event.push_back(nil_event);
 			add_process(PROCESSOR_EXECUTE_OPERATION, 0, peffect, 0, sumplayer, 0);
 		}
+		peffect->dec_count(sumplayer);
 		return FALSE;
 	}
 	case 3: {
@@ -3958,7 +3961,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, card* scard, int32 
 		if(min >= maxv) {
 			core.select_cards.clear();
 			for(auto iter = core.xmaterial_lst.begin(); iter != core.xmaterial_lst.end(); ++iter)
-				core.select_cards.push_back((*iter).second);
+				core.select_cards.push_back(iter->second);
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(playerid);
@@ -3980,7 +3983,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, card* scard, int32 
 	case 2: {
 		core.operated_set.clear();
 		core.select_cards.clear();
-		for(auto iter = core.xmaterial_lst.begin(); iter != core.xmaterial_lst.end(); ++iter)
+		for(auto iter = core.xmaterial_lst.begin(); iter != core.xmaterial_lst.end();++iter)
 			core.select_cards.push_back(iter->second);
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
@@ -4008,7 +4011,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, card* scard, int32 
 			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
 			return TRUE;
 		}
-		if(min + (int)core.operated_set.size() < pv)
+		if(min + core.operated_set.size() < pv)
 			min = pv - core.operated_set.size();
 		core.units.begin()->arg2 = min + (max << 16);
 		if(min == 0) {
@@ -4033,7 +4036,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, card* scard, int32 
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(513);
-		if(min + (int)core.operated_set.size() >= maxv)
+		if(min + core.operated_set.size() >= maxv)
 			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, min + (max << 16));
 		else {
 			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, 0x10001);
