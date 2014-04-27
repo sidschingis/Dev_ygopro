@@ -34,7 +34,9 @@ struct Config {
 	bool autochain;
 	bool nodelay;
 	bool enablesound;
+	double soundvolume;
 	bool enablemusic;
+	double musicvolume;
 	int skin_index;
 	bool fullscreen;
 	bool enablesleeveloading;

@@ -832,7 +832,9 @@ void Game::LoadConfig() {
 	gameConf.autochain = true;
 	gameConf.nodelay = false;
 	gameConf.enablemusic = true;
+	gameConf.musicvolume = 1.0;
 	gameConf.enablesound = true;
+	gameConf.soundvolume = 1.0;
 	gameConf.skin_index = -1;
 	gameConf.fullscreen = false;
 	gameConf.enablesleeveloading = true;
@@ -893,8 +895,12 @@ void Game::LoadConfig() {
 			gameConf.fullscreen = atoi(valbuf) > 0;
 		} else if(!strcmp(strbuf,"enable_music")) {
 			gameConf.enablemusic = atoi(valbuf) > 0;
+		} else if(!strcmp(strbuf,"music_volume")) {
+			gameConf.musicvolume = atof(valbuf) / 100;
 		} else if(!strcmp(strbuf,"enable_sound")) {
 			gameConf.enablesound = atoi(valbuf) > 0;
+		} else if(!strcmp(strbuf,"sound_volume")) {
+			gameConf.soundvolume = atof(valbuf) / 100;
 		} else if(!strcmp(strbuf,"lastpuzzle")) {
 			BufferIO::DecodeUTF8(valbuf, wstr);
 			BufferIO::CopyWStr(wstr, gameConf.lastpuzzle, 256);
@@ -937,12 +943,14 @@ void Game::PlayMusic(char* song, bool loop){
 		if(!engineMusic->isCurrentlyPlaying(song)){
 					engineMusic->stopAllSounds();
 					engineMusic->play2D(song, loop);
+					engineMusic->setSoundVolume(gameConf.musicvolume);
 		}
 	}
 }
 void Game::PlaySound(char* sound){
 	if(gameConf.enablesound){
 		engineSound->play2D(sound);
+		engineMusic->setSoundVolume(gameConf.soundvolume);
 	}
 }
 void Game::ShowCardInfo(int code) {
