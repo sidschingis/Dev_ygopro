@@ -208,6 +208,8 @@ public:
 	irr::gui::IGUIListBox* lstLog;
 	irr::gui::IGUIButton* btnClearLog;
 	irr::gui::IGUIButton* btnSaveLog;
+	irr::gui::IGUIScrollBar* scrSound;
+	irr::gui::IGUIScrollBar* scrMusic;
 	//main menu
 	irr::gui::IGUIWindow* wMainMenu;
 	irr::gui::IGUIButton* btnLanMode;
@@ -492,6 +494,8 @@ extern Game* mainGame;
 #define BUTTON_CLEAR_LOG			270
 #define LISTBOX_LOG					271
 #define SCROLL_CARDTEXT				280
+#define SCROLL_SOUND				290
+#define SCROLL_MUSIC				291
 #define BUTTON_CATEGORY_OK			300
 #define COMBOBOX_DBLFLIST			301
 #define COMBOBOX_DBDECKS			302

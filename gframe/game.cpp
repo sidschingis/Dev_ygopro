@@ -254,7 +254,19 @@ bool Game::Initialize() {
 	chkIgnore1 = env->addCheckBox(false, rect<s32>(20, 170, 280, 195), tabSystem, -1, dataManager.GetSysString(1290));
 	chkIgnore2 = env->addCheckBox(false, rect<s32>(20, 200, 280, 225), tabSystem, -1, dataManager.GetSysString(1291));
 	chkEnableSound = env->addCheckBox(gameConf.enablesound, rect<s32>(20, 230, 280, 255), tabSystem, CHECKBOX_ENABLE_SOUND, dataManager.GetSysString(2046));
-	chkEnableMusic  = env->addCheckBox(gameConf.enablemusic, rect<s32>(20, 260, 280, 285), tabSystem, CHECKBOX_ENABLE_MUSIC, dataManager.GetSysString(2047));
+	scrSound = env->addScrollBar(true, rect<s32>(20, 260, 280, 270), tabSystem, SCROLL_SOUND);
+	scrSound->setMax(100);
+	scrSound->setMin(0);
+	scrSound->setPos(gameConf.soundvolume * 100);
+	scrSound->setLargeStep(1);
+	scrSound->setSmallStep(1);
+	chkEnableMusic  = env->addCheckBox(gameConf.enablemusic, rect<s32>(20, 275, 280, 300), tabSystem, CHECKBOX_ENABLE_MUSIC, dataManager.GetSysString(2047));
+	scrMusic = env->addScrollBar(true, rect<s32>(20, 305, 280, 315), tabSystem, SCROLL_MUSIC);
+	scrMusic->setMax(100);
+	scrMusic->setMin(0);
+	scrMusic->setPos(gameConf.musicvolume * 100);
+	scrMusic->setLargeStep(1);
+	scrMusic->setSmallStep(1);
 	//
 	wHand = env->addWindow(rect<s32>(500, 450, 825, 605), false, L"");
 	wHand->getCloseButton()->setVisible(false);

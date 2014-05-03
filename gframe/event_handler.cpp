@@ -760,6 +760,16 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				mainGame->SetStaticText(mainGame->stText, mainGame->stText->getRelativePosition().getWidth()-30, mainGame->textFont, mainGame->showingtext, pos);
 				break;
 			}
+			case SCROLL_SOUND: {
+				mainGame->gameConf.soundvolume = (double)mainGame->scrSound->getPos() /100;
+				mainGame->engineSound->setSoundVolume(mainGame->gameConf.soundvolume);
+				break;
+			}
+			case SCROLL_MUSIC: {
+				mainGame->gameConf.musicvolume = (double)mainGame->scrMusic->getPos() /100;
+				mainGame->engineMusic->setSoundVolume(mainGame->gameConf.musicvolume);
+				break;
+			}
 			break;
 			}
 		}
