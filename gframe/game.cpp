@@ -950,7 +950,7 @@ void Game::PlayMusic(char* song, bool loop){
 void Game::PlaySound(char* sound){
 	if(gameConf.enablesound){
 		engineSound->play2D(sound);
-		engineMusic->setSoundVolume(gameConf.soundvolume);
+		engineSound->setSoundVolume(gameConf.soundvolume);
 	}
 }
 void Game::ShowCardInfo(int code) {
