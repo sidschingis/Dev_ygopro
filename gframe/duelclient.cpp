@@ -1458,6 +1458,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->dField.sort_list.push_back(0);
 		}
 		if (mainGame->chkAutoChain->isChecked() && mainGame->dInfo.curMsg == MSG_SORT_CHAIN) {
+			mainGame->dField.sort_list.clear();
 			SetResponseI(-1);
 			DuelClient::SendResponse();
 			return true;
