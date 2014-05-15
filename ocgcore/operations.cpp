@@ -860,6 +860,8 @@ int32 field::swap_control(uint16 step, effect * reason_effect, uint8 reason_play
 			pduel->game_field->add_unique_card(pcard1);
 		if(pcard2->unique_code)
 			pduel->game_field->add_unique_card(pcard2);
+		pcard1->previous.location = l3;
+		pcard2->previous.location = l4;
 		set_control(pcard1, p2, reset_phase, reset_count);
 		set_control(pcard2, p1, reset_phase, reset_count);
 		pcard1->reset(RESET_CONTROL, RESET_EVENT);
