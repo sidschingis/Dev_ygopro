@@ -833,6 +833,7 @@ int32 field::swap_control(uint16 step, effect * reason_effect, uint8 reason_play
 	case 0: {
 		uint8 p1 = pcard1->current.controler, p2 = pcard2->current.controler;
 		uint8 l1 = pcard1->current.location, l2 = pcard2->current.location;
+		uint8 l3 = pcard1->previous.location, l4 = pcard1->previous.location;
 		uint8 s1 = pcard1->current.sequence, s2 = pcard2->current.sequence;
 		returns.ivalue[0] = 0;
 		if(pcard1->overlay_target || pcard2->overlay_target)
@@ -850,7 +851,7 @@ int32 field::swap_control(uint16 step, effect * reason_effect, uint8 reason_play
 		if(pcard1->unique_code)
 			pduel->game_field->remove_unique_card(pcard1);
 		if(pcard2->unique_code)
-			pduel->game_field->remove_unique_card(pcard2);
+			pduel->game_field->remove_unique_card(pcard2);	
 		remove_card(pcard1);
 		remove_card(pcard2);
 		add_card(p2, pcard1, l2, s2);
@@ -1396,6 +1397,15 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		core.normalsummon_state[sumplayer] = TRUE;
 		core.summoned_cards_pt[sumplayer].insert(target);
 		core.normalsummoned_cards_pt[sumplayer].insert(target);
+
+		if (target->material_cards.size()) {
+			for (auto mit = target->material_cards.begin(); mit != target->material_cards.end(); ++mit)
+				raise_single_event(*mit, 0, EVENT_BE_PRE_MATERIAL, proc, REASON_SUMMON, sumplayer, sumplayer, 0);
+			raise_event(&target->material_cards, EVENT_BE_PRE_MATERIAL, proc, REASON_SUMMON, sumplayer, sumplayer, 0);
+		}
+		process_single_event();
+		process_instant_event();
+
 		if(core.current_chain.size() == 0) {
 			if(target->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SUMMON))
 				core.units.begin()->step = 14;
@@ -2016,24 +2026,42 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target) {
 		pduel->write_buffer8(target->current.position);
 		core.spsummon_state[sumplayer] = TRUE;
 		core.spsummoned_cards_pt[sumplayer].insert(target);
-		if(core.current_chain.size() == 0) {
-			if(target->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SPSUMMON))
+		
+		return FALSE;
+	}
+	case 5:{
+
+		effect* proc = core.units.begin()->peffect;
+		int32 matreason = proc->value == SUMMON_TYPE_SYNCHRO ? REASON_SYNCHRO : proc->value == SUMMON_TYPE_XYZ ? REASON_XYZ : REASON_SPSUMMON;
+		if (target->material_cards.size()) {
+			for (auto mit = target->material_cards.begin(); mit != target->material_cards.end(); ++mit)
+				raise_single_event(*mit, 0, EVENT_BE_PRE_MATERIAL, proc, matreason, sumplayer, sumplayer, 0);
+		}
+		raise_event(&target->material_cards, EVENT_BE_PRE_MATERIAL, proc, matreason, sumplayer, sumplayer, 0);
+		process_single_event();
+		process_instant_event();
+		return FALSE;
+	}
+	case 6: {
+		if (core.current_chain.size() == 0) {
+			if (target->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SPSUMMON))
 				core.units.begin()->step = 14;
 			else
 				core.units.begin()->step = 9;
 			return FALSE;
-		} else if(core.current_chain.size() > 1) {
+		}
+		else if (core.current_chain.size() > 1) {
 			core.units.begin()->step = 14;
 			return FALSE;
-		} else {
-			if(target->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SPSUMMON))
+		}
+		else {
+			if (target->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SPSUMMON))
 				core.units.begin()->step = 15;
 			else
 				core.units.begin()->step = 10;
 			core.reserved = core.units.front();
 			return TRUE;
 		}
-		return FALSE;
 	}
 	case 10: {
 		core.summoning_card = 0;
