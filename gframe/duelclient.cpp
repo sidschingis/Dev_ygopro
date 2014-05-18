@@ -537,7 +537,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->gMutex.Unlock();
 		mainGame->replaySignal.Reset();
 		mainGame->replaySignal.Wait();
-		if(mainGame->actionParam || !is_host) {
+		if(mainGame->actionParam /*|| !is_host*/) {
 			char* prep = pdata;
 			Replay new_replay;
 			memcpy(&new_replay.pheader, prep, sizeof(ReplayHeader));
@@ -546,7 +546,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			new_replay.comp_size = len - sizeof(ReplayHeader) - 1;
 			if(mainGame->actionParam)
 				new_replay.SaveReplay(mainGame->ebRSName->getText());
-			else new_replay.SaveReplay(L"_LastReplay");
+			//else new_replay.SaveReplay(L"_LastReplay");
 		}
 		break;
 	}
