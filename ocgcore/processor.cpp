@@ -1851,7 +1851,8 @@ int32 field::process_point_event(int16 step, int32 special, int32 skip_new) {
 		return FALSE;
 	}
 	case 8: {
-		if(!(core.duel_options & DUEL_OBSOLETE_RULING) || (infos.phase != PHASE_MAIN1 && infos.phase != PHASE_MAIN2))
+		/*
+				if(!(core.duel_options & DUEL_OBSOLETE_RULING) || (infos.phase != PHASE_MAIN1 && infos.phase != PHASE_MAIN2))
 			return FALSE;
 		// Obsolete ignition effect ruling
 		tevent e;
@@ -1883,6 +1884,7 @@ int32 field::process_point_event(int16 step, int32 special, int32 skip_new) {
 				}
 			}
 		}
+		*/
 		return FALSE;
 	}
 	case 9: {
