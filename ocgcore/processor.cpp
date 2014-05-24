@@ -1851,38 +1851,38 @@ int32 field::process_point_event(int16 step, int32 special, int32 skip_new) {
 		return FALSE;
 	}
 	case 8: {
-		//if(!(core.duel_options & DUEL_OBSOLETE_RULING) || (infos.phase != PHASE_MAIN1 && infos.phase != PHASE_MAIN2))
-		//	return FALSE;
-		//// Obsolete ignition effect ruling
-		//tevent e;
-		//if(core.current_chain.size() == 0 &&
-		//        (check_event(EVENT_SUMMON_SUCCESS, &e) || check_event(EVENT_SPSUMMON_SUCCESS, &e) || check_event(EVENT_FLIP_SUMMON_SUCCESS, &e))
-		//        && e.reason_player == infos.turn_player) {
-		//	chain newchain;
-		//	tevent e;
-		//	e.event_cards = 0;
-		//	e.event_value = 0;
-		//	e.event_player = PLAYER_NONE;
-		//	e.reason_effect = 0;
-		//	e.reason = 0;
-		//	e.reason_player = PLAYER_NONE;
-		//	for(auto eit = effects.ignition_effect.begin(); eit != effects.ignition_effect.end(); ++eit) {
-		//		effect* peffect = eit->second;
-		//		e.event_code = peffect->code;
-		//		if(peffect->handler->current.location == LOCATION_MZONE && peffect->is_chainable(infos.turn_player)
-		//		        && peffect->is_activateable(infos.turn_player, e)) {
-		//			newchain.flag = 0;
-		//			newchain.chain_id = infos.field_id++;
-		//			newchain.evt = e;
-		//			newchain.triggering_controler = peffect->handler->current.controler;
-		//			newchain.triggering_effect = peffect;
-		//			newchain.triggering_location = peffect->handler->current.location;
-		//			newchain.triggering_sequence = peffect->handler->current.sequence;
-		//			newchain.triggering_player = infos.turn_player;
-		//			core.select_chains.push_back(newchain);
-		//		}
-		//	}
-		//}
+		if((infos.phase != PHASE_MAIN1 && infos.phase != PHASE_MAIN2))
+			return FALSE;
+		// Obsolete ignition effect ruling
+		tevent e;
+		if(core.current_chain.size() == 0 &&
+		        (check_event(EVENT_SUMMON_SUCCESS, &e) || check_event(EVENT_SPSUMMON_SUCCESS, &e) || check_event(EVENT_FLIP_SUMMON_SUCCESS, &e))
+		        && e.reason_player == infos.turn_player) {
+			chain newchain;
+			tevent e;
+			e.event_cards = 0;
+			e.event_value = 0;
+			e.event_player = PLAYER_NONE;
+			e.reason_effect = 0;
+			e.reason = 0;
+			e.reason_player = PLAYER_NONE;
+			for(auto eit = effects.ignition_effect.begin(); eit != effects.ignition_effect.end(); ++eit) {
+				effect* peffect = eit->second;
+				e.event_code = peffect->code;
+				if(peffect->handler->current.location == LOCATION_MZONE && peffect->is_chainable(infos.turn_player)
+				        && peffect->is_activateable(infos.turn_player, e)) {
+					newchain.flag = 0;
+					newchain.chain_id = infos.field_id++;
+					newchain.evt = e;
+					newchain.triggering_controler = peffect->handler->current.controler;
+					newchain.triggering_effect = peffect;
+					newchain.triggering_location = peffect->handler->current.location;
+					newchain.triggering_sequence = peffect->handler->current.sequence;
+					newchain.triggering_player = infos.turn_player;
+					core.select_chains.push_back(newchain);
+				}
+			}
+		}
 		return FALSE;
 	}
 	case 9: {
