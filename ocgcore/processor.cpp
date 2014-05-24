@@ -480,6 +480,7 @@ int32 field::process() {
 			card* attacker = core.attacker;
 			if(!attacker
 			        || (attacker->fieldid_r != core.pre_field[0])
+			        || (attacker->current.location != LOCATION_MZONE)
 			        || (attacker->current.position & POS_FACEDOWN)
 			        || ((attacker->current.position & POS_DEFENCE) && !(attacker->is_affected_by_effect(EFFECT_DEFENCE_ATTACK)))
 			        || attacker->is_affected_by_effect(EFFECT_ATTACK_DISABLED)
@@ -3342,9 +3343,11 @@ int32 field::process_battle_command(uint16 step) {
 		card* reason_card = 0;
 		uint8 bd[2] = {FALSE};
 		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
-		effect* defattack = core.attacker->is_affected_by_effect(EFFECT_DEFENCE_ATTACK);
-		if(defattack && defattack->get_value(core.attacker) == 1)
-			a = ad;
+		if(core.attacker->is_position(POS_FACEUP_DEFENCE)) {
+			effect* defattack = core.attacker->is_affected_by_effect(EFFECT_DEFENCE_ATTACK);
+			if(defattack && defattack->get_value(core.attacker) == 1)
+				a = ad;
+		}
 		if(core.attack_target) {
 			da = core.attack_target->get_attack();
 			dd = core.attack_target->get_defence();
@@ -4695,6 +4698,7 @@ int32 field::refresh_location_info(uint16 step) {
 			flag = ((flag << 8) & 0xff00) | 0xffff00ff;
 		else
 			flag = (flag & 0xff) | 0xffffff00;
+		flag |= 0xe0e0e0e0;
 		add_process(PROCESSOR_SELECT_DISFIELD, 0, 0, 0, p + (count1 << 16), flag);
 		return FALSE;
 	}
@@ -4746,6 +4750,7 @@ int32 field::refresh_location_info(uint16 step) {
 			flag = ((flag << 8) & 0xff00) | 0xffff00ff;
 		else
 			flag = (flag & 0xff) | 0xffffff00;
+		flag |= 0xe0e0e0e0;
 		add_process(PROCESSOR_SELECT_DISFIELD, 0, 0, 0, p + (count1 << 16), flag);
 		return FALSE;
 	}
