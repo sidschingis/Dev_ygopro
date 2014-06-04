@@ -40,6 +40,8 @@ struct Config {
 	int skin_index;
 	bool fullscreen;
 	bool enablesleeveloading;
+	bool muteopponent;
+	bool mutespectator;
 };
 
 struct DuelInfo {

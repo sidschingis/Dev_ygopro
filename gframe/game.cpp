@@ -251,8 +251,8 @@ bool Game::Initialize() {
 	chkRandomPos = env->addCheckBox(gameConf.randomplace, rect<s32>(40, 50, 300, 75), tabSystem, -1, dataManager.GetSysString(1275));
 	chkAutoChain = env->addCheckBox(gameConf.autochain, rect<s32>(20, 80, 280, 105), tabSystem, -1, dataManager.GetSysString(1276));
 	chkWaitChain = env->addCheckBox(false, rect<s32>(20, 110, 280, 135), tabSystem, -1, dataManager.GetSysString(1277));
-	chkIgnore1 = env->addCheckBox(false, rect<s32>(20, 170, 280, 195), tabSystem, -1, dataManager.GetSysString(1290));
-	chkIgnore2 = env->addCheckBox(false, rect<s32>(20, 200, 280, 225), tabSystem, -1, dataManager.GetSysString(1291));
+	chkIgnore1 = env->addCheckBox(gameConf.muteopponent, rect<s32>(20, 170, 280, 195), tabSystem, -1, dataManager.GetSysString(1290));
+	chkIgnore2 = env->addCheckBox(gameConf.mutespectator, rect<s32>(20, 200, 280, 225), tabSystem, -1, dataManager.GetSysString(1291));
 	chkEnableSound = env->addCheckBox(gameConf.enablesound, rect<s32>(20, 230, 280, 255), tabSystem, CHECKBOX_ENABLE_SOUND, dataManager.GetSysString(2046));
 	scrSound = env->addScrollBar(true, rect<s32>(20, 260, 280, 270), tabSystem, SCROLL_SOUND);
 	scrSound->setMax(100);
@@ -850,6 +850,8 @@ void Game::LoadConfig() {
 	gameConf.skin_index = -1;
 	gameConf.fullscreen = false;
 	gameConf.enablesleeveloading = true;
+	gameConf.mutespectator = false;
+	gameConf.muteopponent = false;
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -921,6 +923,10 @@ void Game::LoadConfig() {
 			BufferIO::CopyWStr(wstr, gameConf.lastreplay, 256);
 		} else if(!strcmp(strbuf,"enable_sleeve_loading")) {
 			gameConf.enablesleeveloading = atoi(valbuf) > 0;
+		} else if(!strcmp(strbuf,"mute_opponent")) {
+			gameConf.muteopponent = atoi(valbuf) > 0;
+		} else if(!strcmp(strbuf,"mute_spectators")) {
+			gameConf.mutespectator = atoi(valbuf) > 0;
 		}
 	}
 	fclose(fp);
