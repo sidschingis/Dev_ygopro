@@ -890,20 +890,20 @@ void Game::DrawThumb(code_pointer cp, position2di pos, std::unordered_map<int, i
 		}
 	}
 }
-static inline void DrawRectangle(IVideoDriver *driver, recti &position)
+void Game::DrawRectangle(IVideoDriver *driver, recti &position)
 {
 	driver->draw2DRectangle(position, 0x400000ff, 0x400000ff, 0x40000000, 0x40000000);
 	position.UpperLeftCorner.X -= 1;
 	position.UpperLeftCorner.Y -= 1;
 	driver->draw2DRectangleOutline(position);
 }
-static inline void DrawShadowA(CGUITTFont *font, const stringw &text, recti &position)
+void Game::DrawShadowA(CGUITTFont *font, const stringw &text, recti &position)
 {
 	font->draw(text, position, 0xff000000, false, true);
 	position += position2di(1, 1);
 	font->draw(text, position, 0xffffffff, false, true);
 }
-static inline void DrawShadowB(CGUITTFont *font, const stringw &text, recti &position)
+void Game::DrawShadowB(CGUITTFont *font, const stringw &text, recti &position)
 {
 	font->draw(text, position, 0xff000000, false, true);
 	position.UpperLeftCorner.X += 1;
