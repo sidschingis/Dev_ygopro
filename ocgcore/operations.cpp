@@ -3448,9 +3448,12 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 						raise_single_event(pcard, 0, EVENT_FLIP, reason_effect, 0, reason_player, 0, noflip);
 						flips.insert(pcard);
 					}
-					if(enable)
-						pcard->enable_field_effect(TRUE);
-					else
+					if(enable) {
+						if(!reason_effect || !(reason_effect->type & 0x7f0))
+							pcard->enable_field_effect(TRUE);
+						else
+							core.delayed_enable_set.insert(pcard);
+					} else
 						pcard->refresh_disable_status();
 				}
 				if(pcard->current.location == LOCATION_MZONE) {
@@ -4155,7 +4158,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 	switch(step) {
 	case 0: {
 		if(core.release_cards_ex.size() + core.release_cards_ex_sum.size() == 0
-		        || (get_useable_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD) <= 0 && min < 2)) {
+		        || (get_useable_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD) <= 1 && min < 2)) {
 			core.select_cards.clear();
 			for(auto cit = core.release_cards.begin(); cit != core.release_cards.end(); ++cit)
 				core.select_cards.push_back(*cit);
@@ -4211,8 +4214,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
 			core.operated_set.insert(pcard);
 			effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_SUM);
-			if((peffect->flag & EFFECT_FLAG_COUNT_LIMIT) && (peffect->reset_count & 0xf00) > 0)
-				peffect->dec_count();
+			peffect->dec_count();
 		}
 		return FALSE;
 	}
