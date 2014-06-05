@@ -141,8 +141,10 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				mainGame->HideElement(mainGame->wQuery);				
 				std::wstring filestr(L"./deck/");
 				filestr += mainGame->cbDBDecks->getItem(mainGame->cbDBDecks->getSelected());
-				filestr += L".ydk";				
-				if(_wremove(filestr.c_str()) == 0){
+				filestr += L".ydk";
+				char* path = new char[256];
+				std::wcstombs(path,filestr.c_str(),256);
+				if(remove(path) == 0){
 					mainGame->cbDBDecks->removeItem(mainGame->cbDBDecks->getSelected());
 					deckManager.current_deck.main.clear();
 					deckManager.current_deck.extra.clear();

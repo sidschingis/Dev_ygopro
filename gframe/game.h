@@ -113,6 +113,9 @@ public:
 	void CloseDuelWindow();
 	void PlayMusic(char* song, bool loop);
 	void PlaySound(char* sound);
+	void DrawRectangle(IVideoDriver *driver, recti &position);
+	void DrawShadowA(CGUITTFont *font, const stringw &text, recti &position);
+	void DrawShadowB(CGUITTFont *font, const stringw &text, recti &position);
 
 	int LocalPlayer(int player);
 	const wchar_t* LocalName(int local_player);
