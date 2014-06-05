@@ -9,6 +9,8 @@
 #include "replay.h"
 #include "replay_mode.h"
 
+#include <fstream>
+
 namespace ygo {
 
 unsigned DuelClient::connect_state = 0;
@@ -550,7 +552,10 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 				//else new_replay.SaveReplay(L"_LastReplay");
 			}
 		} catch (std::exception e){
-		
+			  std::ofstream outfile;
+
+			  outfile.open("crash.txt", std::ios_base::app);
+			  outfile << e.what(); 
 		}
 		break;
 	}
