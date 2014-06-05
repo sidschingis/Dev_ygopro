@@ -58,8 +58,6 @@ private :
 	irr::core::stringw name;
 	CXMLNODETYPE type;
 	irr::core::list<CXMLNode*> children;
-	irr::core::array<const wchar_t *> *CXMLNode::listChildrenByType(CXMLNODETYPE nodetype);
-	
-	
+	irr::core::array<const wchar_t *> *listChildrenByType(CXMLNODETYPE nodetype);
 };
 #endif
