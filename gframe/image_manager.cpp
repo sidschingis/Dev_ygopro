@@ -154,7 +154,10 @@ void ImageManager::LoadSleeve(int player, wchar_t* site, wchar_t* dir)
 	sleeve->player = player;
 	std::wcstombs(sleeve->hostname, site, 256);
 	std::wcstombs(sleeve->filename, dir, 256);
-	sleeve->fakename = player == 0 ? "cover0.jpg" : "cover1.jpg";
+	if(player == 0)
+		std::wcstombs(sleeve->fakename, L"cover0.jpg", 256);
+	else
+		std::wcstombs(sleeve->fakename, L"cover1.jpg", 256);
 	pendingTextures.push_back(sleeve);
 }
 void ImageManager::LoadPendingTextures()

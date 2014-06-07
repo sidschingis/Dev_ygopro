@@ -19,7 +19,7 @@ struct TextureData
 	int player;
 	char hostname[256];
 	char filename[256];
-	char *fakename;
+	char fakename[256];
 };
 
 class ImageManager {
