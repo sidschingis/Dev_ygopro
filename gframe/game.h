@@ -254,6 +254,7 @@ public:
 	irr::gui::IGUIWindow* wHostPrepare;
 	irr::gui::IGUIButton* btnHostPrepDuelist;
 	irr::gui::IGUIButton* btnHostPrepOB;
+	irr::gui::IGUIStaticText* stHostPrepDuelistElo[4];
 	irr::gui::IGUIStaticText* stHostPrepDuelist[4];
 	irr::gui::IGUICheckBox* chkHostPrepReady[4];
 	irr::gui::IGUIButton* btnHostPrepKick[4];

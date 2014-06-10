@@ -107,6 +107,7 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 		bool create_game = (size_t)ctx != 0;
 		CTOS_PlayerInfo cspi;
 		BufferIO::CopyWStr(mainGame->ebNickName->getText(), cspi.name, 20);
+		cspi.elo=1200;
 		SendPacketToServer(CTOS_PLAYER_INFO, cspi);
 		if(create_game) {
 			CTOS_CreateGame cscg;
@@ -353,12 +354,16 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			mainGame->chkHostPrepReady[3]->setVisible(true);
 			mainGame->stHostPrepDuelist[2]->setVisible(true);
 			mainGame->stHostPrepDuelist[3]->setVisible(true);
+			mainGame->stHostPrepDuelistElo[2]->setVisible(true);
+			mainGame->stHostPrepDuelistElo[3]->setVisible(true);
 		} else {
 			mainGame->dInfo.isTag = false;
 			mainGame->chkHostPrepReady[2]->setVisible(false);
 			mainGame->chkHostPrepReady[3]->setVisible(false);
 			mainGame->stHostPrepDuelist[2]->setVisible(false);
 			mainGame->stHostPrepDuelist[3]->setVisible(false);
+			mainGame->stHostPrepDuelistElo[2]->setVisible(false);
+			mainGame->stHostPrepDuelistElo[3]->setVisible(false);
 		}
 		for(int i = 0; i < 4; ++i)
 			mainGame->chkHostPrepReady[i]->setChecked(false);
@@ -615,9 +620,10 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		if(pkt->pos > 3)
 			break;
 		wchar_t name[20];
+		std::wstring elo = std::to_wstring(pkt->elo);
 		BufferIO::CopyWStr(pkt->name, name, 20);
 		if(mainGame->dInfo.isTag) {
-			if(pkt->pos == 0)
+			if(pkt->pos == 0) 
 				BufferIO::CopyWStr(pkt->name, mainGame->dInfo.hostname, 20);
 			else if(pkt->pos == 1)
 				BufferIO::CopyWStr(pkt->name, mainGame->dInfo.hostname_tag, 20);
@@ -633,6 +639,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		}
 		mainGame->gMutex.Lock();
 		mainGame->stHostPrepDuelist[pkt->pos]->setText(name);
+		mainGame->stHostPrepDuelistElo[pkt->pos]->setText(elo.c_str());
 		mainGame->gMutex.Unlock();
 		break;
 	}
@@ -646,8 +653,11 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		if(state < 8) {
 			mainGame->PlaySound("./sound/playerenter.wav");
 			wchar_t* prename = (wchar_t*)mainGame->stHostPrepDuelist[pos]->getText();
+			wchar_t* elo = (wchar_t*)mainGame->stHostPrepDuelistElo[pos]->getText();
+			mainGame->stHostPrepDuelistElo[state]->setText(elo);
 			mainGame->stHostPrepDuelist[state]->setText(prename);
 			mainGame->stHostPrepDuelist[pos]->setText(L"");
+			mainGame->stHostPrepDuelistElo[pos]->setText(L"");
 			mainGame->chkHostPrepReady[pos]->setChecked(false);
 			if(pos == 0)
 				BufferIO::CopyWStr(prename, mainGame->dInfo.hostname, 20);
@@ -663,12 +673,14 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			mainGame->chkHostPrepReady[pos]->setChecked(false);
 		} else if(state == PLAYERCHANGE_LEAVE) {
 			mainGame->stHostPrepDuelist[pos]->setText(L"");
+			mainGame->stHostPrepDuelistElo[pos]->setText(L"");
 			mainGame->chkHostPrepReady[pos]->setChecked(false);
 		} else if(state == PLAYERCHANGE_OBSERVE) {
 			watching++;
 			wchar_t watchbuf[32];
 			myswprintf(watchbuf, L"%ls%d", dataManager.GetSysString(1253), watching);
 			mainGame->stHostPrepDuelist[pos]->setText(L"");
+			mainGame->stHostPrepDuelistElo[pos]->setText(L"");
 			mainGame->chkHostPrepReady[pos]->setChecked(false);
 			mainGame->stHostPrepOB->setText(watchbuf);
 		}

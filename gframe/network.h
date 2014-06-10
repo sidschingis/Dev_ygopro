@@ -42,6 +42,7 @@ struct CTOS_TPResult {
 };
 struct CTOS_PlayerInfo {
 	unsigned short name[20];
+	unsigned long long elo;
 };
 struct CTOS_CreateGame {
 	HostInfo info;
@@ -92,6 +93,7 @@ struct STOC_Sleeve {
 struct STOC_HS_PlayerEnter {
 	unsigned short name[20];
 	unsigned char pos;
+	unsigned long long elo;
 };
 struct STOC_HS_PlayerChange {
 	//pos<<4 | state
@@ -105,6 +107,7 @@ class DuelMode;
 
 struct DuelPlayer {
 	unsigned short name[20];
+	unsigned long long elo;
 	DuelMode* game;
 	unsigned char type;
 	unsigned char state;
