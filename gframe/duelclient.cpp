@@ -107,7 +107,7 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 		bool create_game = (size_t)ctx != 0;
 		CTOS_PlayerInfo cspi;
 		BufferIO::CopyWStr(mainGame->ebNickName->getText(), cspi.name, 20);
-		cspi.elo=1200;
+		//cspi.elo=1200;
 		SendPacketToServer(CTOS_PLAYER_INFO, cspi);
 		if(create_game) {
 			CTOS_CreateGame cscg;
@@ -620,8 +620,9 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		if(pkt->pos > 3)
 			break;
 		wchar_t name[20];
-		std::wstring elo = std::to_wstring(pkt->elo);
 		BufferIO::CopyWStr(pkt->name, name, 20);
+		wchar_t elo[5];
+		BufferIO::CopyWStr(pkt->elo, elo, 5);
 		if(mainGame->dInfo.isTag) {
 			if(pkt->pos == 0) 
 				BufferIO::CopyWStr(pkt->name, mainGame->dInfo.hostname, 20);
@@ -639,7 +640,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		}
 		mainGame->gMutex.Lock();
 		mainGame->stHostPrepDuelist[pkt->pos]->setText(name);
-		mainGame->stHostPrepDuelistElo[pkt->pos]->setText(elo.c_str());
+		mainGame->stHostPrepDuelistElo[pkt->pos]->setText(elo);
 		mainGame->gMutex.Unlock();
 		break;
 	}

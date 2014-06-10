@@ -65,7 +65,7 @@ void TagDuel::JoinGame(DuelPlayer* dp, void* pdata, bool is_creater) {
 	if(!players[0] || !players[1] || !players[2] || !players[3]) {
 		STOC_HS_PlayerEnter scpe;
 		BufferIO::CopyWStr(dp->name, scpe.name, 20);
-		scpe.elo=dp->elo;
+		BufferIO::CopyWStr(dp->elo, scpe.elo, 5);
 		if(!players[0])
 			scpe.pos = 0;
 		else if(!players[1])
@@ -101,7 +101,7 @@ void TagDuel::JoinGame(DuelPlayer* dp, void* pdata, bool is_creater) {
 			STOC_HS_PlayerEnter scpe;
 			BufferIO::CopyWStr(players[i]->name, scpe.name, 20);
 			scpe.pos = i;
-			scpe.elo=players[i]->elo;
+			BufferIO::CopyWStr(players[i]->elo, scpe.elo, 5);
 			NetServer::SendPacketToPlayer(dp, STOC_HS_PLAYER_ENTER, scpe);
 			if(ready[i]) {
 				STOC_HS_PlayerChange scpc;
@@ -156,7 +156,7 @@ void TagDuel::ToDuelist(DuelPlayer* dp) {
 		observers.erase(dp);
 		STOC_HS_PlayerEnter scpe;
 		BufferIO::CopyWStr(dp->name, scpe.name, 20);
-		scpe.elo=dp->elo;
+		BufferIO::CopyWStr(dp->elo, scpe.elo, 5);
 		if(!players[0])
 			dp->type = 0;
 		else if(!players[1])
