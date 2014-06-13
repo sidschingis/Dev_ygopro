@@ -79,6 +79,7 @@ public:
 	void UpdateCard(int controler, int location, int sequence, char* data);
 	void UpdateFieldCard(int controler, int location, char* data);
 	void ClearCommandFlag();
+	void ClearCardVectors();
 	void ClearSelect();
 	void ClearChainSelect();
 	void ShowSelectCard(bool buttonok = false);

@@ -1846,7 +1846,8 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 	}
 	case MSG_NEW_PHASE: {
 		mainGame->PlaySound("./sound/phase.wav");
-		mainGame->dField.ClearCommandFlag();
+	//	mainGame->dField.ClearCardVectors();
+	//	mainGame->dField.ClearCommandFlag();
 		int phase = (unsigned char)BufferIO::ReadInt8(pbuf);
 		mainGame->btnDP->setVisible(false);
 		mainGame->btnSP->setVisible(false);

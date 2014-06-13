@@ -297,6 +297,15 @@ void ClientField::UpdateFieldCard(int controler, int location, char* data) {
 		data += len - 4;
 	}
 }
+void ClientField::ClearCardVectors(){
+	activatable_cards.clear();
+	summonable_cards.clear();
+	spsummonable_cards.clear();
+	msetable_cards.clear();
+	ssetable_cards.clear();
+	reposable_cards.clear();
+	attackable_cards.clear();
+};
 void ClientField::ClearCommandFlag() {
 	std::vector<ClientCard*>::iterator cit;
 	for(cit = activatable_cards.begin(); cit != activatable_cards.end(); ++cit)
