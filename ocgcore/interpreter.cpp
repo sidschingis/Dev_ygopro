@@ -23,6 +23,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetOriginalType", scriptlib::card_get_origin_type },
 	{ "GetLevel", scriptlib::card_get_level },
 	{ "GetRank", scriptlib::card_get_rank },
+	{ "GetOriginalRank", scriptlib::card_get_origin_rank },
 	{ "GetSynchroLevel", scriptlib::card_get_synchro_level },
 	{ "GetRitualLevel", scriptlib::card_get_ritual_level },
 	{ "GetOriginalLevel", scriptlib::card_get_origin_level },
