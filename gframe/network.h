@@ -92,8 +92,8 @@ struct STOC_Sleeve {
 };
 struct STOC_HS_PlayerEnter {
 	unsigned short name[20];
-	unsigned short elo[5];
 	unsigned char pos;
+	unsigned short elo[5];
 };
 struct STOC_HS_PlayerChange {
 	//pos<<4 | state
