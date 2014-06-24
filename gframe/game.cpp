@@ -186,7 +186,7 @@ bool Game::Initialize() {
 	}
 	for(int i = 2; i < 4; ++i) {
 		stHostPrepDuelist[i] = env->addStaticText(L"", rect<s32>(40, 75 + i * 25, 240, 95 + i * 25), true, false, wHostPrepare);
-		stHostPrepDuelistElo[i] = env->addStaticText(L"", rect<s32>(250, 65 + i * 25, 240+50, 85 + i * 25), true, false, wHostPrepare);
+		stHostPrepDuelistElo[i] = env->addStaticText(L"", rect<s32>(250, 65 + i * 25, 240+50, 95 + i * 25), true, false, wHostPrepare);
 		btnHostPrepKick[i] = env->addButton(rect<s32>(10, 75 + i * 25, 30, 95 + i * 25), wHostPrepare, BUTTON_HP_KICK, L"X");
 		chkHostPrepReady[i] = env->addCheckBox(false, rect<s32>(250+50, 75 + i * 25, 270+50, 95 + i * 25), wHostPrepare, CHECKBOX_HP_READY, L"");
 		chkHostPrepReady[i]->setEnabled(false);
