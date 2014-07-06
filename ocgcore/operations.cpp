@@ -3965,6 +3965,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 						}
 					}
 				}
+			}
 		}
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
