@@ -1826,19 +1826,74 @@ int32 field::process_point_event(int16 step, int32 special, int32 skip_new) {
 		return FALSE;
 	}
 	case 6: {
-		if(returns.ivalue[0]) {
-			auto clit = core.new_ochain_s.begin();
-			effect* peffect = clit->triggering_effect;
-			uint8 tp = clit->triggering_player;
-			peffect->handler->set_status(STATUS_CHAINING, TRUE);
-			peffect->dec_count(tp);
-			if(tp == infos.turn_player)
-				core.tpchain.push_back(*clit);
-			else
-				core.ntpchain.push_back(*clit);
-			if(peffect->flag & EFFECT_FLAG_CVAL_CHECK)
-				peffect->get_value();
+		if(!returns.ivalue[0]) {
+			core.new_ochain_s.pop_front();
+			core.units.begin()->step = 4;
+			return FALSE;
 		}
+		auto clit = core.new_ochain_s.begin();
+		effect* peffect = clit->triggering_effect;
+		card* pcard = peffect->handler;
+		uint8 tp = clit->triggering_player;
+		core.select_effects.clear();
+		core.select_options.clear();
+		core.select_effects.push_back((effect*)0);
+		core.select_options.push_back(peffect->description);
+		int32 index = 0;
+		while(++clit != core.new_ochain_s.end()) {
+			++index;
+			peffect = clit->triggering_effect;
+			if(pcard != peffect->handler)
+				continue;
+			bool act = true;
+			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
+			        && ((peffect->code == EVENT_FLIP) || (clit->triggering_location & 0x3)
+			            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_status(STATUS_IS_PUBLIC))) {
+				if(!(peffect->flag & EFFECT_FLAG_FIELD_ONLY) && clit->triggering_location == LOCATION_HAND
+				        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->flag & EFFECT_FLAG_SINGLE_RANGE) && peffect->handler->is_has_relation(peffect))
+				            || (peffect->range & LOCATION_HAND))) {
+					continue;
+				} else if((peffect->flag & EFFECT_FLAG_FIELD_ONLY) || !(peffect->type & EFFECT_TYPE_FIELD) || (clit->triggering_location & peffect->range)) {
+					if(peffect->flag & EFFECT_FLAG_CHAIN_UNIQUE) {
+						if(tp == infos.turn_player) {
+							for(auto tpit = core.tpchain.begin(); tpit != core.tpchain.end(); ++tpit) {
+								if(tpit->triggering_effect->handler->data.code == peffect->handler->data.code) {
+									act = false;
+									break;
+								}
+							}
+						} else {
+							for(auto ntpit = core.ntpchain.begin(); ntpit != core.ntpchain.end(); ++ntpit) {
+								if(ntpit->triggering_effect->handler->data.code == peffect->handler->data.code) {
+									act = false;
+									break;
+								}
+							}
+						}
+					}
+				} else
+					continue;
+			} else continue;
+			if(act) {
+				core.select_effects.push_back((effect*)index);
+				core.select_options.push_back(peffect->description);
+			}
+		}
+		if(core.select_options.size() > 1) {
+			add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, tp, 0);
+			core.units.begin()->step = 19;
+			return FALSE;
+		}
+		clit = core.new_ochain_s.begin();
+		peffect = clit->triggering_effect;
+		peffect->handler->set_status(STATUS_CHAINING, TRUE);
+		peffect->dec_count(tp);
+		if(tp == infos.turn_player)
+			core.tpchain.push_back(*clit);
+		else
+			core.ntpchain.push_back(*clit);
+		if(peffect->flag & EFFECT_FLAG_CVAL_CHECK)
+			peffect->get_value();
 		core.new_ochain_s.pop_front();
 		core.units.begin()->step = 4;
 		return FALSE;
@@ -1851,38 +1906,38 @@ int32 field::process_point_event(int16 step, int32 special, int32 skip_new) {
 		return FALSE;
 	}
 	case 8: {
-		//if(!(core.duel_options & DUEL_OBSOLETE_RULING) || (infos.phase != PHASE_MAIN1 && infos.phase != PHASE_MAIN2))
-		//	return FALSE;
-		//// Obsolete ignition effect ruling
-		//tevent e;
-		//if(core.current_chain.size() == 0 &&
-		//        (check_event(EVENT_SUMMON_SUCCESS, &e) || check_event(EVENT_SPSUMMON_SUCCESS, &e) || check_event(EVENT_FLIP_SUMMON_SUCCESS, &e))
-		//        && e.reason_player == infos.turn_player) {
-		//	chain newchain;
-		//	tevent e;
-		//	e.event_cards = 0;
-		//	e.event_value = 0;
-		//	e.event_player = PLAYER_NONE;
-		//	e.reason_effect = 0;
-		//	e.reason = 0;
-		//	e.reason_player = PLAYER_NONE;
-		//	for(auto eit = effects.ignition_effect.begin(); eit != effects.ignition_effect.end(); ++eit) {
-		//		effect* peffect = eit->second;
-		//		e.event_code = peffect->code;
-		//		if(peffect->handler->current.location == LOCATION_MZONE && peffect->is_chainable(infos.turn_player)
-		//		        && peffect->is_activateable(infos.turn_player, e)) {
-		//			newchain.flag = 0;
-		//			newchain.chain_id = infos.field_id++;
-		//			newchain.evt = e;
-		//			newchain.triggering_controler = peffect->handler->current.controler;
-		//			newchain.triggering_effect = peffect;
-		//			newchain.triggering_location = peffect->handler->current.location;
-		//			newchain.triggering_sequence = peffect->handler->current.sequence;
-		//			newchain.triggering_player = infos.turn_player;
-		//			core.select_chains.push_back(newchain);
-		//		}
-		//	}
-		//}
+		if(!(core.duel_options & DUEL_OBSOLETE_IGNITION_RULING) || (infos.phase != PHASE_MAIN1 && infos.phase != PHASE_MAIN2))
+			return FALSE;
+		// Obsolete ignition effect ruling
+		tevent e;
+		if(core.current_chain.size() == 0 &&
+		        (check_event(EVENT_SUMMON_SUCCESS, &e) || check_event(EVENT_SPSUMMON_SUCCESS, &e) || check_event(EVENT_FLIP_SUMMON_SUCCESS, &e))
+		        && e.reason_player == infos.turn_player) {
+			chain newchain;
+			tevent e;
+			e.event_cards = 0;
+			e.event_value = 0;
+			e.event_player = PLAYER_NONE;
+			e.reason_effect = 0;
+			e.reason = 0;
+			e.reason_player = PLAYER_NONE;
+			for(auto eit = effects.ignition_effect.begin(); eit != effects.ignition_effect.end(); ++eit) {
+				effect* peffect = eit->second;
+				e.event_code = peffect->code;
+				if(peffect->handler->current.location == LOCATION_MZONE && peffect->is_chainable(infos.turn_player)
+				        && peffect->is_activateable(infos.turn_player, e)) {
+					newchain.flag = 0;
+					newchain.chain_id = infos.field_id++;
+					newchain.evt = e;
+					newchain.triggering_controler = peffect->handler->current.controler;
+					newchain.triggering_effect = peffect;
+					newchain.triggering_location = peffect->handler->current.location;
+					newchain.triggering_sequence = peffect->handler->current.sequence;
+					newchain.triggering_player = infos.turn_player;
+					core.select_chains.push_back(newchain);
+				}
+			}
+		}
 		return FALSE;
 	}
 	case 9: {
@@ -1914,6 +1969,24 @@ int32 field::process_point_event(int16 step, int32 special, int32 skip_new) {
 			returns.ivalue[0] = FALSE;
 		}
 		return TRUE;
+	}
+	case 20: {
+		int32 index = (int32)core.select_effects[returns.ivalue[0]];
+		auto clit = core.new_ochain_s.begin();
+		std::advance(clit, index);
+		effect* peffect = clit->triggering_effect;
+		uint8 tp = clit->triggering_player;
+		peffect->handler->set_status(STATUS_CHAINING, TRUE);
+		peffect->dec_count(tp);
+		if(tp == infos.turn_player)
+			core.tpchain.push_back(*clit);
+		else
+			core.ntpchain.push_back(*clit);
+		if(peffect->flag & EFFECT_FLAG_CVAL_CHECK)
+			peffect->get_value();
+		core.new_ochain_s.erase(clit);
+		core.units.begin()->step = 4;
+		return FALSE;
 	}
 	}
 	return TRUE;
@@ -2049,7 +2122,7 @@ int32 field::process_quick_effect(int16 step, int32 special, uint8 priority) {
 					for(auto cait = core.current_chain.begin(); cait != core.current_chain.end(); ++cait) {
 						if(cait->triggering_player == priority) {
 							if(!(peffect->flag & EFFECT_FLAG_MULTIACT_HAND)) {
-								if (cait->triggering_location == LOCATION_HAND) {
+								if(cait->triggering_location == LOCATION_HAND) {
 									act = false;
 									break;
 								}
@@ -3345,7 +3418,7 @@ int32 field::process_battle_command(uint16 step) {
 		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 		if(core.attacker->is_position(POS_FACEUP_DEFENCE)) {
 			effect* defattack = core.attacker->is_affected_by_effect(EFFECT_DEFENCE_ATTACK);
-			if(defattack && defattack->get_value(core.attacker) == 1)
+			if(defattack && defattack->get_value(core.attacker))
 				a = ad;
 		}
 		if(core.attack_target) {
@@ -4484,7 +4557,6 @@ int32 field::solve_chain(uint16 step, uint32 skip_new) {
 				(*cit)->enable_field_effect(TRUE);
 		}
 		core.delayed_enable_set.clear();
-
 		adjust_all();
 		core.current_chain.pop_back();
 		if(!core.current_chain.size()) {

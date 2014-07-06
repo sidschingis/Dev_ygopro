@@ -1642,27 +1642,25 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 			}
 			card_vector nsyn;
 			card* pm;
-			if (mg) {
-				for (auto cit = mg->container.begin(); cit != mg->container.end(); ++cit) {
-					pm=*cit;
-					if(pm && pm != tuner && pm != smat && pm->is_can_be_synchro_material(pcard, tuner)) {	
+			if(mg) {
+				for(auto cit = mg->container.begin(); cit != mg->container.end(); ++cit) {
+					pm = *cit;
+					if(pm != tuner && pm != smat && pm->is_can_be_synchro_material(pcard, tuner)) {
 						if(pcheck)
 							pcheck->get_value(pm);
-							if(!pduel->lua->check_matching(pm, findex2, 0))
-								continue;
-							nsyn.push_back(pm);
-							pm->operation_param = pm->get_synchro_level(pcard);
+						if(pm->current.location == LOCATION_MZONE && !pm->is_position(POS_FACEUP))
+							continue;
+						if(!pduel->lua->check_matching(pm, findex2, 0))
+							continue;
+						nsyn.push_back(pm);
+						pm->operation_param = pm->get_synchro_level(pcard);
 					}
-				}
-				if(check_with_sum_limit(&nsyn, lv, 0, 1, min, max)) {
-					pduel->restore_assumes();
-					return TRUE;
 				}
 			} else {
 				for(uint8 p = 0; p < 2; ++p) {
 					for(int32 i = 0; i < 5; ++i) {
 						pm = player[p].list_mzone[i];
-						if(pm && pm != tuner && pm != smat && pm->is_position(POS_FACEUP) && pm->is_can_be_synchro_material(pcard, tuner)) {	
+						if(pm && pm != tuner && pm != smat && pm->is_position(POS_FACEUP) && pm->is_can_be_synchro_material(pcard, tuner)) {
 							if(pcheck)
 								pcheck->get_value(pm);
 							if(!pduel->lua->check_matching(pm, findex2, 0))
@@ -1672,10 +1670,10 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 						}
 					}
 				}
-				if(check_with_sum_limit(&nsyn, lv, 0, 1, min, max)) {
+			}
+			if(check_with_sum_limit(&nsyn, lv, 0, 1, min, max)) {
 				pduel->restore_assumes();
 				return TRUE;
-				}
 			}
 		}
 	}
@@ -1738,14 +1736,17 @@ int32 field::is_player_can_discard_deck_as_cost(uint8 playerid, int32 count) {
 	if((count == 1) && core.deck_reversed)
 		return player[playerid].list_main.back()->is_capable_cost_to_grave(playerid);
 	effect_set eset;
-	filter_field_effect(EFFECT_TO_GRAVE_REDIRECT, &eset);
-	for(int32 i = 0; i < eset.count; ++i) {
-		uint32 redirect = eset[i]->get_value();
-		if((redirect & LOCATION_REMOVED) && player[playerid].list_main.back()->is_affected_by_effect(EFFECT_CANNOT_REMOVE))
-			continue;
-		uint8 p = eset[i]->get_handler_player();
-		if((eset[i]->flag & EFFECT_FLAG_IGNORE_RANGE) || (p == playerid && eset[i]->s_range & LOCATION_DECK) || (p != playerid && eset[i]->o_range & LOCATION_DECK))
+	auto cit = player[playerid].list_main.rbegin();
+	for(int32 j = 0; j < count; ++j) {
+		eset.clear();
+		(*cit)->filter_effect(EFFECT_TO_GRAVE_REDIRECT, &eset);
+		for(int32 i = 0; i < eset.count; ++i) {
+			uint32 redirect = eset[i]->get_value();
+			if((redirect & LOCATION_REMOVED) && (*cit)->is_affected_by_effect(EFFECT_CANNOT_REMOVE))
+				continue;
 			return FALSE;
+		}
+		++cit;
 	}
 	return TRUE;
 }
