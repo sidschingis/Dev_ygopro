@@ -1547,7 +1547,7 @@ void ClientField::GetHoverField(int x, int y) {
 	if(sfRect.isPointInside(pos)) {
 		int hc = hand[0].size();
 		int cardSize = 66;
-			int cardSpace = 10;
+		int cardSpace = 10;
 		if(hc == 0)
 			hovered_location = 0;
 		else if(hc < 7) {
