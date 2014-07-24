@@ -1114,7 +1114,7 @@ void Game::OnResize()
 	wMainMenu->setRelativePosition(ResizeWin(370, 200, 650, 415));
 	wLanWindow->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 520));
-	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750, 440));
+	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750+50, 440));
 	wReplay->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wSinglePlay->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wHand->setRelativePosition(ResizeWin(500, 450, 825, 605));
