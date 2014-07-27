@@ -835,7 +835,7 @@ void card::apply_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto it = field_effect.begin(); it != field_effect.end(); ++it) {
-		if ((current.location & it->second->range) || ((it->second->range & LOCATION_HAND)
+		if (it->second->in_range(current.location, current.sequence) || ((it->second->range & LOCATION_HAND)	
 		        && (it->second->type & EFFECT_TYPE_TRIGGER_O) && !(it->second->code & EVENT_PHASE)))
 			pduel->game_field->add_effect(it->second);
 	}
@@ -846,7 +846,7 @@ void card::cancel_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto it = field_effect.begin(); it != field_effect.end(); ++it) {
-		if ((current.location & it->second->range) || ((it->second->range & LOCATION_HAND)
+		if (it->second->in_range(current.location, current.sequence) || ((it->second->range & LOCATION_HAND)
 		        && (it->second->type & EFFECT_TYPE_TRIGGER_O) && !(it->second->code & EVENT_PHASE)))
 			pduel->game_field->remove_effect(it->second);
 	}
@@ -863,11 +863,11 @@ void card::enable_field_effect(int32 enabled) {
 		set_status(STATUS_EFFECT_ENABLED, TRUE);
 		effect_container::iterator it;
 		for (it = single_effect.begin(); it != single_effect.end(); ++it) {
-			if ((it->second->flag & EFFECT_FLAG_SINGLE_RANGE) && (current.location & it->second->range))
+			if ((it->second->flag & EFFECT_FLAG_SINGLE_RANGE) && it->second->in_range(current.location, current.sequence))
 				it->second->id = pduel->game_field->infos.field_id++;
 		}
 		for (it = field_effect.begin(); it != field_effect.end(); ++it) {
-			if (current.location & it->second->range)
+			if (it->second->in_range(current.location, current.sequence))
 				it->second->id = pduel->game_field->infos.field_id++;
 		}
 		if(current.location == LOCATION_SZONE) {
@@ -954,7 +954,7 @@ int32 card::add_effect(effect* peffect) {
 	}
 	indexer.insert(make_pair(peffect, it));
 	peffect->handler = this;
-	if ((current.location & peffect->range) && peffect->type & EFFECT_TYPE_FIELD)
+	if (peffect->in_range(current.location, current.sequence) && (peffect->type & EFFECT_TYPE_FIELD))
 		pduel->game_field->add_effect(peffect);
 	if (current.controler != PLAYER_NONE && check_target) {
 		if (peffect->is_disable_related())
@@ -993,7 +993,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		single_effect.erase(it);
 	else if (peffect->type & EFFECT_TYPE_FIELD) {
 		check_target = 0;
-		if ((current.location & peffect->range) && get_status(STATUS_EFFECT_ENABLED) && !get_status(STATUS_DISABLED)) {
+		if (peffect->in_range(current.location, current.sequence) && get_status(STATUS_EFFECT_ENABLED) && !get_status(STATUS_DISABLED)) {
 			if (peffect->is_disable_related())
 				pduel->game_field->update_disable_check_list(peffect);
 		}
@@ -1516,14 +1516,14 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset) {
 		}
 		if(peffect->is_available() && peffect->check_count_limit(playerid) && is_summonable(peffect)
 		        && pduel->game_field->is_player_can_spsummon(peffect, peffect->get_value(this), topos, playerid, toplayer, this))
-			peset->add_item(pr.first->second);
+			peset->add_item(peffect);
 	}
 }
 void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset) {
 	auto pr = field_effect.equal_range(EFFECT_SPSUMMON_PROC_G);
 	for(; pr.first != pr.second; ++pr.first) {
 		effect* peffect = pr.first->second;
-		if(!peffect->is_available())
+		if(!peffect->is_available() || !peffect->check_count_limit(playerid))
 			continue;
 		effect* oreason = pduel->game_field->core.reason_effect;
 		uint8 op = pduel->game_field->core.reason_player;
@@ -1533,7 +1533,7 @@ void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset) {
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		if(pduel->lua->check_condition(peffect->condition, 2))
-			peset->add_item(pr.first->second);
+			peset->add_item(peffect);
 		pduel->game_field->restore_lp_cost();
 		pduel->game_field->core.reason_effect = oreason;
 		pduel->game_field->core.reason_player = op;
