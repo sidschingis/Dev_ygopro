@@ -3441,8 +3441,11 @@ int32 field::process_battle_command(uint16 step) {
 					damchange = core.attacker->is_affected_by_effect(EFFECT_BATTLE_DAMAGE_TO_EFFECT);
 					if(damchange) {
 						damp = pd;
-						core.battle_damage[damp] = a - d;
-						reason_card = core.attacker;
+						if(damp == pa || (!core.attack_target->is_affected_by_effect(EFFECT_AVOID_BATTLE_DAMAGE, core.attacker)
+						        && !is_player_affected_by_effect(damp, EFFECT_AVOID_BATTLE_DAMAGE))) {
+							core.battle_damage[damp] = d - a;
+							reason_card = core.attack_target;
+						}
 					} else if(!core.attacker->is_affected_by_effect(EFFECT_NO_BATTLE_DAMAGE)
 					          && !core.attack_target->is_affected_by_effect(EFFECT_AVOID_BATTLE_DAMAGE, core.attacker)
 					          && !is_player_affected_by_effect(pd, EFFECT_AVOID_BATTLE_DAMAGE)) {
@@ -3510,8 +3513,12 @@ int32 field::process_battle_command(uint16 step) {
 							dp[pd] = 1;
 							dp[1 - pd] = 0;
 						}
-						if(dp[0]) core.battle_damage[0] = a - d;
-						if(dp[1]) core.battle_damage[1] = a - d;
+						if(dp[pd] && !core.attack_target->is_affected_by_effect(EFFECT_AVOID_BATTLE_DAMAGE, core.attacker)
+						        && !is_player_affected_by_effect(pd, EFFECT_AVOID_BATTLE_DAMAGE))
+							core.battle_damage[pd] = a - d;
+						if(dp[1 - pd] && !core.attacker->is_affected_by_effect(EFFECT_AVOID_BATTLE_DAMAGE, core.attack_target)
+						        && !is_player_affected_by_effect(1 - pd, EFFECT_AVOID_BATTLE_DAMAGE))
+							core.battle_damage[1 - pd] = a - d;
 						reason_card = core.attacker;
 					}
 					if(core.attack_target->is_destructable_by_battle(core.attacker))
@@ -3530,8 +3537,11 @@ int32 field::process_battle_command(uint16 step) {
 						else damp = pa;
 						if(is_player_affected_by_effect(damp, EFFECT_REFLECT_BATTLE_DAMAGE))
 							damp = 1 - damp;
-						core.battle_damage[damp] = d - a;
-						reason_card = core.attack_target;
+						if(damp == pa || (!core.attack_target->is_affected_by_effect(EFFECT_AVOID_BATTLE_DAMAGE, core.attacker)
+						        && !is_player_affected_by_effect(damp, EFFECT_AVOID_BATTLE_DAMAGE))) {
+							core.battle_damage[damp] = d - a;
+							reason_card = core.attack_target;
+						}
 					}
 				}
 			}
@@ -3546,8 +3556,10 @@ int32 field::process_battle_command(uint16 step) {
 				damp = 1 - pa;
 				if(is_player_affected_by_effect(damp, EFFECT_REFLECT_BATTLE_DAMAGE))
 					damp = 1 - damp;
-				core.battle_damage[damp] = a;
-				reason_card = core.attacker;
+				if(!is_player_affected_by_effect(damp, EFFECT_AVOID_BATTLE_DAMAGE)) {
+					core.battle_damage[damp] = a;
+					reason_card = core.attacker;
+				}
 			}
 		}
 		if(bd[0])
@@ -4373,8 +4385,12 @@ int32 field::sort_chain(uint16 step, uint8 tp) {
 int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_player) {
 	switch(step) {
 	case 0: {
-		chain newchain;
 		core.solving_event.splice(core.solving_event.begin(), core.sub_solving_event);
+		if(!peffect->is_activateable(triggering_player, core.solving_event.front())) {
+			core.solving_event.pop_front();
+			return TRUE;
+		}
+		chain newchain;
 		newchain.chain_id = 0;
 		newchain.chain_count = 0;
 		newchain.triggering_effect = peffect;
