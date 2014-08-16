@@ -1196,7 +1196,7 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 			rcount += pcard->operation_param;
 		}
 	}
-	int32 ex_count = 0;
+	int32 ex_sum_max = 0;
 	for(int i = 0; i < 5; ++i) {
 		pcard = player[1 - p].list_mzone[i];
 		if(!(pcard && pcard->is_releasable_by_summon(p, target)))
@@ -1221,12 +1221,11 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 				pcard->operation_param = 2;
 			else
 				pcard->operation_param = 1;
-			ex_count++;
+			if(ex_sum_max < pcard->operation_param)
+				ex_sum_max = pcard->operation_param;
 		}
 	}
-	if(ex_count)
-		rcount++;
-	return rcount;
+	return rcount + ex_sum_max;
 }
 int32 field::get_summon_count_limit(uint8 playerid) {
 	effect_set eset;
