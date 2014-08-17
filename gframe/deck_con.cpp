@@ -498,7 +498,9 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 							limit--;
 					if(limit <= 0)
 						break;
-					if((draging_pointer->second.type & 0x802040) && deckManager.current_deck.extra.size() < 15) {
+					if ((GetKeyState(VK_SHIFT) < 0) && deckManager.current_deck.side.size() < 15){
+						deckManager.current_deck.side.push_back(draging_pointer);
+					} else if((draging_pointer->second.type & 0x802040) && deckManager.current_deck.extra.size() < 15) {
 						deckManager.current_deck.extra.push_back(draging_pointer);
 					} else if(!(draging_pointer->second.type & 0x802040) && deckManager.current_deck.main.size() < 60) {
 						deckManager.current_deck.main.push_back(draging_pointer);
