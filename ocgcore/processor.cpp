@@ -1329,7 +1329,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			peffect = pr.first->second;
 			peffect->s_range = peffect->handler->current.location;
 			peffect->o_range = peffect->handler->current.sequence;
-			if(!peffect->is_activateable(check_player, nil_event))
+			if(peffect->get_handler_player() != check_player || !peffect->is_activateable(check_player, nil_event))
 				continue;
 			peffect->id = infos.field_id++;
 			newchain.triggering_effect = peffect;
@@ -1342,7 +1342,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			peffect = pr.first->second;
 			peffect->s_range = peffect->handler->current.location;
 			peffect->o_range = peffect->handler->current.sequence;
-			if(!peffect->is_activateable(check_player, nil_event))
+			if(peffect->get_handler_player() != check_player || !peffect->is_activateable(check_player, nil_event))
 				continue;
 			peffect->id = infos.field_id++;
 			newchain.triggering_effect = peffect;
