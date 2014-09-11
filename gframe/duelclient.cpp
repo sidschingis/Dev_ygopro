@@ -1157,7 +1157,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		int count = BufferIO::ReadInt8(pbuf);
 		mainGame->dField.selectable_cards.clear();
 		mainGame->dField.selected_cards.clear();
-		int c, l, s, ss;
+		int c, l, s, ss, desc;
 		unsigned int code;
 		bool panelmode = false;
 		mainGame->dField.select_ready = false;
@@ -1167,7 +1167,8 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			c = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
 			l = BufferIO::ReadInt8(pbuf);
 			s = BufferIO::ReadInt8(pbuf);
-			ss = BufferIO::ReadInt8(pbuf);
+			ss = BufferIO::ReadInt32(pbuf);
+			desc = BufferIO::ReadInt32(pbuf);
 			if ((l & LOCATION_OVERLAY) > 0)
 				pcard = mainGame->dField.GetCard(c, l & 0x7f, s)->overlayed[ss];
 			else
@@ -1176,6 +1177,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 				pcard->SetCode(code);
 			pcard->select_seq = i;
 			mainGame->dField.selectable_cards.push_back(pcard);
+			mainGame->dField.activatable_descs.push_back(desc);
 			pcard->is_selectable = true;
 			pcard->is_selected = false;
 			if (l & 0xf1)
