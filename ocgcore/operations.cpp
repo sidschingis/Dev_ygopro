@@ -2219,12 +2219,12 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target) {
 		send_to(&cset, 0, REASON_RULE, sumplayer, sumplayer, LOCATION_GRAVE, 0, 0);
 		adjust_instant();
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
+		if(pgroup->container.size() == 0)
+			return TRUE;
 		return FALSE;
 	}
 	case 27: {
 		group* pgroup = core.units.begin()->ptarget;
-		if(pgroup->container.size() == 0)
-			return TRUE;
 		for(auto oeit = effects.oath.begin(); oeit != effects.oath.end(); ++oeit)
 			if(oeit->second == core.units.begin()->peffect)
 				oeit->second = 0;
@@ -4216,6 +4216,8 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		core.temp_var[0] = 0;
 		if(rmax < min)
 			returns.ivalue[0] = TRUE;
+			if(min == 2)
+				core.temp_var[0] = 1;
 		else if(!core.release_cards_ex_sum.empty()) {
 			if(rmax == 0 && min == 2)
 				core.temp_var[0] = 1;
@@ -4229,7 +4231,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 			core.units.begin()->step = 2;
 			return FALSE;
 		}
-		if(core.temp_var[0] == 0)
+		if(core.temp_var[0] == 0 )
 			for(auto cit = core.release_cards_ex_sum.begin(); cit != core.release_cards_ex_sum.end(); ++cit)
 				core.select_cards.push_back(*cit);
 		else
