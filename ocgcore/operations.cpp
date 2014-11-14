@@ -2007,6 +2007,23 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target) {
 		target->current.reason_effect = peffect;
 		target->current.reason_player = sumplayer;
 		target->summon_player = sumplayer;
+		core.spsummon_state_count[sumplayer]++;
+		for(auto iter= core.spsummon_counter.begin(); iter != core.spsummon_counter.end(); ++iter) {
+			auto& info = iter->second;
+			if(info.first) {
+				pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
+				pduel->lua->add_param(sumplayer, PARAM_TYPE_INT);
+				pduel->lua->add_param(target->summon_info & 0xff00ffff, PARAM_TYPE_INT);
+				pduel->lua->add_param(positions, PARAM_TYPE_INT);
+				pduel->lua->add_param(sumplayer, PARAM_TYPE_INT);
+				if(!pduel->lua->check_condition(info.first, 5)) {
+					if(sumplayer == 0)
+						info.second += 0x1;
+					else
+						info.second += 0x10000;
+				}
+			}
+		}
 		break_effect();
 		return FALSE;
 	}

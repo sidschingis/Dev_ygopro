@@ -4039,6 +4039,16 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		for(auto rit = effects.rechargeable.begin(); rit != effects.rechargeable.end(); ++rit)
 			if(!((*rit)->flag & EFFECT_FLAG_NO_TURN_RESET))
 				(*rit)->recharge();
+		for(auto iter = core.summon_counter.begin(); iter != core.summon_counter.end(); ++iter)
+			iter->second.second = 0;
+		for(auto iter = core.normalsummon_counter.begin(); iter != core.normalsummon_counter.end(); ++iter)
+			iter->second.second = 0;
+		for(auto iter = core.spsummon_counter.begin(); iter != core.spsummon_counter.end(); ++iter)
+			iter->second.second = 0;
+		for(auto iter = core.flipsummon_counter.begin(); iter != core.flipsummon_counter.end(); ++iter)
+			iter->second.second = 0;
+		for(auto iter = core.attack_counter.begin(); iter != core.attack_counter.end(); ++iter)
+			iter->second.second = 0;
 		infos.turn_id++;
 		infos.turn_player = turn_player;
 		pduel->write_buffer8(MSG_NEW_TURN);
