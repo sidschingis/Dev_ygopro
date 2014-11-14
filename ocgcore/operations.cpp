@@ -2270,7 +2270,7 @@ int32 field::special_summon_step(uint16 step, group * targets, card * target) {
 		}
 		if(!result || (target->current.location == LOCATION_MZONE)
 				|| check_unique_onfield(target, playerid)
-		        || !is_player_can_spsummon(core.reason_effect, target->summon_info & 0xff000000, positions, target->summon_player, playerid, target)
+		        || !is_player_can_spsummon(core.reason_effect, target->summon_info & 0xff00ffff, positions, target->summon_player, playerid, target)
 				|| target->is_affected_by_effect(EFFECT_CANNOT_SPECIAL_SUMMON)
 		        || get_useable_count(playerid, LOCATION_MZONE, target->summon_player, LOCATION_REASON_TOFIELD) <= 0
 		        || (!nocheck && !(target->data.type & TYPE_MONSTER)))
@@ -3470,6 +3470,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 					pcard->set_status(STATUS_SET_TURN, TRUE);
 					pcard->set_status(STATUS_FLIP_SUMMONED, FALSE);
 					pcard->enable_field_effect(FALSE);
+					pcard->summon_info &= 0xff00ffff;
 				}
 				if((npos & POS_FACEDOWN) && pcard->equiping_cards.size()) {
 					for(auto csit = pcard->equiping_cards.begin(); csit != pcard->equiping_cards.end();) {
