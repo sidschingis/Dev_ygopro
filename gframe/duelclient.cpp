@@ -8,7 +8,6 @@
 #include "game.h"
 #include "replay.h"
 #include "replay_mode.h"
-
 #include <fstream>
 
 namespace ygo {
@@ -450,6 +449,8 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		break;
 	}
 	case STOC_DUEL_START: {
+
+	
 		mainGame->HideElement(mainGame->wHostPrepare);
 		mainGame->WaitFrameSignal(11);
 		mainGame->gMutex.Lock();
@@ -512,6 +513,15 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		}
 		mainGame->gMutex.Unlock();
 		match_kill = 0;
+		
+		//testing
+
+		std::ofstream myfile;
+		myfile.open ("test.txt");
+		myfile << "No Crash Here.\n";
+		myfile.close();
+		//
+		//
 		break;
 	}
 	case STOC_DUEL_END: {
