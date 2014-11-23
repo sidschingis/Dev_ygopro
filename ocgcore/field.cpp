@@ -1280,21 +1280,21 @@ void field::ritual_release(card_set* material) {
 	release(&rel, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player);
 	send_to(&rem, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, POS_FACEUP);
 }
-void field::get_xyz_material(card* scard, int32 findex, int32 maxc) {
+void field::get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc) {
 	card* pcard = 0;
 	int32 playerid = scard->current.controler;
 	core.xmaterial_lst.clear();
 	card_vector cv;
 	for(int i = 0; i < 5; ++i) {
 		pcard = player[playerid].list_mzone[i];
-		if(pcard && pcard->is_position(POS_FACEUP) && pcard->is_can_be_xyz_material(scard)
-				&& pduel->lua->check_matching(pcard, findex, 0))
+		if (pcard && pcard->is_position(POS_FACEUP) && pcard->is_can_be_xyz_material(scard) && pcard->is_xyz_level(scard, lv)
+			&& (findex == 0 || pduel->lua->check_matching(pcard, findex, 0)))
 			cv.push_back(pcard);
 	}
 	for(int i = 0; i < 5; ++i) {
 		pcard = player[1 - playerid].list_mzone[i];
-		if(pcard && pcard->is_position(POS_FACEUP) && pcard->is_can_be_xyz_material(scard)
-		        && pcard->is_affected_by_effect(EFFECT_XYZ_MATERIAL) && pduel->lua->check_matching(pcard, findex, 0))
+		if (pcard && pcard->is_position(POS_FACEUP) && pcard->is_can_be_xyz_material(scard) && pcard->is_xyz_level(scard, lv)
+			&& pcard->is_affected_by_effect(EFFECT_XYZ_MATERIAL) && (findex == 0 || pduel->lua->check_matching(pcard, findex, 0)))
 			cv.push_back(pcard);
 	}
 	if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
@@ -1719,12 +1719,12 @@ int32 field::check_with_sum_limit(card_vector* mats, int32 acc, int32 index, int
 	       || (op2 && acc > op2 && check_with_sum_limit(mats, acc - op2, index + 1, count + 1, min, max))
 	       || check_with_sum_limit(mats, acc, index + 1, count, min, max);
 }
-int32 field::check_xyz_material(card* scard, int32 findex, int32 min, int32 max, group* mg) {
+int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, int32 max, group* mg) {
 	if(mg) {
 		card_vector cv;
 		core.xmaterial_lst.clear();
 		for (auto cit = mg->container.begin(); cit != mg->container.end(); ++cit) {
-			if(pduel->lua->check_matching(*cit, findex, 0))
+			if ((*cit)->is_xyz_level(scard, lv) && (findex == 0 || pduel->lua->check_matching(*cit, findex, 0)))
 				cv.push_back(*cit);
 		}
 		if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
@@ -1744,7 +1744,7 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 min, int32 max,
 				core.xmaterial_lst.insert(std::make_pair(0, *cit));
 		}
 	} else {
-		get_xyz_material(scard, findex, max);
+		get_xyz_material(scard, findex, lv, max);
 	}
 	return core.xmaterial_lst.size() >= min;
 }

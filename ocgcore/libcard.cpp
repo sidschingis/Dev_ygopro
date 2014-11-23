@@ -1524,7 +1524,8 @@ int32 scriptlib::card_is_level_below(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 lvl = lua_tointeger(L, 2);
-	if ((pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL))
+	if ((pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL)
+		|| (!(pcard->data.type & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE)))
 		lua_pushboolean(L, 0);
 	else
 		lua_pushboolean(L, pcard->get_level() <= lvl);
@@ -1535,7 +1536,8 @@ int32 scriptlib::card_is_level_above(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 lvl = lua_tointeger(L, 2);
-	if ((pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL))
+	if ((pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL)
+		|| (!(pcard->data.type & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE)))
 		lua_pushboolean(L, 0);
 	else
 		lua_pushboolean(L, pcard->get_level() >= lvl);
@@ -1546,7 +1548,8 @@ int32 scriptlib::card_is_rank_below(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 rnk = lua_tointeger(L, 2);
-	if (!(pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL))
+	if (!(pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL)
+		|| (!(pcard->data.type & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE)))
 		lua_pushboolean(L, 0);
 	else
 		lua_pushboolean(L, pcard->get_rank() <= rnk);
@@ -1557,7 +1560,8 @@ int32 scriptlib::card_is_rank_above(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 rnk = lua_tointeger(L, 2);
-	if (!(pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL))
+	if (!(pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL)
+		|| (!(pcard->data.type & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE)))
 		lua_pushboolean(L, 0);
 	else
 		lua_pushboolean(L, pcard->get_rank() >= rnk);
