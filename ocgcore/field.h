@@ -276,8 +276,6 @@ struct processor {
 	std::unordered_map<uint32, std::pair<uint32, uint32> > flipsummon_counter;
 	std::unordered_map<uint32, std::pair<uint32, uint32> > attack_counter;
 };
-};
-};
 class field {
 public:
 	typedef std::multimap<uint32, effect*> effect_container;

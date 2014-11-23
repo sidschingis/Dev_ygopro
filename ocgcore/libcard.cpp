@@ -95,7 +95,7 @@ int32 scriptlib::card_get_origin_level(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	if(pcard->data.type & TYPE_XYZ)
+	if ((pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL))
 		lua_pushinteger(L, 0);
 	else
 		lua_pushinteger(L, pcard->data.level);
@@ -146,14 +146,20 @@ int32 scriptlib::card_get_origin_attribute(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushinteger(L, pcard->data.attribute);
+	if (pcard->status & STATUS_NO_LEVEL)
+		lua_pushinteger(L, 0);
+	else
+		lua_pushinteger(L, pcard->data.attribute);
 	return 1;
 }
 int32 scriptlib::card_get_race(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushinteger(L, pcard->get_race());
+	if (pcard->status & STATUS_NO_LEVEL)
+		lua_pushinteger(L, 0);
+	else
+		lua_pushinteger(L, pcard->data.race);
 	return 1;
 }
 int32 scriptlib::card_get_origin_race(lua_State *L) {
@@ -181,14 +187,20 @@ int32 scriptlib::card_get_text_attack(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushinteger(L, pcard->data.attack);
+	if (pcard->status & STATUS_NO_LEVEL)
+		lua_pushinteger(L, 0);
+	else
+		lua_pushinteger(L, pcard->data.attack);
 	return 1;
 }
 int32 scriptlib::card_get_defence(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushinteger(L, pcard->get_defence());
+	if (pcard->status & STATUS_NO_LEVEL)
+		lua_pushinteger(L, 0);
+	else
+		lua_pushinteger(L, pcard->data.defence);
 	return 1;
 }
 int32 scriptlib::card_get_origin_defence(lua_State *L) {
@@ -201,7 +213,10 @@ int32 scriptlib::card_get_origin_defence(lua_State *L) {
 int32 scriptlib::card_get_text_defence(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
-	card* pcard = *(card**) lua_touserdata(L, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1); 
+	if (pcard->status & STATUS_NO_LEVEL)
+		lua_pushinteger(L, 0);
+	else
 	lua_pushinteger(L, pcard->data.defence);
 	return 1;
 }
@@ -1509,7 +1524,7 @@ int32 scriptlib::card_is_level_below(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 lvl = lua_tointeger(L, 2);
-	if((pcard->data.type & TYPE_XYZ) || (!(pcard->data.type & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE)))
+	if ((pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL))
 		lua_pushboolean(L, 0);
 	else
 		lua_pushboolean(L, pcard->get_level() <= lvl);
@@ -1520,7 +1535,7 @@ int32 scriptlib::card_is_level_above(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 lvl = lua_tointeger(L, 2);
-	if((pcard->data.type & TYPE_XYZ) || (!(pcard->data.type & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE)))
+	if ((pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL))
 		lua_pushboolean(L, 0);
 	else
 		lua_pushboolean(L, pcard->get_level() >= lvl);
@@ -1531,7 +1546,7 @@ int32 scriptlib::card_is_rank_below(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 rnk = lua_tointeger(L, 2);
-	if(!(pcard->data.type & TYPE_XYZ))
+	if (!(pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL))
 		lua_pushboolean(L, 0);
 	else
 		lua_pushboolean(L, pcard->get_rank() <= rnk);
@@ -1542,7 +1557,7 @@ int32 scriptlib::card_is_rank_above(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 rnk = lua_tointeger(L, 2);
-	if(!(pcard->data.type & TYPE_XYZ))
+	if (!(pcard->data.type & TYPE_XYZ) || (pcard->status & STATUS_NO_LEVEL))
 		lua_pushboolean(L, 0);
 	else
 		lua_pushboolean(L, pcard->get_rank() >= rnk);
