@@ -1508,7 +1508,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 		pr = effects.continuous_effect.equal_range(phase_event);
 		for(; pr.first != pr.second;) {
 			peffect = pr.first->second;
-			 ++pr.first;
+			++pr.first;
 			if(peffect->get_handler_player() != check_player || !peffect->is_activateable(check_player, nil_event))
 				continue;
 			peffect->id = infos.field_id++;
@@ -1612,6 +1612,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			}
 			return FALSE;
 		}
+		core.units.begin()->arg2 = 2;
 		newchain = core.select_chains[returns.ivalue[0]];
 		effect* peffect = newchain.triggering_effect;
 		if(!(peffect->type & EFFECT_TYPE_CONTINUOUS)) {
@@ -1835,7 +1836,7 @@ int32 field::process_point_event(int16 step, int32 special, int32 skip_new) {
 		            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_status(STATUS_IS_PUBLIC))) {
 			if(!(peffect->flag & EFFECT_FLAG_FIELD_ONLY) && clit->triggering_location == LOCATION_HAND
 			        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->flag & EFFECT_FLAG_SINGLE_RANGE) && peffect->handler->is_has_relation(peffect))
-			            /*|| (peffect->range & LOCATION_HAND) */ )) {
+						/*|| (peffect->range & LOCATION_HAND) */ )) {
 				core.new_ochain_h.push_back(*clit);
 				act = false;
 			} else if((peffect->flag & EFFECT_FLAG_FIELD_ONLY) || !(peffect->type & EFFECT_TYPE_FIELD)
@@ -2692,7 +2693,7 @@ int32 field::process_idle_command(uint16 step) {
 			core.units.begin()->step = 8;
 			return FALSE;
 		} else if(ctype == 6) {
-			//to battlephase
+			//to battle phase
 			core.units.begin()->step = 9;
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_EVENT);
@@ -4398,8 +4399,8 @@ int32 field::add_chain(uint16 step) {
 			        && !peffect->handler->is_affected_by_effect(EFFECT_REMAIN_FIELD))
 				peffect->handler->set_status(STATUS_LEAVE_CONFIRMED, TRUE);
 		}
-		core.phase_action = TRUE;if
-		(clit->opinfos.count(0x200))
+		core.phase_action = TRUE;
+		if(clit->opinfos.count(0x200))
 			core.spsummon_state_count[clit->triggering_player]++;
 		pduel->write_buffer8(MSG_CHAINED);
 		pduel->write_buffer8(clit->chain_count);
@@ -4534,6 +4535,8 @@ int32 field::solve_chain(uint16 step, uint32 skip_new) {
 			raise_event((card*)0, EVENT_CHAIN_NEGATED, peffect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
 			process_instant_event();
 			core.units.begin()->step = 9;
+			if(cait->opinfos.count(0x200))
+				core.spsummon_state_count[cait->triggering_player]--;
 			return FALSE;
 		}
 		for(auto oeit = effects.oath.begin(); oeit != effects.oath.end(); ++oeit)
@@ -4586,7 +4589,7 @@ int32 field::solve_chain(uint16 step, uint32 skip_new) {
 	case 3: {
 		effect* peffect = cait->triggering_effect;
 		peffect->operation = (ptr)core.units.begin()->peffect;
-		if (cait->opinfos.count(0x200) && (core.units.begin()->arg2 != core.spsummon_state_count[cait->triggering_player]))
+		if(cait->opinfos.count(0x200) && (core.units.begin()->arg2 != core.spsummon_state_count[cait->triggering_player]))
 			core.spsummon_state_count[cait->triggering_player]--;
 		if(core.special_summoning.size())
 			core.special_summoning.clear();
@@ -4616,8 +4619,6 @@ int32 field::solve_chain(uint16 step, uint32 skip_new) {
 		adjust_instant();
 		process_instant_event();
 		core.units.begin()->step = 9;
-		if(cait->opinfos.count(0x200))
-				core.spsummon_state_count[cait->triggering_player]--;
 		return FALSE;
 	}
 	case 10: {

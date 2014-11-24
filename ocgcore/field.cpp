@@ -147,7 +147,7 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN_DEFENCE << 24);
 	}
 	if ((pcard->data.type & TYPE_PENDULUM) && (location == LOCATION_GRAVE)
-			&& !pcard->is_affected_by_effect(EFFECT_CANNOT_TO_DECK) && is_player_can_send_to_deck(playerid, pcard)
+	        && !pcard->is_affected_by_effect(EFFECT_CANNOT_TO_DECK) && is_player_can_send_to_deck(playerid, pcard)
 	        && (((pcard->previous.location == LOCATION_MZONE) && !pcard->is_status(STATUS_SUMMON_DISABLED))
 	        || ((pcard->previous.location == LOCATION_SZONE) && !pcard->is_status(STATUS_ACTIVATE_DISABLED)))) {
 		location = LOCATION_EXTRA;
@@ -1287,14 +1287,14 @@ void field::get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc) {
 	card_vector cv;
 	for(int i = 0; i < 5; ++i) {
 		pcard = player[playerid].list_mzone[i];
-		if (pcard && pcard->is_position(POS_FACEUP) && pcard->is_can_be_xyz_material(scard) && pcard->is_xyz_level(scard, lv)
-			&& (findex == 0 || pduel->lua->check_matching(pcard, findex, 0)))
+		if(pcard && pcard->is_position(POS_FACEUP) && pcard->is_can_be_xyz_material(scard) && pcard->is_xyz_level(scard, lv)
+				&& (findex == 0 || pduel->lua->check_matching(pcard, findex, 0)))
 			cv.push_back(pcard);
 	}
 	for(int i = 0; i < 5; ++i) {
 		pcard = player[1 - playerid].list_mzone[i];
-		if (pcard && pcard->is_position(POS_FACEUP) && pcard->is_can_be_xyz_material(scard) && pcard->is_xyz_level(scard, lv)
-			&& pcard->is_affected_by_effect(EFFECT_XYZ_MATERIAL) && (findex == 0 || pduel->lua->check_matching(pcard, findex, 0)))
+		if(pcard && pcard->is_position(POS_FACEUP) && pcard->is_can_be_xyz_material(scard) && pcard->is_xyz_level(scard, lv)
+		        && pcard->is_affected_by_effect(EFFECT_XYZ_MATERIAL) && (findex == 0 || pduel->lua->check_matching(pcard, findex, 0)))
 			cv.push_back(pcard);
 	}
 	if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
@@ -1416,18 +1416,13 @@ effect* field::check_unique_onfield(card* pcard, uint8 controler) {
 		return 0;
 	for(auto iter = core.unique_cards[controler].begin(); iter != core.unique_cards[controler].end(); ++iter) {
 		card* ucard = *iter;
-		uint32 code= ucard->unique_code;
-		effect_set effects;
-		ucard->filter_effect(EFFECT_CHANGE_CODE, &effects);
-		if (effects.count)
-			code = effects.get_last()->get_value(ucard);
-		if((ucard != pcard) && ucard->get_status(STATUS_EFFECT_ENABLED) && (code == pcard->unique_code)
+		if((ucard != pcard) && ucard->get_status(STATUS_EFFECT_ENABLED) && (ucard->unique_code == pcard->unique_code)
 			&& (!(pcard->current.location & LOCATION_ONFIELD) || pcard->is_position(POS_FACEDOWN) || (ucard->unique_uid < pcard->unique_uid)))
 			return pcard->unique_effect;
 	}
 	return 0;
 }
-	
+
 void field::CheckCounter(card* pcard, int32 counter_type, int32 playerid) {
 	auto& counter_map = (counter_type == 1) ? core.summon_counter :
 						(counter_type == 2) ? core.normalsummon_counter :
@@ -1446,7 +1441,6 @@ void field::CheckCounter(card* pcard, int32 counter_type, int32 playerid) {
 		}
 	}
 }
-
 int32 field::check_lp_cost(uint8 playerid, uint32 lp) {
 	effect_set eset;
 	int32 val = lp;
@@ -1853,7 +1847,7 @@ int32 field::is_player_can_spsummon(uint8 playerid) {
 	for(int32 i = 0; i < eset.count; ++i) {
 		if(!eset[i]->target)
 			return FALSE;
-	}	
+	}
 	eset.clear();
 	filter_player_effect(playerid, EFFECT_SPSUMMON_COUNT_LIMIT, &eset);
 	for(int32 i = 0; i < eset.count; ++i) {

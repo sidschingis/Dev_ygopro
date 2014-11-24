@@ -2416,7 +2416,7 @@ int32 scriptlib::duel_check_xyz_material(lua_State *L) {
 	check_param_count(L, 6);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	uint32 findex = 0;
-	if (!lua_isnil(L, 2)) {
+	if(!lua_isnil(L, 2)) {
 		check_param(L, PARAM_TYPE_FUNCTION, 2);
 		findex = 2;
 	}
@@ -2425,9 +2425,9 @@ int32 scriptlib::duel_check_xyz_material(lua_State *L) {
 	uint32 minc = lua_tointeger(L, 4);
 	uint32 maxc = lua_tointeger(L, 5);
 	group* mg = nullptr;
-	if (!lua_isnil(L, 6)) {
+	if(!lua_isnil(L, 6)) {
 		check_param(L, PARAM_TYPE_GROUP, 6);
-		mg = *(group**)lua_touserdata(L, 6);
+		mg = *(group**) lua_touserdata(L, 6);
 	}
 	lua_pushboolean(L, scard->pduel->game_field->check_xyz_material(scard, findex, lv, minc, maxc, mg));
 	return 1;
@@ -2437,7 +2437,7 @@ int32 scriptlib::duel_select_xyz_material(lua_State *L) {
 	check_param_count(L, 6);
 	check_param(L, PARAM_TYPE_CARD, 2);
 	uint32 findex = 0;
-	if (!lua_isnil(L, 3)) {
+	if(!lua_isnil(L, 3)) {
 		check_param(L, PARAM_TYPE_FUNCTION, 3);
 		findex = 3;
 	}
@@ -2903,7 +2903,8 @@ int32 scriptlib::duel_is_player_can_spsummon_monster(lua_State * L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	lua_pushboolean(L, pduel->game_field->is_player_can_spsummon_monster(playerid, toplayer, pos, &dat));
 	return 1;
-}int32 scriptlib::duel_is_player_can_summon_count(lua_State * L) {
+}
+int32 scriptlib::duel_is_player_can_summon_count(lua_State * L) {
 	check_param_count(L, 2);
 	int32 playerid = lua_tointeger(L, 1);
 	int32 count = lua_tointeger(L, 2);
@@ -3102,6 +3103,7 @@ int32 scriptlib::duel_add_custom_activity_counter(lua_State *L) {
 			if(iter != pduel->game_field->core.spsummon_counter.end())
 				break;
 			pduel->game_field->core.spsummon_counter[counter_id] = std::make_pair(counter_filter, 0);
+			break;
 		}
 		case 4: {
 			auto iter = pduel->game_field->core.flipsummon_counter.find(counter_id);
