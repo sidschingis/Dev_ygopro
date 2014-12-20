@@ -2340,7 +2340,7 @@ int32 field::process_instant_event() {
 				}
 			}
 		}
-		if(elit->event_code == EVENT_ADJUST || ((elit->event_code & 0xf000) == EVENT_PHASE_START))
+		if(elit->event_code == EVENT_ADJUST/* || ((elit->event_code & 0xf000) == EVENT_PHASE_START) */)
 			continue;
 		//triggers
 		pr = effects.trigger_f_effect.equal_range(elit->event_code);
@@ -5085,7 +5085,7 @@ int32 field::adjust_step(uint16 step) {
 	}
 	case 8: {
 		if(core.selfdes_disabled) {
-			core.units.begin()->step = 9;
+			core.units.begin()->step = 10;
 			return FALSE;
 		}
 		//self destroy
@@ -5123,6 +5123,40 @@ int32 field::adjust_step(uint16 step) {
 	case 9: {
 		if(returns.ivalue[0] > 0)
 			core.re_adjust = TRUE;
+		//self tograve
+		uint8 tp = infos.turn_player;
+		effect* peffect;
+		card_set tograve_set;
+		for (uint8 p = 0; p < 2; ++p) {
+			for (uint8 i = 0; i < 5; ++i) {
+				card* pcard = player[tp].list_mzone[i];
+				if (pcard && pcard->is_position(POS_FACEUP) && (peffect = pcard->is_affected_by_effect(EFFECT_SELF_TOGRAVE))) {
+					tograve_set.insert(pcard);
+					pcard->current.reason_effect = peffect;
+					pcard->current.reason_player = peffect->get_handler_player();
+				}
+			}
+			for (uint8 i = 0; i < 8; ++i) {
+				card* pcard = player[tp].list_szone[i];
+				if (pcard && pcard->is_position(POS_FACEUP) && (peffect = pcard->is_affected_by_effect(EFFECT_SELF_TOGRAVE))) {
+					tograve_set.insert(pcard);
+					pcard->current.reason_effect = peffect;
+					pcard->current.reason_player = peffect->get_handler_player();
+				}
+			}
+			tp = 1 - tp;
+		}
+		if (tograve_set.size()) {
+			send_to(&tograve_set, 0, REASON_EFFECT, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+		}
+		else {
+			returns.ivalue[0] = 0;
+		}
+		return FALSE;
+	}
+	case 10: {
+		if (returns.ivalue[0] > 0)
+			core.re_adjust = TRUE;
 		//equip check
 		uint8 tp = infos.turn_player;
 		card* pcard;
@@ -5141,7 +5175,7 @@ int32 field::adjust_step(uint16 step) {
 		}
 		return FALSE;
 	}
-	case 10: {
+	case 11: {
 		//position
 		uint32 tp = infos.turn_player, pos;
 		card* pcard;
@@ -5179,7 +5213,7 @@ int32 field::adjust_step(uint16 step) {
 		}
 		return FALSE;
 	}
-	case 11: {
+	case 12: {
 		//shuffle check
 		for(uint32 i = 0; i < player[0].list_hand.size(); ++i) {
 			card* pcard = player[0].list_hand[i];
@@ -5201,7 +5235,7 @@ int32 field::adjust_step(uint16 step) {
 			shuffle(1 - infos.turn_player, LOCATION_HAND);
 		return FALSE;
 	}
-	case 12: {
+	case 13 : {
 		//reverse_deck && remove brainwashing
 		effect_set eset;
 		uint32 res = 0;
@@ -5258,19 +5292,19 @@ int32 field::adjust_step(uint16 step) {
 		}
 		return FALSE;
 	}
-	case 13: {
+	case 14: {
 		//attack cancel
 		card* attacker = core.attacker;
 		if(attacker && attacker->is_affected_by_effect(EFFECT_CANNOT_ATTACK))
 			attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
 		return FALSE;
 	}
-	case 14: {
+	case 15: {
 		raise_event((card*)0, EVENT_ADJUST, 0, 0, PLAYER_NONE, PLAYER_NONE, 0);
 		process_instant_event();
 		return FALSE;
 	}
-	case 15: {
+	case 16: {
 		if(core.re_adjust) {
 			core.units.begin()->step = -1;
 			return FALSE;

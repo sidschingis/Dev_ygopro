@@ -1424,6 +1424,7 @@ effect* field::check_unique_onfield(card* pcard, uint8 controler) {
 }
 
 void field::CheckCounter(card* pcard, int32 counter_type, int32 playerid) {
+	/*
 	auto& counter_map = (counter_type == 1) ? core.summon_counter :
 						(counter_type == 2) ? core.normalsummon_counter :
 						(counter_type == 3) ? core.spsummon_counter :
@@ -1440,6 +1441,7 @@ void field::CheckCounter(card* pcard, int32 counter_type, int32 playerid) {
 			}
 		}
 	}
+	*/
 }
 int32 field::check_lp_cost(uint8 playerid, uint32 lp) {
 	effect_set eset;
