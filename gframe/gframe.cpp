@@ -26,6 +26,7 @@ int main(int argc, char* argv[]) {
 	for(int i = 1; i < argc; ++i) {
 		/*command line args:
 		 * -j: join host (host info from system.conf)
+		 * -f: forced join host (host info from system.conf, immediately set ready)
 		 * -d: deck edit
 		 * -r: replay */
 		if(argv[i][0] == '-' && argv[i][1] == 'e') {
@@ -38,6 +39,9 @@ int main(int argc, char* argv[]) {
 			if(!strcmp(argv[i], "-j")) {
 				ygo::mainGame->wMainMenu->setVisible(false);
 				ygo::mainGame->menuHandler.OnJoinHost();
+			} else if(!strcmp(argv[i], "-f")) {
+				ygo::mainGame->wMainMenu->setVisible(false);
+				ygo::mainGame->menuHandler.OnJoinHost(true);
 			} else if(!strcmp(argv[i], "-d")) {
 				event.GUIEvent.Caller = ygo::mainGame->btnDeckEdit;
 				ygo::mainGame->device->postEventFromUser(event);

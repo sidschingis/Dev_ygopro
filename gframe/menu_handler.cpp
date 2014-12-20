@@ -345,7 +345,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 	}
 	return false;
 }
-void MenuHandler::OnJoinHost()
+void MenuHandler::OnJoinHost(bool forced)
 {
 	char ip[20];
 	int i = 0;
@@ -372,6 +372,31 @@ void MenuHandler::OnJoinHost()
 		mainGame->btnCreateHost->setEnabled(false);
 		mainGame->btnJoinHost->setEnabled(false);
 		mainGame->btnJoinCancel->setEnabled(false);
+
+		if(forced){
+			if(mainGame->cbDeckSelect->getSelected() == -1 ||
+					        !deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()))) {
+				
+				return;
+			}
+			BufferIO::CopyWStr(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()),
+					            mainGame->gameConf.lastdeck, 20);
+			char deckbuf[1024];
+			char* pdeck = deckbuf;
+			BufferIO::WriteInt32(pdeck, deckManager.current_deck.main.size() + deckManager.current_deck.extra.size());
+			BufferIO::WriteInt32(pdeck, deckManager.current_deck.side.size());
+			for(size_t i = 0; i < deckManager.current_deck.main.size(); ++i)
+				BufferIO::WriteInt32(pdeck, deckManager.current_deck.main[i]->first);
+			for(size_t i = 0; i < deckManager.current_deck.extra.size(); ++i)
+				BufferIO::WriteInt32(pdeck, deckManager.current_deck.extra[i]->first);
+			for(size_t i = 0; i < deckManager.current_deck.side.size(); ++i)
+				BufferIO::WriteInt32(pdeck, deckManager.current_deck.side[i]->first);
+			DuelClient::SendBufferToServer(CTOS_UPDATE_DECK, deckbuf, pdeck - deckbuf);
+			DuelClient::SendPacketToServer(CTOS_HS_READY);
+			mainGame->cbDeckSelect->setEnabled(false);
+			int selftype = (mainGame->chkHostPrepReady[0]->isEnabled())?0:1;
+			mainGame->chkHostPrepReady[selftype]->setChecked(true);
+		}
 	}
 }
 
