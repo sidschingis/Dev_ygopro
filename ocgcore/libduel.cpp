@@ -217,8 +217,11 @@ int32 scriptlib::duel_summon(lua_State *L) {
 		return 0;
 	card* pcard = *(card**)lua_touserdata(L, 2);
 	uint32 ignore_count = lua_toboolean(L, 3);
+	uint32 min_tribute = 0;
+	if(lua_gettop(L) > 4)
+		min_tribute = lua_tointeger(L, 5);
 	duel * pduel = pcard->pduel;
-	pduel->game_field->summon(playerid, pcard, peffect, ignore_count);
+	pduel->game_field->summon(playerid, pcard, peffect, ignore_count, min_tribute);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_special_summon_rule(lua_State *L) {
@@ -291,8 +294,11 @@ int32 scriptlib::duel_setm(lua_State *L) {
 		return 0;
 	card* pcard = *(card**)lua_touserdata(L, 2);
 	uint32 ignore_count = lua_toboolean(L, 3);
+	uint32 min_tribute = 0;
+	if(lua_gettop(L) > 4)
+		min_tribute = lua_tointeger(L, 5);
 	duel * pduel = pcard->pduel;
-	pduel->game_field->add_process(PROCESSOR_MSET, 0, peffect, (group*)pcard, playerid, ignore_count);
+	pduel->game_field->add_process(PROCESSOR_MSET, 0, peffect, (group*)pcard, playerid, ignore_count + (min_tribute << 8));
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_sets(lua_State *L) {
@@ -847,7 +853,7 @@ int32 scriptlib::duel_is_environment(lua_State *L) {
 		pduel->game_field->filter_field_effect(EFFECT_CHANGE_ENVIRONMENT, &eset);
 		if(eset.count) {
 			effect* peffect = eset.get_last();
-			if(code == peffect->get_value() && (playerid == peffect->get_handler_player() || playerid == PLAYER_ALL))
+			if(code == (uint32)peffect->get_value() && (playerid == peffect->get_handler_player() || playerid == PLAYER_ALL))
 				ret = 1;
 		}
 	}
@@ -3067,13 +3073,16 @@ int32 scriptlib::duel_get_activity_count(lua_State *L) {
 			lua_pushinteger(L, pduel->game_field->core.normalsummon_state_count[playerid]);
 			break;
 		case 3:
-			lua_pushinteger(L, pduel->game_field->core.flipsummon_state_count[playerid]);
+			lua_pushinteger(L, pduel->game_field->core.spsummon_state_count[playerid]);
 			break;
 		case 4:
-			lua_pushinteger(L, pduel->game_field->core.spsummon_state_count[playerid]);
+			lua_pushinteger(L, pduel->game_field->core.flipsummon_state_count[playerid]);
 			break;
 		case 5:
 			lua_pushinteger(L, pduel->game_field->core.attack_state_count[playerid]);
+			break;
+		case 6:
+			lua_pushinteger(L, pduel->game_field->core.battle_phase_count[playerid]);
 			break;
 		default:
 			lua_pushinteger(L, 0);
@@ -3129,6 +3138,14 @@ int32 scriptlib::duel_add_custom_activity_counter(lua_State *L) {
 			pduel->game_field->core.attack_counter[counter_id] = std::make_pair(counter_filter, 0);
 			break;
 		}
+		case 6: break;
+		case 7: {
+			auto iter = pduel->game_field->core.chain_counter.find(counter_id);
+			if(iter != pduel->game_field->core.chain_counter.end())
+				break;
+			pduel->game_field->core.chain_counter[counter_id] = std::make_pair(counter_filter, 0);
+			break;
+		}
 		default:
 			break;
 	}
@@ -3172,6 +3189,14 @@ int32 scriptlib::duel_get_custom_activity_count(lua_State *L) {
 				val = iter->second.second;
 			break;
 		}
+		case 6:
+			break;
+		case 7: {
+			auto iter = pduel->game_field->core.chain_counter.find(counter_id);
+			if(iter != pduel->game_field->core.chain_counter.end())
+				val = iter->second.second;
+			break;
+		}
 		default:
 			break;
 	}
@@ -3179,7 +3204,7 @@ int32 scriptlib::duel_get_custom_activity_count(lua_State *L) {
 		lua_pushinteger(L, val & 0xffff);
 	else
 		lua_pushinteger(L, (val >> 16) & 0xffff);
-	return 0;
+	return 1;
 }
 int32 scriptlib::duel_venom_swamp_check(lua_State *L) {
 	check_param_count(L, 2);
