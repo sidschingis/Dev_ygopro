@@ -42,6 +42,7 @@ struct Config {
 	bool enablesleeveloading;
 	bool muteopponent;
 	bool mutespectator;
+	bool forced;
 };
 
 struct DuelInfo {

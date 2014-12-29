@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 		 * -r: replay */
 		if(argv[i][0] == '-' && argv[i][1] == 'e') {
 			ygo::dataManager.LoadDB(&argv[i][2]);
-		} else if(!strcmp(argv[i], "-j") || !strcmp(argv[i], "-d") || !strcmp(argv[i], "-r") || !strcmp(argv[i], "-s")) {
+		} else if(!strcmp(argv[i], "-j") || !strcmp(argv[i], "-f") || !strcmp(argv[i], "-d") || !strcmp(argv[i], "-r") || !strcmp(argv[i], "-s")) {
 			exit_on_return = true;
 			irr::SEvent event;
 			event.EventType = irr::EET_GUI_EVENT;

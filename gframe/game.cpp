@@ -854,6 +854,7 @@ void Game::LoadConfig() {
 	gameConf.enablesleeveloading = true;
 	gameConf.mutespectator = false;
 	gameConf.muteopponent = false;
+	gameConf.forced = false;
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -929,6 +930,8 @@ void Game::LoadConfig() {
 			gameConf.muteopponent = atoi(valbuf) > 0;
 		} else if(!strcmp(strbuf,"mute_spectators")) {
 			gameConf.mutespectator = atoi(valbuf) > 0;
+		} else if(!strcmp(strbuf,"forced")) {
+			gameConf.forced = atoi(valbuf) > 0;
 		}
 	}
 	fclose(fp);
