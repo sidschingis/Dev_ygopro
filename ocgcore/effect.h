@@ -59,7 +59,7 @@ public:
 	int32 value;
 	int32 operation;
 
-	effect();
+	explicit effect(duel* pd);
 	~effect();
 
 	int32 is_disable_related();
@@ -370,9 +370,8 @@ public:
 #define EFFECT_MUST_BE_SMATERIAL		312
 #define EFFECT_TO_GRAVE_REDIRECT_CB		313
 #define EFFECT_SPSUMMON_PROC_G			320
-#define EFFECT_SUMMON_COUNT_LIMIT		330
-#define EFFECT_SPSUMMON_COUNT_LIMIT		331
-#define EFFECT_FLIP_SUMMON_COUNT_LIMIT	332
+#define EFFECT_SPSUMMON_COUNT_LIMIT		330
+#define EFFECT_LEFT_SPSUMMON_COUNT		331
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

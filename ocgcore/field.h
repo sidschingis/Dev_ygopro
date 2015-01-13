@@ -84,7 +84,7 @@ struct player_info {
 };
 struct field_effect {
 	typedef std::multimap<uint32, effect*> effect_container;
-	typedef std::map<effect*, effect_container::iterator > effect_indexer;
+	typedef std::map<effect*, effect_container::iterator> effect_indexer;
 	typedef std::map<effect*, effect*> oath_effects;
 	typedef std::set<effect*> effect_collection;
 
@@ -101,7 +101,8 @@ struct field_effect {
 	effect_collection pheff;
 	effect_collection cheff;
 	effect_collection rechargeable;
-
+	effect_collection spsummon_count_eff;
+	
 	std::list<card*> disable_check_list;
 	std::set<card*, card_sort> disable_check_set;
 };
@@ -213,6 +214,8 @@ struct processor {
 	std::unordered_set<card*> unique_cards[2];
 	std::unordered_map<uint32, uint32> effect_count_code;
 	std::unordered_map<uint32, uint32> effect_count_code_duel;
+	std::unordered_map<uint32, uint32> spsummon_once_map[2];
+	std::unordered_map<uint32, uint32> spsummon_once_map_rst[2];
 	std::multimap<int32, card*, std::greater<int32> > xmaterial_lst;
 	ptr temp_var[4];
 	uint32 global_flag;
@@ -268,9 +271,13 @@ struct processor {
 	uint8 normalsummon_state_count[2];
 	uint8 flipsummon_state_count[2];
 	uint8 spsummon_state_count[2];
+	uint8 spsummon_state_count_rst[2];
+	uint8 spsummon_state_count_tmp[2];
+	bool spsummon_rst;
 	uint8 attack_state_count[2];
 	uint8 battle_phase_count[2];
 	uint8 phase_action;
+	uint8 battle_phase_action;
 	uint32 hint_timing[2];
 	uint8 current_player;
 	std::unordered_map<uint32, std::pair<uint32, uint32> > summon_counter;
@@ -283,12 +290,10 @@ struct processor {
 class field {
 public:
 	typedef std::multimap<uint32, effect*> effect_container;
-	typedef std::list<card*> check_list;
-	typedef std::map <effect*, effect_container::iterator> effect_indexer;
+	typedef std::map<effect*, effect_container::iterator> effect_indexer;
 	typedef std::set<card*, card_sort> card_set;
 	typedef std::vector<effect*> effect_vector;
 	typedef std::vector<card*> card_vector;
-	typedef std::vector<uint32> option_vector;
 	typedef std::list<card*> card_list;
 	typedef std::list<tevent> event_list;
 	typedef std::list<chain> chain_list;
@@ -308,7 +313,7 @@ public:
 	tevent nil_event;
 
 	static int32 field_used_count[32];
-	field(duel* pduel);
+	explicit field(duel* pduel);
 	~field();
 	void reload_field_info();
 	
@@ -358,10 +363,11 @@ public:
 	void add_unique_card(card* pcard);
 	void remove_unique_card(card* pcard);
 	effect* check_unique_onfield(card* pcard, uint8 controler);
+	int32 check_spsummon_once(card* pcard, uint8 playerid);
 	void check_card_counter(card* pcard, int32 counter_type, int32 playerid);
-	void check_card_counter(card_set* pcards, int32 counter_type, int32 playerid);
-	void check_card_counter(card_vector* pcards, int32 counter_type, int32 playerid);
-	void check_chain_counter(effect* peffect, int32 playerid, int32 chainid);
+	void check_chain_counter(effect* peffect, int32 playerid, int32 chainid, bool cancel = false);
+	void set_spsummon_counter(uint8 playerid, bool add = true, bool chain = false);
+	int32 check_spsummon_counter(uint8 playerid, uint8 ct = 1);
 	
 	int32 check_lp_cost(uint8 playerid, uint32 cost);
 	void save_lp_cost();
@@ -388,9 +394,7 @@ public:
 	int32 is_player_can_spsummon(effect* peffect, uint32 sumtype, uint8 sumpos, uint8 playerid, uint8 toplayer, card* pcard);
 	int32 is_player_can_flipsummon(uint8 playerid, card* pcard);
 	int32 is_player_can_spsummon_monster(uint8 playerid, uint8 toplayer, uint8 sumpos, card_data* pdata);
-	int32 is_player_can_summon_count(uint8 playerid, uint32 count);
 	int32 is_player_can_spsummon_count(uint8 playerid, uint32 count);
-	int32 is_player_can_flipsummon_count(uint8 playerid, uint32 count);
 	int32 is_player_can_release(uint8 playerid, card* pcard);
 	int32 is_player_can_place_counter(uint8 playerid, card* pcard, uint16 countertype, uint16 count);
 	int32 is_player_can_remove_counter(uint8 playerid, card* pcard, uint8 s, uint8 o, uint16 countertype, uint16 count, uint32 reason);
@@ -451,7 +455,7 @@ public:
 	void damage(effect* reason_effect, uint32 reason, uint32 reason_player, card* pcard, uint32 playerid, uint32 amount);
 	void recover(effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 amount);
 	void summon(uint32 sumplayer, card* target, effect* proc, uint32 ignore_count, uint32 min_tribute);
-	void special_summon_rule(uint32 sumplayer, card* target);
+	void special_summon_rule(uint32 sumplayer, card* target, uint32 summon_type);
 	void special_summon(card_set* target, uint32 sumtype, uint32 sumplayer, uint32 playerid, uint32 nocheck, uint32 nolimit, uint32 positions);
 	void special_summon_step(card* target, uint32 sumtype, uint32 sumplayer, uint32 playerid, uint32 nocheck, uint32 nolimit, uint32 positions);
 	void special_summon_complete(effect* reason_effect, uint8 reason_player);
@@ -479,7 +483,7 @@ public:
 	int32 mset(uint16 step, uint8 setplayer, card* ptarget, effect* proc, uint8 ignore_count, uint8 min_tribute);
 	int32 sset(uint16 step, uint8 setplayer, uint8 toplayer, card* ptarget);
 	int32 sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget);
-	int32 special_summon_rule(uint16 step, uint8 sumplayer, card* target);
+	int32 special_summon_rule(uint16 step, uint8 sumplayer, card* target, uint32 summon_type);
 	int32 special_summon_step(uint16 step, group* targets, card* target);
 	int32 special_summon(uint16 step, effect* reason_effect, uint8 reason_player, group* targets);
 	int32 destroy(uint16 step, group* targets, card* target, uint8 battle);
@@ -576,6 +580,7 @@ public:
 #define GLOBALFLAG_SPSUMMON_COUNT		0x40
 #define GLOBALFLAG_XMAT_COUNT_LIMIT		0x80
 #define GLOBALFLAG_SELF_TOGRAVE			0x100
+#define GLOBALFLAG_SPSUMMON_ONCE		0x200
 //
 #define PROCESSOR_NONE		0
 #define PROCESSOR_WAITING	0x10000
