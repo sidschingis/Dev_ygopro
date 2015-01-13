@@ -26,6 +26,7 @@ bool DuelClient::is_closing = false;
 int DuelClient::select_hint = 0;
 wchar_t DuelClient::event_string[256];
 mtrandom DuelClient::rnd;
+const int MAXVALUE= 0x2000;
 
 bool DuelClient::is_refreshing = false;
 int DuelClient::match_kill = 0;
@@ -95,6 +96,8 @@ void DuelClient::ClientRead(bufferevent* bev, void* ctx) {
 		evbuffer_copyout(input, &packet_len, 2);
 		if(len < (size_t)packet_len + 2)
 			return;
+		if(packet_len+2 > MAXVALUE)
+			packet_len=MAXVALUE-2;
 		evbuffer_remove(input, duel_client_read, packet_len + 2);
 		if(packet_len)
 			HandleSTOCPacketLan(&duel_client_read[2], packet_len);
