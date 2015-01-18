@@ -1848,11 +1848,28 @@ int32 field::process_point_event(int16 step, int32 special, int32 skip_new) {
 		            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_status(STATUS_IS_PUBLIC))) {
 			if(!(peffect->flag & EFFECT_FLAG_FIELD_ONLY) && clit->triggering_location == LOCATION_HAND
 			        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->flag & EFFECT_FLAG_SINGLE_RANGE) && peffect->handler->is_has_relation(peffect))
-			            || (peffect->range & LOCATION_HAND))) {
+			            /*|| (peffect->range & LOCATION_HAND) */ )) {
 				core.new_ochain_h.push_back(*clit);
 				act = false;
 			} else if((peffect->flag & EFFECT_FLAG_FIELD_ONLY) || !(peffect->type & EFFECT_TYPE_FIELD)
 		            || peffect->in_range(clit->triggering_location, clit->triggering_sequence)) {
+				if(!(peffect->flag & EFFECT_FLAG_MULTIACT_HAND) && (clit->triggering_location== LOCATION_HAND)) {
+					if(tp == infos.turn_player) {
+							for(auto tpit = core.tpchain.begin(); tpit != core.tpchain.end(); ++tpit) {
+								if(tpit->triggering_location == LOCATION_HAND) {
+									act = false;
+									break;
+								}
+							}
+					} else {
+						for(auto ntpit = core.ntpchain.begin(); ntpit != core.ntpchain.end(); ++ntpit) {
+							if(ntpit->triggering_location == LOCATION_HAND) {
+								act = false;
+								break;
+							}
+						}
+					}
+				} 
 				if(peffect->flag & EFFECT_FLAG_CHAIN_UNIQUE) {
 					if(tp == infos.turn_player) {
 						for(auto tpit = core.tpchain.begin(); tpit != core.tpchain.end(); ++tpit) {
@@ -2701,6 +2718,25 @@ int32 field::process_idle_command(uint16 step) {
 		} else if(ctype == 4) {
 			core.units.begin()->step = 8;
 			return FALSE;
+		} else if(ctype == 6) {
+			 //to battle phase
+			 core.units.begin()->step = 9;
+			 pduel->write_buffer8(MSG_HINT);
+			 pduel->write_buffer8(HINT_EVENT);
+			 pduel->write_buffer8(1 - infos.turn_player);
+			 pduel->write_buffer32(80);
+			 core.select_chains.clear();
+			 core.hint_timing[infos.turn_player] = TIMING_MAIN_END;
+			 add_process(PROCESSOR_QUICK_EFFECT, 0, 0, 0, FALSE, 1 - infos.turn_player);
+			 infos.priorities[infos.turn_player] = 1;
+			 infos.priorities[1 - infos.turn_player] = 0;
+			 core.units.begin()->arg1 = ctype;
+			 return FALSE;
+		 } else if(ctype == 8) {
+			 core.units.begin()->step = -1;
+			 shuffle(infos.turn_player, LOCATION_HAND);
+			 infos.shuffle_count++;
+			 return FALSE;
 		} else {
 			core.units.begin()->step = 9;
 			pduel->write_buffer8(MSG_HINT);
@@ -2789,6 +2825,7 @@ int32 field::process_idle_command(uint16 step) {
 	}
 	case 11: {
 		returns.ivalue[0] = core.units.begin()->arg1;
+		infos.shuffle_count = 0;
 		return TRUE;
 	}
 	case 12: {
@@ -3858,6 +3895,7 @@ int32 field::process_battle_command(uint16 step) {
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 1);
 		raise_event((card*)0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 0);
+		adjust_all();
 		process_single_event();
 		process_instant_event();
 		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
