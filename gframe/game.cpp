@@ -897,7 +897,7 @@ void Game::LoadConfig() {
 			BufferIO::CopyWStr(wstr, gameConf.lastport, 20);
 		} else if(!strcmp(strbuf, "roompass")) {
 			BufferIO::DecodeUTF8(valbuf, wstr);
-			BufferIO::CopyWStr(wstr, gameConf.roompass, 30);
+			BufferIO::CopyWStr(wstr, gameConf.roompass, 40);
 		} else if(!strcmp(strbuf,"auto_card_placing")) {
 			gameConf.autoplace = atoi(valbuf) > 0;
 		} else if(!strcmp(strbuf,"random_card_placing")) {
