@@ -595,6 +595,7 @@ void field::swap_deck_and_grave(uint8 playerid) {
 		(*clit)->current.reason_player = core.reason_player;
 		(*clit)->apply_field_effect();
 		(*clit)->enable_field_effect(true);
+		(*clit)->reset(RESET_TOGRAVE, RESET_EVENT);
 	}
 	for(clit = player[playerid].list_main.begin(); clit != player[playerid].list_main.end(); ++clit) {
 		(*clit)->current.location = LOCATION_DECK;
@@ -603,6 +604,7 @@ void field::swap_deck_and_grave(uint8 playerid) {
 		(*clit)->current.reason_player = core.reason_player;
 		(*clit)->apply_field_effect();
 		(*clit)->enable_field_effect(true);
+		(*clit)->reset(RESET_TODECK, RESET_EVENT);
 	}
 	for(clit = ex.begin(); clit != ex.end(); ++clit) {
 		(*clit)->current.location = LOCATION_EXTRA;
@@ -611,6 +613,7 @@ void field::swap_deck_and_grave(uint8 playerid) {
 		(*clit)->current.reason_player = core.reason_player;
 		(*clit)->apply_field_effect();
 		(*clit)->enable_field_effect(true);
+		(*clit)->reset(RESET_TODECK, RESET_EVENT);
 	}
 	player[playerid].list_extra.insert(player[playerid].list_extra.end(), ex.begin(), ex.end());
 	reset_sequence(playerid, LOCATION_GRAVE);
