@@ -1,5 +1,5 @@
 solution "ygo"
-    location "build"
+    location "buildVS2010"
     language "C++"
     objdir "obj"
 
@@ -31,10 +31,10 @@ solution "ygo"
     configuration {"not vs*", "windows"}
         buildoptions { "-static-libgcc" }
 
-    configuration "Debug"
+    configuration "Debug2010"
         flags "Symbols"
         defines "_DEBUG"
-        targetdir "bin/debug"
+        targetdir "bin/2010/Debug"
 
     configuration { "Release", "not vs*" }
         flags "Symbols"
@@ -46,7 +46,7 @@ solution "ygo"
 
     configuration "Release"
         flags { "OptimizeSpeed" }
-        targetdir "bin/release"
+        targetdir "bin/2010/Release"
 
     include "ocgcore"
     include "gframe"
