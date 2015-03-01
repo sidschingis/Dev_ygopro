@@ -944,13 +944,20 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					break;
 				selectable_cards.clear();
 				switch(hovered_location) {
-				case LOCATION_GRAVE: {
-					for(int32 i = (int32)grave[hovered_controler].size() - 1; i >= 0 ; --i)
-						selectable_cards.push_back(grave[hovered_controler][i]);
-					myswprintf(formatBuffer, L"%ls(%d)", dataManager.GetSysString(1004), grave[hovered_controler].size());
-					mainGame->wCardSelect->setText(formatBuffer);
-					break;
-				}
+					case LOCATION_GRAVE: {
+						for(int32 i = (int32)grave[hovered_controler].size() - 1; i >= 0 ; --i)
+							selectable_cards.push_back(grave[hovered_controler][i]);
+						myswprintf(formatBuffer, L"%ls(%d)", dataManager.GetSysString(1004), grave[hovered_controler].size());
+						mainGame->wCardSelect->setText(formatBuffer);
+						break;
+					}
+					case LOCATION_REMOVED: {
+						for (int32 i = (int32)remove[hovered_controler].size() - 1; i >= 0; --i)
+							selectable_cards.push_back(remove[hovered_controler][i]);
+						myswprintf(formatBuffer, L"%ls(%d)", dataManager.GetSysString(1005), remove[hovered_controler].size());
+						mainGame->wCardSelect->setText(formatBuffer);
+						break;
+					}
 				}
 				if(selectable_cards.size())
 					ShowSelectCard(true);
