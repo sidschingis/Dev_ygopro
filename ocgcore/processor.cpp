@@ -2732,7 +2732,7 @@ int32 field::process_idle_command(uint16 step) {
 			 infos.priorities[1 - infos.turn_player] = 0;
 			 core.units.begin()->arg1 = ctype;
 			 return FALSE;
-		 } else if(ctype == 8) {
+		} else if(ctype == 8) {
 			 core.units.begin()->step = -1;
 			 shuffle(infos.turn_player, LOCATION_HAND);
 			 infos.shuffle_count++;
@@ -4189,7 +4189,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 	case 3: {
 		//Standby Phase
 		infos.phase = PHASE_STANDBY;
-		shuffle(turn_player, LOCATION_HAND);
+		//shuffle(turn_player, LOCATION_HAND);
 		core.phase_action = FALSE;
 		raise_event((card*)0, EVENT_PHASE_PRESTART + PHASE_STANDBY, 0, 0, 0, turn_player, 0);
 		process_instant_event();

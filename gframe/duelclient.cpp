@@ -8,7 +8,6 @@
 #include "game.h"
 #include "replay.h"
 #include "replay_mode.h"
-#include <fstream>
 
 namespace ygo {
 
@@ -477,8 +476,6 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		break;
 	}
 	case STOC_DUEL_START: {
-
-	
 		mainGame->HideElement(mainGame->wHostPrepare);
 		mainGame->WaitFrameSignal(11);
 		mainGame->gMutex.Lock();
@@ -542,14 +539,6 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->gMutex.Unlock();
 		match_kill = 0;
 		
-		//testing
-
-		std::ofstream myfile;
-		myfile.open ("test.txt");
-		myfile << "No Crash Here.\n";
-		myfile.close();
-		//
-		//
 		break;
 	}
 	case STOC_DUEL_END: {
@@ -585,24 +574,19 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->gMutex.Unlock();
 		mainGame->replaySignal.Reset();
 		mainGame->replaySignal.Wait();
-		try {
-			if(mainGame->actionParam /*|| !is_host*/) {
-				char* prep = pdata;
-				Replay new_replay;
-				memcpy(&new_replay.pheader, prep, sizeof(ReplayHeader));
-				prep += sizeof(ReplayHeader);
-				memcpy(new_replay.comp_data, prep, len - sizeof(ReplayHeader) - 1);
-				new_replay.comp_size = len - sizeof(ReplayHeader) - 1;
-				if(mainGame->actionParam)
-					new_replay.SaveReplay(mainGame->ebRSName->getText());
-				//else new_replay.SaveReplay(L"_LastReplay");
-			}
-		} catch (std::exception e){
-			  std::ofstream outfile;
-
-			  outfile.open("crash.txt", std::ios_base::app);
-			  outfile << e.what(); 
+		
+		if(mainGame->actionParam /*|| !is_host*/) {
+			char* prep = pdata;
+			Replay new_replay;
+			memcpy(&new_replay.pheader, prep, sizeof(ReplayHeader));
+			prep += sizeof(ReplayHeader);
+			memcpy(new_replay.comp_data, prep, len - sizeof(ReplayHeader) - 1);
+			new_replay.comp_size = len - sizeof(ReplayHeader) - 1;
+			
+			new_replay.SaveReplay(mainGame->ebRSName->getText());
+			//else new_replay.SaveReplay(L"_LastReplay");
 		}
+		
 		break;
 	}
 	case STOC_TIME_LIMIT: {
