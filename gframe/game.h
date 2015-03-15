@@ -43,6 +43,7 @@ struct Config {
 	bool muteopponent;
 	bool mutespectator;
 	bool forced;
+	bool savereplay;
 };
 
 struct DuelInfo {

@@ -855,6 +855,7 @@ void Game::LoadConfig() {
 	gameConf.mutespectator = false;
 	gameConf.muteopponent = false;
 	gameConf.forced = false;
+	gameConf.savereplay = false;
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -932,6 +933,8 @@ void Game::LoadConfig() {
 			gameConf.mutespectator = atoi(valbuf) > 0;
 		} else if(!strcmp(strbuf,"forced")) {
 			gameConf.forced = atoi(valbuf) > 0;
+		} else if (!strcmp(strbuf, "save_last_replay")) {
+			gameConf.savereplay = atoi(valbuf) > 0;
 		}
 	}
 	fclose(fp);
