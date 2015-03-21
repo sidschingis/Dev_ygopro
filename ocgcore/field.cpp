@@ -687,9 +687,11 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 	}
 	peffect->card_type = peffect->owner->data.type;
 	effect_container::iterator it;
-	if (!(peffect->type & EFFECT_TYPE_ACTIONS))
+	if (!(peffect->type & EFFECT_TYPE_ACTIONS)) {
 		it = effects.aura_effect.insert(make_pair(peffect->code, peffect));
-	else {
+		if(peffect->code == EFFECT_SPSUMMON_COUNT_LIMIT)
+			effects.spsummon_count_eff.insert(peffect);
+	} else {
 		if (peffect->type & EFFECT_TYPE_IGNITION)
 			it = effects.ignition_effect.insert(make_pair(peffect->code, peffect));
 		else if (peffect->type & EFFECT_TYPE_ACTIVATE)
@@ -722,9 +724,11 @@ void field::remove_effect(effect* peffect) {
 	if (eit == effects.indexer.end())
 		return;
 	auto it = eit->second;
-	if (!(peffect->type & EFFECT_TYPE_ACTIONS))
+	if (!(peffect->type & EFFECT_TYPE_ACTIONS)) {
 		effects.aura_effect.erase(it);
-	else {
+		if(peffect->code == EFFECT_SPSUMMON_COUNT_LIMIT)
+			effects.spsummon_count_eff.erase(peffect);
+	} else {
 		if (peffect->type & EFFECT_TYPE_IGNITION)
 			effects.ignition_effect.erase(it);
 		else if (peffect->type & EFFECT_TYPE_ACTIVATE)
@@ -1897,7 +1901,7 @@ int32 field::is_player_can_spsummon(uint8 playerid) {
 		if(!eset[i]->target)
 			return FALSE;
 	}
-	return TRUE;
+	return is_player_can_spsummon_count(playerid, 1);
 }
 int32 field::is_player_can_spsummon(effect * peffect, uint32 sumtype, uint8 sumpos, uint8 playerid, uint8 toplayer, card * pcard) {
 	effect_set eset;
@@ -2147,4 +2151,9 @@ int32 field::check_chain_target(uint8 chaincount, card * pcard) {
 	pduel->lua->add_param((ptr)0, PARAM_TYPE_INT);
 	pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 	return pduel->lua->check_condition(peffect->target, 10);
+}
+int32 field::is_able_to_enter_bp() {
+	return ((core.duel_options & DUEL_ATTACK_FIRST_TURN) || infos.turn_id != 1)
+	        && infos.phase < PHASE_BATTLE
+	        && !is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP);
 }
