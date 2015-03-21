@@ -251,7 +251,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_CMD_SHUFFLE: {
-				mainGame->wCmdMenu->setVisible(false);
+				mainGame->btnShuffle->setVisible(false);
 				DuelClient::SetResponseI(8);
 				DuelClient::SendResponse();
 				break;
@@ -1023,19 +1023,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					ShowMenu(command_flag, x, y);
 					break;
 				}
-				case LOCATION_HAND: {
-					if(!clicked_card)
-						break;
-					int command_flag = clicked_card->cmdFlag;
-					if(clicked_card->overlayed.size())
-						command_flag |= COMMAND_LIST;
-					list_command = 0;
-					if(hovered_location & LOCATION_HAND && mainGame->canShuffle
-						&& mainGame->dInfo.curMsg == MSG_SELECT_IDLECMD)
-						command_flag |= COMMAND_SHUFFLE;
-					ShowMenu(command_flag, x, y);
-					break;
-				}
+				case LOCATION_HAND:
 				case LOCATION_MZONE:
 				case LOCATION_SZONE: {
 					if(!clicked_card)
@@ -1727,13 +1715,7 @@ void ClientField::ShowMenu(int flag, int x, int y) {
 		mainGame->wCmdMenu->setVisible(false);
 		return;
 	}
-	int height = 1;	
-	if (flag & COMMAND_SHUFFLE) {
-		mainGame->btnShuffle->setVisible(true);
-		mainGame->btnShuffle->setRelativePosition(position2di(1, height));
-		height += 21;
-	}
-	else mainGame->btnShuffle->setVisible(false);
+	int height = 1;
 	if(flag & COMMAND_ACTIVATE) {
 		mainGame->btnActivate->setVisible(true);
 		mainGame->btnActivate->setRelativePosition(position2di(1, height));
@@ -1779,7 +1761,8 @@ void ClientField::ShowMenu(int flag, int x, int y) {
 		mainGame->btnShowList->setVisible(true);
 		mainGame->btnShowList->setRelativePosition(position2di(1, height));
 		height += 21;
-	} else mainGame->btnShowList->setVisible(false);
+	}
+	else mainGame->btnShowList->setVisible(false);
 	panel = mainGame->wCmdMenu;
 	mainGame->wCmdMenu->setVisible(true);
 	position2di mouse = mainGame->Resize(x, y);
