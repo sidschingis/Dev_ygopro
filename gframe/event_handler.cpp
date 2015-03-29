@@ -811,7 +811,8 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 			case EDITBOX_ANCARD: {
 				const wchar_t* pname = mainGame->ebANCard->getText();
 				int trycode = BufferIO::GetVal(pname);
-				CardString cstr;
+				CardString cstr; 
+				CardData cd;
 				if (dataManager.GetString(trycode, &cstr) && dataManager.GetData(trycode, &cd)
 					&& !cd.alias && !((cd.type & (TYPE_MONSTER + TYPE_TOKEN)) == (TYPE_MONSTER + TYPE_TOKEN))) {
 					mainGame->lstANCard->clear();
