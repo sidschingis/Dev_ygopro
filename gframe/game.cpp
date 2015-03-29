@@ -30,6 +30,9 @@ bool Game::Initialize() {
 		params.DriverType = irr::video::EDT_DIRECT3D9;
 	else
 		params.DriverType = irr::video::EDT_OPENGL;
+#ifdef _DEBUG
+	params.DriverType = irr::video::EDT_DIRECT3D9;
+#endif // DEBUG
 	params.WindowSize = irr::core::dimension2d<u32>(1024, 640);
 	device = irr::createDeviceEx(params);
 	if(!device)

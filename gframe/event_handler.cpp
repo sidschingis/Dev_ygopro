@@ -1535,11 +1535,25 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 	case irr::EET_KEY_INPUT_EVENT: {
 		switch(event.KeyInput.Key) {
 		case irr::KEY_KEY_A: {
+			if (mainGame->always_chain == event.KeyInput.PressedDown)
+				break;
+
 			mainGame->always_chain = event.KeyInput.PressedDown;
+
+			CTOS_HandResult cshr;
+			cshr.res = event.KeyInput.PressedDown;
+			DuelClient::SendPacketToServer(CTOS_FORCE_CHAIN, cshr);
+
 			break;
 		}
 		case irr::KEY_KEY_S: {
 			mainGame->ignore_chain = event.KeyInput.PressedDown;
+			break;
+		}
+		case irr::KEY_KEY_F: {
+			CTOS_HandResult cshr;
+			cshr.res = 1;
+			DuelClient::SendPacketToServer(CTOS_FORCE_CHAIN, cshr);
 			break;
 		}
 		case irr::KEY_KEY_R: {

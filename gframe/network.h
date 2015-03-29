@@ -183,6 +183,7 @@ public:
 #define CTOS_HS_NOTREADY	0x23
 #define CTOS_HS_KICK		0x24
 #define CTOS_HS_START		0x25
+#define CTOS_FORCE_CHAIN	0x30
 
 #define STOC_GAME_MSG		0x1
 #define STOC_ERROR_MSG		0x2
