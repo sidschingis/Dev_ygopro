@@ -1547,6 +1547,9 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 
 			mainGame->always_chain = event.KeyInput.PressedDown;
 
+			if (mainGame->dInfo.isSingleMode)
+				break;
+		
 			CTOS_HandResult cshr;
 			cshr.res = event.KeyInput.PressedDown;
 			DuelClient::SendPacketToServer(CTOS_FORCE_CHAIN, cshr);
@@ -1555,12 +1558,6 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 		}
 		case irr::KEY_KEY_S: {
 			mainGame->ignore_chain = event.KeyInput.PressedDown;
-			break;
-		}
-		case irr::KEY_KEY_F: {
-			CTOS_HandResult cshr;
-			cshr.res = 1;
-			DuelClient::SendPacketToServer(CTOS_FORCE_CHAIN, cshr);
 			break;
 		}
 		case irr::KEY_KEY_R: {
