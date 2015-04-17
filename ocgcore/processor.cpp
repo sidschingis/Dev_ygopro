@@ -1849,7 +1849,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_status(STATUS_IS_PUBLIC))) {
 			if(!(peffect->flag & EFFECT_FLAG_FIELD_ONLY) && clit->triggering_location == LOCATION_HAND
 			        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->flag & EFFECT_FLAG_SINGLE_RANGE) && peffect->handler->is_has_relation(peffect))
-						/*|| (peffect->range & LOCATION_HAND) */)) {
+			            /*|| (peffect->range & LOCATION_HAND)*/)) {
 				core.new_ochain_h.push_back(*clit);
 				act = false;
 			} else if((peffect->flag & EFFECT_FLAG_FIELD_ONLY) || !(peffect->type & EFFECT_TYPE_FIELD)
@@ -3185,7 +3185,6 @@ int32 field::process_battle_command(uint16 step) {
 						core.attacker->attacked_cards[core.attack_target->fieldid_r] = core.attack_target;
 					else
 						core.attacker->attacked_cards[0] = 0;
-					core.attacker->attacked_count++;
 				}
 				core.attacker->announce_count++;
 				attack_all_target_check();
@@ -3213,7 +3212,6 @@ int32 field::process_battle_command(uint16 step) {
 						core.attacker->attacked_cards[core.attack_target->fieldid_r] = core.attack_target;
 					else
 						core.attacker->attacked_cards[0] = 0;
-					core.attacker->attacked_count++;
 				}
 			}
 			core.units.begin()->step = -1;
@@ -3238,7 +3236,6 @@ int32 field::process_battle_command(uint16 step) {
 			core.sub_attacker = 0;
 			core.sub_attack_target = (card*)0xffffffff;
 			core.attacker->announce_count++;
-			core.attacker->attacked_count++;
 			attack_all_target_check();
 			pduel->write_buffer8(MSG_ATTACK);
 			pduel->write_buffer32(core.attacker->get_info_location());
@@ -3290,7 +3287,6 @@ int32 field::process_battle_command(uint16 step) {
 			rollback = true;
 		if(!rollback) {
 			core.attacker->announce_count++;
-			core.attacker->attacked_count++;
 			attack_all_target_check();
 			if(core.attack_target) {
 				core.attacker->announced_cards[core.attack_target->fieldid_r] = core.attack_target;
@@ -3356,6 +3352,7 @@ int32 field::process_battle_command(uint16 step) {
 			core.pre_field[1] = core.attack_target->fieldid_r;
 		else
 			core.pre_field[1] = 0;
+		core.attacker->attacked_count++;
 		raise_single_event(core.attacker, 0, EVENT_BATTLE_START, 0, 0, 0, 0, 0);
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_BATTLE_START, 0, 0, 0, 0, 1);
@@ -3781,7 +3778,6 @@ int32 field::process_battle_command(uint16 step) {
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 1);
 		raise_event((card*)0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 0);
-		adjust_all();
 		process_single_event();
 		process_instant_event();
 		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
@@ -3864,6 +3860,7 @@ int32 field::process_damage_step(uint16 step) {
 		infos.phase = PHASE_DAMAGE;
 		pduel->write_buffer8(MSG_DAMAGE_STEP_START);
 		core.pre_field[0] = core.attacker->fieldid_r;
+		core.attacker->attacked_count++;
 		if(core.attack_target)
 			core.pre_field[1] = core.attack_target->fieldid_r;
 		else
@@ -4489,6 +4486,7 @@ int32 field::add_chain(uint16 step) {
 		if(!(peffect->flag & EFFECT_FLAG_FIELD_ONLY) && (!(peffect->type & 0x2a0) || (peffect->code & EVENT_PHASE) == EVENT_PHASE)) {
 			peffect->handler->create_relation(peffect);
 		}
+		peffect->effect_owner = clit.triggering_player;
 		if(peffect->cost) {
 			core.sub_solving_event.push_back(clit.evt);
 			add_process(PROCESSOR_EXECUTE_COST, 0, peffect, 0, clit.triggering_player, 0);
