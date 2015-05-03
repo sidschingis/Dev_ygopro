@@ -476,7 +476,11 @@ int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, ui
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		pduel->lua->add_param(uplayer, PARAM_TYPE_INT);
 		pduel->lua->add_param(reason, PARAM_TYPE_INT);
-		int32 max = eset.get_last()->get_value(3);
+		int32 max = eset[0]->get_value(3);
+		for (int32 i = 1; i < eset.size(); ++i) {
+			if (max > eset[i]->get_value(3))
+				max = eset[i]->get_value(3);
+		}
 		int32 block = 5 - field_used_count[flag];
 		int32 limit = max - field_used_count[used_flag];
 		return block < limit ? block : limit;
@@ -1612,6 +1616,8 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 					continue;
 				if(atarget->is_affected_by_effect(EFFECT_CANNOT_BE_BATTLE_TARGET, pcard))
 					continue;
+				if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
+					continue;
 				pduel->lua->add_param(atarget, PARAM_TYPE_CARD);
 				if(!peffect->check_value_condition(1))
 					continue;
@@ -1639,6 +1645,8 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 			continue;
 		mcount++;
 		if(atarget->is_affected_by_effect(EFFECT_CANNOT_BE_BATTLE_TARGET, pcard))
+			continue;
+		if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
 			continue;
 		v->push_back(atarget);
 	}
@@ -2087,6 +2095,8 @@ int32 field::is_player_can_send_to_grave(uint8 playerid, card * pcard) {
 }
 int32 field::is_player_can_send_to_hand(uint8 playerid, card * pcard) {
 	effect_set eset;
+	if((pcard->current.location == LOCATION_EXTRA) && (pcard->data.type & (TYPE_FUSION + TYPE_SYNCHRO + TYPE_XYZ)))
+		return FALSE;
 	filter_player_effect(playerid, EFFECT_CANNOT_TO_HAND, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		if(!eset[i]->target)
@@ -2101,6 +2111,8 @@ int32 field::is_player_can_send_to_hand(uint8 playerid, card * pcard) {
 }
 int32 field::is_player_can_send_to_deck(uint8 playerid, card * pcard) {
 	effect_set eset;
+	if((pcard->current.location == LOCATION_EXTRA) && (pcard->data.type & (TYPE_FUSION + TYPE_SYNCHRO + TYPE_XYZ)))
+		return FALSE;
 	filter_player_effect(playerid, EFFECT_CANNOT_TO_DECK, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		if(!eset[i]->target)
