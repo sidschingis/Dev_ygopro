@@ -1849,7 +1849,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_status(STATUS_IS_PUBLIC))) {
 			if(!(peffect->flag & EFFECT_FLAG_FIELD_ONLY) && clit->triggering_location == LOCATION_HAND
 			        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->flag & EFFECT_FLAG_SINGLE_RANGE) && peffect->handler->is_has_relation(peffect))
-			            /*|| (peffect->range & LOCATION_HAND)*/)) {
+					/*|| (peffect->range & LOCATION_HAND)*/)) {
 				core.new_ochain_h.push_back(*clit);
 				act = false;
 			} else if((peffect->flag & EFFECT_FLAG_FIELD_ONLY) || !(peffect->type & EFFECT_TYPE_FIELD)
@@ -2556,15 +2556,13 @@ int32 field::process_idle_command(uint16 step) {
 	switch(step) {
 	case 0: {
 		card* pcard;
-		effect_container::iterator eit;
-		pair<effect_container::iterator, effect_container::iterator> pr;
 		effect* peffect;
 		core.select_chains.clear();
 		chain newchain;
 		nil_event.event_code = EVENT_FREE_CHAIN;
 		core.to_bp = TRUE;
 		core.to_ep = TRUE;
-		if((!(core.duel_options & DUEL_ATTACK_FIRST_TURN) && infos.turn_id == 1) ||  infos.phase == PHASE_MAIN2 || is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP))
+		if((!(core.duel_options & DUEL_ATTACK_FIRST_TURN) && infos.turn_id == 1) || infos.phase == PHASE_MAIN2 || is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP))
 			core.to_bp = FALSE;
 		if(core.to_bp && infos.phase == PHASE_MAIN1 && is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_EP))
 			core.to_ep = FALSE;
@@ -2594,7 +2592,7 @@ int32 field::process_idle_command(uint16 step) {
 			returns.ivalue[0] = 7;
 			return FALSE;
 		}
-		pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
+		auto pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
 			peffect->s_range = peffect->handler->current.location;
@@ -2612,7 +2610,7 @@ int32 field::process_idle_command(uint16 step) {
 			if(peffect->is_activateable(infos.turn_player, nil_event))
 				core.select_chains.push_back(newchain);
 		}
-		for(eit = effects.ignition_effect.begin(); eit != effects.ignition_effect.end(); ++eit) {
+		for(auto eit = effects.ignition_effect.begin(); eit != effects.ignition_effect.end(); ++eit) {
 			peffect = eit->second;
 			peffect->s_range = peffect->handler->current.location;
 			peffect->o_range = peffect->handler->current.sequence;
@@ -2662,7 +2660,8 @@ int32 field::process_idle_command(uint16 step) {
 		core.repositionable_cards.clear();
 		for(int i = 0; i < 5; ++i) {
 			pcard = player[infos.turn_player].list_mzone[i];
-			if(pcard && ((pcard->is_position(POS_FACEUP) && pcard->is_capable_change_position(infos.turn_player)) || (pcard->is_position(POS_FACEDOWN) && pcard->is_can_be_flip_summoned(infos.turn_player))) )
+			if(pcard && ((pcard->is_position(POS_FACEUP | POS_FACEDOWN_ATTACK) && pcard->is_capable_change_position(infos.turn_player))
+		        || (pcard->is_position(POS_FACEDOWN) && pcard->is_can_be_flip_summoned(infos.turn_player))))
 				core.repositionable_cards.push_back(player[infos.turn_player].list_mzone[i]);
 		}
 		core.msetable_cards.clear();
@@ -2791,6 +2790,16 @@ int32 field::process_idle_command(uint16 step) {
 			change_position(target, 0, infos.turn_player, POS_FACEUP_ATTACK, FALSE);
 			adjust_all();
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
+		} else if(target->is_position(POS_FACEDOWN_ATTACK)) {
+			core.units.begin()->ptarget = (group*)target;
+			int32 positions = 0;
+			if(target->is_capable_change_position(infos.turn_player))
+				positions |= POS_FACEDOWN_DEFENCE;
+			if(target->is_can_be_flip_summoned(infos.turn_player))
+				positions |= POS_FACEUP_ATTACK;
+			add_process(PROCESSOR_SELECT_POSITION, 0, 0, 0, infos.turn_player + (positions << 16), target->data.code);
+			core.units.begin()->step = 12;
+			return FALSE;
 		} else add_process(PROCESSOR_FLIP_SUMMON, 0, 0, (group*)target, target->current.controler, 0);
 		target->set_status(STATUS_FORM_CHANGED, TRUE);
 		core.units.begin()->step = -1;
@@ -2838,6 +2847,20 @@ int32 field::process_idle_command(uint16 step) {
 		reset_phase(infos.phase);
 		adjust_all();
 		core.units.begin()->step = 10;
+		return FALSE;
+	}
+	case 13: {
+		card* target = (card*)core.units.begin()->ptarget;
+		if(returns.ivalue[0] == POS_FACEUP_ATTACK)
+			add_process(PROCESSOR_FLIP_SUMMON, 0, 0, (group*)target, target->current.controler, 0);
+		else {
+			core.phase_action = TRUE;
+			change_position(target, 0, infos.turn_player, POS_FACEDOWN_DEFENCE, FALSE);
+			adjust_all();
+			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
+		}
+		target->set_status(STATUS_FORM_CHANGED, TRUE);
+		core.units.begin()->step = -1;
 		return FALSE;
 	}
 	}
@@ -3104,7 +3127,7 @@ int32 field::process_battle_command(uint16 step) {
 		core.sub_attacker = 0;
 		core.sub_attack_target = (card*)0xffffffff;
 		core.attack_state_count[infos.turn_player]++;
-		check_card_counter(core.attacker,5,infos.turn_player);
+		check_card_counter(core.attacker, 5, infos.turn_player);
 		pduel->write_buffer8(MSG_ATTACK);
 		pduel->write_buffer32(core.attacker->get_info_location());
 		if(core.attack_target) {
@@ -3572,13 +3595,13 @@ int32 field::process_battle_command(uint16 step) {
 				raise_single_event(core.attacker, 0, EVENT_PRE_BATTLE_DAMAGE, 0, 0, reason_card->current.controler, infos.turn_player, core.battle_damage[infos.turn_player]);
 				if(core.attack_target)
 					raise_single_event(core.attack_target, 0, EVENT_PRE_BATTLE_DAMAGE, 0, 0, reason_card->current.controler, infos.turn_player, core.battle_damage[infos.turn_player]);
-				raise_event((card*)reason_card, EVENT_PRE_BATTLE_DAMAGE, 0, 0, reason_card->current.controler, infos.turn_player, core.battle_damage[infos.turn_player]);
+				raise_event(reason_card, EVENT_PRE_BATTLE_DAMAGE, 0, 0, reason_card->current.controler, infos.turn_player, core.battle_damage[infos.turn_player]);
 			}
 			if(core.battle_damage[1 - infos.turn_player]) {
 				raise_single_event(core.attacker, 0, EVENT_PRE_BATTLE_DAMAGE, 0, 0, reason_card->current.controler, 1 - infos.turn_player, core.battle_damage[1 - infos.turn_player]);
 				if(core.attack_target)
 					raise_single_event(core.attack_target, 0, EVENT_PRE_BATTLE_DAMAGE, 0, 0, reason_card->current.controler, 1 - infos.turn_player, core.battle_damage[1 - infos.turn_player]);
-				raise_event((card*)reason_card, EVENT_PRE_BATTLE_DAMAGE, 0, 0, reason_card->current.controler, 1 - infos.turn_player, core.battle_damage[1 - infos.turn_player]);
+				raise_event(reason_card, EVENT_PRE_BATTLE_DAMAGE, 0, 0, reason_card->current.controler, 1 - infos.turn_player, core.battle_damage[1 - infos.turn_player]);
 			}
 		}
 		process_single_event();
