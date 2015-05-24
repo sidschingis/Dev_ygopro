@@ -43,7 +43,7 @@ public:
 	wchar_t racBuffer[128];
 	wchar_t tpBuffer[128];
 
-	static wchar_t strBuffer[2048];
+	static wchar_t strBuffer[4096];
 	static const wchar_t* unknown_string;
 	static int CardReader(int, void*);
 	
