@@ -463,8 +463,7 @@ int32 field::process() {
 	case PROCESSOR_SELF_DESTROY: {
 		if (self_destroy(it->step)) {
 			core.units.pop_front();
-		}
-		else
+		} else
 			it->step++;
 		return pduel->bufferlen;
 	}
@@ -4708,9 +4707,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		pduel->write_buffer8(cait->chain_count);
 		add_to_disable_check_list(cait->triggering_effect->handler);
 		adjust_instant(); 
-		core.self_destroy_set.clear();
-		core.self_destroy_set.insert(pcard);
-		add_process(PROCESSOR_SELF_DESTROY, 0, 0, 0, 0, 0);
 		raise_event((card*)0, EVENT_CHAIN_ACTIVATING, cait->triggering_effect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
 		process_instant_event();
 		return FALSE;
@@ -4765,6 +4761,9 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 				}
 			}
 			adjust_instant();
+			core.self_destroy_set.clear();
+			core.self_destroy_set.insert(pcard);
+			add_process(PROCESSOR_SELF_DESTROY, 0, 0, 0, 0, 0);
 		}
 		raise_event((card*)0, EVENT_CHAIN_SOLVING, peffect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
 		process_instant_event();
