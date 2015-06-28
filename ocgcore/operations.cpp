@@ -1031,20 +1031,8 @@ int32 field::control_adjust(uint16 step) {
 int32 field::self_destroy(uint16 step) {
 	switch(step) {
 	case 0: {
-		effect* peffect;
-		core.destroy_set.clear();
-		for(auto cit = core.self_destroy_set.begin(); cit != core.self_destroy_set.end(); ++cit) {
-			card* pcard = *cit;
-			if(pcard->is_position(POS_FACEUP) && (pcard->current.location & LOCATION_ONFIELD)
-			        && ((!pcard->is_status(STATUS_DISABLED) && (peffect = check_unique_onfield(pcard, pcard->current.controler)))
-			        || (peffect = pcard->is_affected_by_effect(EFFECT_SELF_DESTROY)))) {
-				core.destroy_set.insert(pcard);
-				pcard->current.reason_effect = peffect;
-				pcard->current.reason_player = peffect->get_handler_player();
-			}
-		}
-		if(core.destroy_set.size())
-			destroy(&core.destroy_set, 0, REASON_EFFECT, 5);
+		if(!core.self_destroy_set.empty())
+			destroy(&core.self_destroy_set, 0, REASON_EFFECT, 5);
 		else
 			returns.ivalue[0] = 0;
 		return FALSE;
@@ -1053,19 +1041,8 @@ int32 field::self_destroy(uint16 step) {
 		if(!(core.global_flag & GLOBALFLAG_SELF_TOGRAVE))
 			return TRUE;
 		core.units.begin()->arg1 = returns.ivalue[0];
-		effect* peffect;
-		card_set tograve_set;
-		for(auto cit = core.self_destroy_set.begin(); cit != core.self_destroy_set.end(); ++cit) {
-			card* pcard = *cit;
-			if(pcard->is_position(POS_FACEUP) && (pcard->current.location & LOCATION_ONFIELD)
-			        && (peffect = pcard->is_affected_by_effect(EFFECT_SELF_TOGRAVE))) {
-				tograve_set.insert(pcard);
-				pcard->current.reason_effect = peffect;
-				pcard->current.reason_player = peffect->get_handler_player();
-			}
-		}
-		if(tograve_set.size())
-			send_to(&tograve_set, 0, REASON_EFFECT, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+		if(!core.self_tograve_set.empty())
+			send_to(&core.self_tograve_set, 0, REASON_EFFECT, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		else
 			return TRUE;
 		return FALSE;
@@ -1163,6 +1140,21 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 				return TRUE;
 			if(!is_player_can_summon(SUMMON_TYPE_DUAL, sumplayer, target))
 				return TRUE;
+		} else {
+			if(!ignore_count && !core.extra_summon[sumplayer] && core.summon_count[sumplayer] >= get_summon_count_limit(sumplayer)) {
+				effect* pextra = target->is_affected_by_effect(EFFECT_EXTRA_SUMMON_COUNT);
+				if(pextra && !(pextra->flag & EFFECT_FLAG_FUNC_VALUE)) {
+					int32 count = pextra->get_value();
+					if(min_tribute < count) {
+						min_tribute = count;
+						core.units.begin()->arg2 = ignore_count + (min_tribute << 8);
+					}
+				}
+			}
+			effect_set eset;
+			int32 res = target->filter_summon_procedure(sumplayer, &eset, ignore_count, min_tribute);
+			if((proc && res < 0) || res == -2)
+				return TRUE;
 		}
 		if(check_unique_onfield(target, sumplayer))
 			return TRUE;
@@ -1183,32 +1175,15 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		return FALSE;
 	}
 	case 1: {
-		if(!ignore_count && !core.extra_summon[sumplayer] && core.summon_count[sumplayer] >= get_summon_count_limit(sumplayer)) {
-			effect* pextra = target->is_affected_by_effect(EFFECT_EXTRA_SUMMON_COUNT);
-			if(pextra && !(pextra->flag & EFFECT_FLAG_FUNC_VALUE)) {
-				int32 count = pextra->get_value();
-				if(min_tribute < count) {
-					min_tribute = count;
-					core.units.begin()->arg2 = ignore_count + (min_tribute << 8);
-				}
-			}
-		}
-		effect_set eset;
-		int32 res = target->filter_summon_procedure(sumplayer, &eset, ignore_count, min_tribute);
-		if(proc && res < 0)
-			return TRUE;
 		if(proc) {
 			core.units.begin()->step = 3;
 			return FALSE;
 		}
-		if(res == -1) {
-			core.units.begin()->peffect = eset[0];
-			core.units.begin()->step = 3;
-			return FALSE;
-		}
+		effect_set eset;
+		int32 res = target->filter_summon_procedure(sumplayer, &eset, ignore_count, min_tribute);
 		core.select_effects.clear();
 		core.select_options.clear();
-		if(res) {
+		if(res > 0) {
 			core.select_effects.push_back(0);
 			core.select_options.push_back(1);
 		}
@@ -1662,19 +1637,9 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 			return TRUE;
 		if(target->is_affected_by_effect(EFFECT_CANNOT_MSET))
 			return TRUE;
-		if(!ignore_count && core.summon_count[setplayer] >= get_summon_count_limit(setplayer))
+		if(!ignore_count && (core.extra_summon[setplayer] || !target->is_affected_by_effect(EFFECT_EXTRA_SET_COUNT))
+		        && core.summon_count[setplayer] >= get_summon_count_limit(setplayer))
 			return TRUE;
-		effect_set eset;
-		target->filter_effect(EFFECT_MSET_COST, &eset);
-		for(int32 i = 0; i < eset.size(); ++i) {
-			if(eset[i]->operation) {
-				core.sub_solving_event.push_back(nil_event);
-				add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, setplayer, 0);
-			}
-		}
-		return FALSE;
-	}
-	case 1: {
 		if(!ignore_count && !core.extra_summon[setplayer] && core.summon_count[setplayer] >= get_summon_count_limit(setplayer)) {
 			effect* pextra = target->is_affected_by_effect(EFFECT_EXTRA_SET_COUNT);
 			if(pextra && !(pextra->flag & EFFECT_FLAG_FUNC_VALUE)) {
@@ -1685,23 +1650,31 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 				}
 			}
 		}
-		effect_set eset;
 		target->material_cards.clear();
+		effect_set eset;
 		int32 res = target->filter_set_procedure(setplayer, &eset, ignore_count, min_tribute);
-		if(proc && res < 0)
+		if((proc && res < 0) || res == -2)
 			return TRUE;
+		eset.clear();
+		target->filter_effect(EFFECT_MSET_COST, &eset);
+		for(int32 i = 0; i < eset.size(); ++i) {
+			if(eset[i]->operation) {
+				core.sub_solving_event.push_back(nil_event);
+				add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, setplayer, 0);
+			}
+		}
+		return FALSE;
+	}
+	case 1: {
 		if(proc) {
 			core.units.begin()->step = 3;
 			return FALSE;
 		}
-		if(res == -1) {
-			core.units.begin()->peffect = eset[0];
-			core.units.begin()->step = 3;
-			return FALSE;
-		}
+		effect_set eset;
+		int32 res = target->filter_set_procedure(setplayer, &eset, ignore_count, min_tribute);
 		core.select_effects.clear();
 		core.select_options.clear();
-		if(res) {
+		if(res > 0) {
 			core.select_effects.push_back(0);
 			core.select_options.push_back(1);
 		}
@@ -2021,24 +1994,23 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 			return FALSE;
 		if(target->current.location & (LOCATION_GRAVE + LOCATION_REMOVED) && !target->is_status(STATUS_REVIVE_LIMIT))
 			return FALSE;
-		effect_set eset1;
-		target->material_cards.clear();
+		effect_set eset;
 		card* tuner = core.limit_tuner;
 		group* materials = core.limit_xyz;
 		group* syn = core.limit_syn;
-		target->filter_spsummon_procedure(sumplayer, &eset1, summon_type);
-		target->filter_spsummon_procedure_g(sumplayer, &eset1);
+		target->filter_spsummon_procedure(sumplayer, &eset, summon_type);
+		target->filter_spsummon_procedure_g(sumplayer, &eset);
 		core.limit_tuner = tuner;
 		core.limit_xyz = materials;
 		core.limit_syn = syn;
-		if(!eset1.size())
+		if(!eset.size())
 			return TRUE;
-		effect_set eset2;
-		target->filter_effect(EFFECT_SPSUMMON_COST, &eset2);
-		for(int32 i = 0; i < eset2.size(); ++i) {
-			if(eset2[i]->operation) {
+		eset.clear();
+		target->filter_effect(EFFECT_SPSUMMON_COST, &eset);
+		for(int32 i = 0; i < eset.size(); ++i) {
+			if(eset[i]->operation) {
 				core.sub_solving_event.push_back(nil_event);
-				add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset2[i], 0, sumplayer, 0);
+				add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, sumplayer, 0);
 			}
 		}
 		return FALSE;
@@ -2054,8 +2026,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		core.limit_tuner = tuner;
 		core.limit_xyz = materials;
 		core.limit_syn = syn;
-		if(!eset.size())
-			return TRUE;
 		core.select_effects.clear();
 		core.select_options.clear();
 		for(int32 i = 0; i < eset.size(); ++i) {
@@ -2308,11 +2278,11 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 			core.spsummon_once_map[sumplayer][*cit]++;
 		card_set cset;
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
-			(*cit)->set_status(STATUS_SUMMONING, TRUE);
 			if(!(*cit)->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SPSUMMON)) {
 				raise_single_event(*cit, 0, EVENT_SPSUMMON, (*cit)->current.reason_effect, 0, (*cit)->current.reason_player, (*cit)->summon_player, 0);
 				cset.insert(*cit);
 			}
+			(*cit)->set_status(STATUS_SUMMONING, TRUE);
 		}
 		if(cset.size())
 			raise_event(&cset, EVENT_SPSUMMON, core.units.begin()->peffect, 0, sumplayer, PLAYER_NONE, 0);

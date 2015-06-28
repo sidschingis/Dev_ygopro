@@ -139,7 +139,7 @@ int32 field::select_idle_command(uint16 step, uint8 playerid) {
 			pduel->write_buffer8(1);
 		else
 			pduel->write_buffer8(0);
-		if(infos.shuffle_count <5 && player[(uint32)playerid].list_hand.size() > 1)
+		if(infos.shuffle_count < 5 && player[playerid].list_hand.size() > 1)
 			pduel->write_buffer8(1);
 		else
 			pduel->write_buffer8(0);
@@ -156,7 +156,7 @@ int32 field::select_idle_command(uint16 step, uint8 playerid) {
 		        || (t == 5 && s >= core.select_chains.size())
 		        || (t == 6 && (infos.phase != PHASE_MAIN1 || !core.to_bp))
 		        || (t == 7 && !core.to_ep)
-				|| (t == 8 && !(infos.shuffle_count <5 && player[(uint32)playerid].list_hand.size() > 1))) {
+		        || (t == 8 && !(infos.shuffle_count < 5 && player[playerid].list_hand.size() > 1))) {
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
@@ -317,7 +317,10 @@ int32 field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 fo
 		for(uint32 i = 0; i < core.select_chains.size(); ++i) {
 			effect* peffect = core.select_chains[i].triggering_effect;
 			card* pcard = peffect->handler;
-			pduel->write_buffer32(pcard->data.code);
+			if(peffect->flag & EFFECT_FLAG_FIELD_ONLY)
+				pduel->write_buffer32(1000000000 + pcard->data.code);
+			else
+				pduel->write_buffer32(pcard->data.code);
 			pduel->write_buffer32(pcard->get_info_location());
 			pduel->write_buffer32(peffect->description);
 		}
