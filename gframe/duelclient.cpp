@@ -109,7 +109,7 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 		if(create_game) {
 			CTOS_CreateGame cscg;
 			BufferIO::CopyWStr(mainGame->ebServerName->getText(), cscg.name, 20);
-			BufferIO::CopyWStr(mainGame->ebServerPass->getText(), cscg.pass, 20);
+			BufferIO::CopyWStr(mainGame->ebServerPass->getText(), cscg.pass, 40);
 			cscg.info.rule = mainGame->cbRule->getSelected();
 			cscg.info.mode = mainGame->cbMatchMode->getSelected();
 			cscg.info.start_hand = _wtoi(mainGame->ebStartHand->getText());
@@ -125,7 +125,7 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 			CTOS_JoinGame csjg;
 			csjg.version = PRO_VERSION;
 			csjg.gameid = 0;
-			BufferIO::CopyWStr(mainGame->ebJoinPass->getText(), csjg.pass, 20);
+			BufferIO::CopyWStr(mainGame->ebJoinPass->getText(), csjg.pass, 40);
 			SendPacketToServer(CTOS_JOIN_GAME, csjg);
 		}
 		bufferevent_enable(bev, EV_READ);
@@ -191,6 +191,18 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 	case STOC_GAME_MSG: {
 		ClientAnalyze(pdata, len - 1);
 		break;
+	}
+	case STOC_UPDATE_SLEEVE: {
+								 STOC_Sleeve* pkt = (STOC_Sleeve*)pdata;
+								 wchar_t site[256];
+								 wchar_t dir[256];
+								 BufferIO::CopyWStr(pkt->site, site, 256);
+								 BufferIO::CopyWStr(pkt->dir, dir, 256);
+								 mainGame->gMutex.Lock();
+								 if (mainGame->gameConf.enablesleeveloading)
+									 ygo::imageManager.LoadSleeve(pkt->player, site, dir);
+								 mainGame->gMutex.Unlock();
+								 break;
 	}
 	case STOC_ERROR_MSG: {
 		STOC_ErrorMsg* pkt = (STOC_ErrorMsg*)pdata;
@@ -299,6 +311,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		break;
 	}
 	case STOC_JOIN_GAME: {
+		mainGame->PlaySound("./sound/playerenter.wav");
 		STOC_JoinGame* pkt = (STOC_JoinGame*)pdata;
 		std::wstring str;
 		wchar_t msgbuf[256];
@@ -338,12 +351,16 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			mainGame->chkHostPrepReady[3]->setVisible(true);
 			mainGame->stHostPrepDuelist[2]->setVisible(true);
 			mainGame->stHostPrepDuelist[3]->setVisible(true);
+			mainGame->stHostPrepDuelistElo[2]->setVisible(true);
+			mainGame->stHostPrepDuelistElo[3]->setVisible(true);
 		} else {
 			mainGame->dInfo.isTag = false;
 			mainGame->chkHostPrepReady[2]->setVisible(false);
 			mainGame->chkHostPrepReady[3]->setVisible(false);
 			mainGame->stHostPrepDuelist[2]->setVisible(false);
 			mainGame->stHostPrepDuelist[3]->setVisible(false);
+			mainGame->stHostPrepDuelistElo[2]->setVisible(false);
+			mainGame->stHostPrepDuelistElo[3]->setVisible(false);
 		}
 		for(int i = 0; i < 4; ++i)
 			mainGame->chkHostPrepReady[i]->setChecked(false);
