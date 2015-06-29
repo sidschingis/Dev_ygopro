@@ -47,7 +47,7 @@ struct CTOS_PlayerInfo {
 struct CTOS_CreateGame {
 	HostInfo info;
 	unsigned short name[20];
-	unsigned short pass[30];
+	unsigned short pass[40];
 };
 struct CTOS_JoinGame {
 	unsigned short version;
