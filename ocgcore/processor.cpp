@@ -499,6 +499,8 @@ int32 field::process() {
 				peffect->type = EFFECT_TYPE_SINGLE;
 				attacker->add_effect(peffect);
 				attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
+				core.chain_attack = false;
+				core.chain_attack_target = 0;
 				raise_event(attacker, EVENT_ATTACK_DISABLED, core.reason_effect, 0, core.reason_player, PLAYER_NONE, 0);
 				process_instant_event();
 				it->step++;
@@ -3774,15 +3776,15 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 38: {
-				 core.units.begin()->arg1 = 0;
-				 core.damage_calculated = TRUE;
-				 core.selfdes_disabled = FALSE;
-				 core.flip_delayed = FALSE;
-				 core.new_fchain.splice(core.new_fchain.begin(), core.new_fchain_b);
-				 core.new_ochain.splice(core.new_ochain.begin(), core.new_ochain_b);
-				 if (core.new_fchain.size() || core.new_ochain.size())
-					 add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
-				 return FALSE;
+		core.units.begin()->arg1 = 0;
+		core.damage_calculated = TRUE;
+		core.selfdes_disabled = FALSE;
+		core.flip_delayed = FALSE;
+		core.new_fchain.splice(core.new_fchain.begin(), core.new_fchain_b);
+		core.new_ochain.splice(core.new_ochain.begin(), core.new_ochain_b);
+		if (core.new_fchain.size() || core.new_ochain.size())
+			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
+		return FALSE;
 	}
 	case 39: {
 		//end of damage step
@@ -4615,6 +4617,7 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		}
 		core.continuous_chain.pop_back();
 		core.solving_event.pop_front();
+		adjust_all();
 		return TRUE;
 	}
 	}
