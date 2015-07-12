@@ -243,6 +243,7 @@ struct processor {
 	group* limit_xyz;
 	group* limit_syn;
 	uint8 attack_cancelable;
+	uint8 attack_rollback;
 	uint8 effect_damage_step;
 	int32 battle_damage[2];
 	int32 summon_count[2];
@@ -390,6 +391,7 @@ public:
 	int32 is_player_can_discard_deck(uint8 playerid, int32 count);
 	int32 is_player_can_discard_deck_as_cost(uint8 playerid, int32 count);
 	int32 is_player_can_discard_hand(uint8 playerid, card* pcard, effect* peffect, uint32 reason);
+	int32 is_player_can_summon(uint8 playerid);
 	int32 is_player_can_summon(uint32 sumtype, uint8 playerid, card* pcard);
 	int32 is_player_can_mset(uint32 sumtype, uint8 playerid, card* pcard);
 	int32 is_player_can_sset(uint8 playerid, card* pcard);

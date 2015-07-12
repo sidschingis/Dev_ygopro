@@ -79,6 +79,7 @@ field::field(duel* pduel) {
 	core.duel_options = 0;
 	core.attacker = 0;
 	core.attack_target = 0;
+	core.attack_rollback = FALSE;
 	core.deck_reversed = FALSE;
 	core.remove_brainwashing = FALSE;
 	core.effect_damage_step = FALSE;
@@ -1309,9 +1310,10 @@ void field::get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc) {
 			core.xmaterial_lst.insert(std::make_pair((xyz_level >> 12) & 0xf, pcard));
 	}
 	if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
-		auto iter = core.xmaterial_lst.begin();
-		while((iter != core.xmaterial_lst.end()) && ((iter->first > (int32)core.xmaterial_lst.size()) || (iter->first > maxc)))
-			core.xmaterial_lst.erase(iter++);
+		if(maxc > (int32)core.xmaterial_lst.size())
+			maxc = (int32)core.xmaterial_lst.size();
+		auto iter = core.xmaterial_lst.lower_bound(maxc);
+		core.xmaterial_lst.erase(core.xmaterial_lst.begin(), iter);
 	}
 }
 void field::get_overlay_group(uint8 self, uint8 s, uint8 o, card_set* pset) {
@@ -1391,7 +1393,7 @@ void field::adjust_disable_check_list() {
 	} while(effects.disable_check_list.size());
 }
 void field::adjust_self_destroy_set() {
-	if(core.selfdes_disabled)
+	if(core.selfdes_disabled || !core.self_destroy_set.empty() || !core.self_tograve_set.empty())
 		return;
 	card_set cset;
 	for(uint8 p = 0; p < 2; ++p) {
@@ -1937,6 +1939,15 @@ int32 field::is_player_can_discard_hand(uint8 playerid, card * pcard, effect * p
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(reason, PARAM_TYPE_INT);
 		if (pduel->lua->check_condition(eset[i]->target, 4))
+			return FALSE;
+	}
+	return TRUE;
+}
+int32 field::is_player_can_summon(uint8 playerid) {
+	effect_set eset;
+	filter_player_effect(playerid, EFFECT_CANNOT_SUMMON, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		if(!eset[i]->target)
 			return FALSE;
 	}
 	return TRUE;
