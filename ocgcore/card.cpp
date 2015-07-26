@@ -1228,7 +1228,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 			}
 		}
 		if(id & RESET_TURN_SET) {
-			effect* peffect = check_equip_control_effect();
+			effect* peffect = check_control_effect();
 			if(peffect) {
 				effect* new_effect = pduel->new_effect();
 				new_effect->id = peffect->id;
@@ -1272,7 +1272,7 @@ int32 card::refresh_disable_status() {
 }
 uint8 card::refresh_control_status() {
 	uint8 final = owner;
-	if(pduel->game_field->core.remove_brainwashing)
+	if(pduel->game_field->core.remove_brainwashing && is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING))
 		return final;
 	effect_set eset;
 	filter_effect(EFFECT_SET_CONTROL, &eset);
@@ -1468,6 +1468,17 @@ void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {
 		peffect = rg.first->second;
 		if (!(peffect->flag & EFFECT_FLAG_PLAYER_TARGET) && peffect->is_available()
 		        && peffect->is_target(this) && is_affect_by_effect(peffect))
+			eset->add_item(peffect);
+	}
+	if(sort)
+		eset->sort();
+}
+void card::filter_single_effect(int32 code, effect_set* eset, uint8 sort) {
+	effect* peffect;
+	auto rg = single_effect.equal_range(code);
+	for (; rg.first != rg.second; ++rg.first) {
+		peffect = rg.first->second;
+		if (peffect->is_available() && !(peffect->flag & EFFECT_FLAG_SINGLE_RANGE))
 			eset->add_item(peffect);
 	}
 	if(sort)
@@ -1704,7 +1715,7 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 	}
 	return 0;
 }
-effect* card::check_equip_control_effect() {
+effect* card::check_control_effect() {
 	effect* ret_effect = 0;
 	for (auto cit = equiping_cards.begin(); cit != equiping_cards.end(); ++cit) {
 		auto rg = (*cit)->equip_effect.equal_range(EFFECT_SET_CONTROL);
@@ -1713,6 +1724,14 @@ effect* card::check_equip_control_effect() {
 			if(!ret_effect || peffect->id > ret_effect->id)
 				ret_effect = peffect;
 		}
+	}
+	auto rg = single_effect.equal_range(EFFECT_SET_CONTROL);
+	for (; rg.first != rg.second; ++rg.first) {
+		effect* peffect = rg.first->second;
+		if(!(peffect->flag & EFFECT_FLAG_SINGLE_RANGE))
+			continue;
+		if(!ret_effect || peffect->id > ret_effect->id)
+			ret_effect = peffect;
 	}
 	return ret_effect;
 }
@@ -2203,6 +2222,8 @@ int32 card::is_capable_send_to_grave(uint8 playerid) {
 int32 card::is_capable_send_to_hand(uint8 playerid) {
 	if(is_status(STATUS_LEAVE_CONFIRMED))
 		return FALSE;
+	if((current.location == LOCATION_EXTRA) && (data.type & (TYPE_FUSION + TYPE_SYNCHRO + TYPE_XYZ)))
+		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_TO_HAND))
 		return FALSE;
 	if(!pduel->game_field->is_player_can_send_to_hand(playerid, this))
@@ -2212,6 +2233,8 @@ int32 card::is_capable_send_to_hand(uint8 playerid) {
 int32 card::is_capable_send_to_deck(uint8 playerid) {
 	if(is_status(STATUS_LEAVE_CONFIRMED))
 		return FALSE;
+	if((current.location == LOCATION_EXTRA) && (data.type & (TYPE_FUSION + TYPE_SYNCHRO + TYPE_XYZ)))
+		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
 		return FALSE;
 	if(!pduel->game_field->is_player_can_send_to_deck(playerid, this))
@@ -2219,7 +2242,7 @@ int32 card::is_capable_send_to_deck(uint8 playerid) {
 	return TRUE;
 }
 int32 card::is_capable_send_to_extra(uint8 playerid) {
-	if(!(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)))
+	if(!(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_PENDULUM)))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
 		return FALSE;
@@ -2437,7 +2460,7 @@ int32 card::is_can_be_fusion_material(uint8 ignore_mon) {
 int32 card::is_can_be_synchro_material(card* scard, card* tuner) {
 	if(data.type & TYPE_XYZ)
 		return FALSE;
-	if(!(get_type()&TYPE_MONSTER))
+	if(!(get_type() & TYPE_MONSTER))
 		return FALSE;
 	if(scard && current.controler != scard->current.controler && !is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL))
 		return FALSE;
@@ -2455,10 +2478,23 @@ int32 card::is_can_be_synchro_material(card* scard, card* tuner) {
 			return FALSE;
 	return TRUE;
 }
+int32 card::is_can_be_ritual_material(card* scard) {
+	if(!(get_type() & TYPE_MONSTER))
+		return FALSE;
+	if(current.location == LOCATION_GRAVE) {
+		effect_set eset;
+		filter_effect(EFFECT_EXTRA_RITUAL_MATERIAL, &eset);
+		for(int32 i = 0; i < eset.size(); ++i)
+			if(eset[i]->get_value(scard))
+				return TRUE;
+		return FALSE;
+	}
+	return TRUE;
+}
 int32 card::is_can_be_xyz_material(card* scard) {
 	if(data.type & TYPE_TOKEN)
 		return FALSE;
-	if(!(get_type()&TYPE_MONSTER))
+	if(!(get_type() & TYPE_MONSTER))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_FORBIDDEN))
 		return FALSE;
