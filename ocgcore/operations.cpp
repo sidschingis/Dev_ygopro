@@ -2343,10 +2343,11 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		if(cset.size()) {
 			send_to(&cset, 0, REASON_RULE, sumplayer, sumplayer, LOCATION_GRAVE, 0, 0);
 			adjust_instant();
-			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
 		}
-		if(pgroup->container.size() == 0)
+		if(pgroup->container.size() == 0) {
+			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
 			return TRUE;
+		}
 		return FALSE;
 	}
 	case 27: {
@@ -3199,6 +3200,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		} else if(dest == LOCATION_REMOVED) {
 			core.hint_timing[pcard->current.controler] |= TIMING_REMOVE;
 		}
+		//move card
 		if(pcard->current.controler != playerid || pcard->current.location != dest) {
 			pduel->write_buffer8(MSG_MOVE);
 			pduel->write_buffer32(pcard->data.code);
