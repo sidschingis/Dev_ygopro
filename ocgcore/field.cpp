@@ -146,6 +146,10 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 		return;
 	if (!is_location_useable(playerid, location, sequence))
 		return;
+	if((pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)) && (location & (LOCATION_HAND | LOCATION_DECK))) {
+		location = LOCATION_EXTRA;
+		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN_DEFENCE << 24);
+	}
 	pcard->current.controler = playerid;
 	pcard->current.location = location;
 	switch (location) {
@@ -254,6 +258,10 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 		return;
 	uint8 preplayer = pcard->current.controler;
 	uint8 presequence = pcard->current.sequence;
+	if((pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)) && (location & (LOCATION_HAND | LOCATION_DECK))) {
+		location = LOCATION_EXTRA;
+		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN_DEFENCE << 24);
+	}
 	if (pcard->current.location) {
 		if (pcard->current.location == location) {
 			if (pcard->current.location == LOCATION_DECK) {
@@ -354,10 +362,6 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 				return;
 			}
 		} else {
-			if((pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)) && (location & (LOCATION_HAND | LOCATION_DECK))) {
-				location = LOCATION_EXTRA;
-				pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN_DEFENCE << 24);
-			}
 			if((pcard->data.type & TYPE_PENDULUM) && (location == LOCATION_GRAVE)
 			        && pcard->is_capable_send_to_extra(playerid)
 			        && (((pcard->current.location == LOCATION_MZONE) && !pcard->is_status(STATUS_SUMMON_DISABLED))
@@ -1896,9 +1900,10 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 				core.xmaterial_lst.insert(std::make_pair((xyz_level >> 12) & 0xf, *cit));
 		}
 		if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
-			auto iter = core.xmaterial_lst.begin();
-			while((iter != core.xmaterial_lst.end()) && ((iter->first > (int32)core.xmaterial_lst.size()) || (iter->first > max)))
-				core.xmaterial_lst.erase(iter++);
+			if(max > (int32)core.xmaterial_lst.size())
+				max = (int32)core.xmaterial_lst.size();
+			auto iter = core.xmaterial_lst.lower_bound(max);
+			core.xmaterial_lst.erase(core.xmaterial_lst.begin(), iter);
 		}
 	} else
 		get_xyz_material(scard, findex, lv, max);
