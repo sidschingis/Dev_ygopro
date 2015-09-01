@@ -297,6 +297,48 @@ int32 card::is_set_card(uint32 set_code) {
 	}
 	return FALSE;
 }
+int32 card::is_pre_set_card(uint32 set_code) {
+	uint32 code = previous.code;
+	uint64 setcode;
+	if (code == data.code) {
+		setcode = data.setcode;
+	} else {
+		card_data dat;
+		::read_card(code, &dat);
+		setcode = dat.setcode;
+	}
+	uint32 settype = set_code & 0xfff;
+	uint32 setsubtype = set_code & 0xf000;
+	while(setcode) {
+		if ((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
+			return TRUE;
+		setcode = setcode >> 16;
+	}
+	//add set code
+	effect_set eset;
+	filter_effect(EFFECT_ADD_SETCODE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		uint32 value = eset[i]->get_value(this);
+		if ((value & 0xfff) == settype && (value & 0xf000 & setsubtype) == setsubtype)
+			return TRUE;
+	}
+	//another code
+	uint32 code2 = previous.code2;
+	uint64 setcode2;
+	if (code2 != 0) {
+		card_data dat;
+		::read_card(code2, &dat);
+		setcode2 = dat.setcode;
+	} else {
+		return FALSE;
+	}
+	while(setcode2) {
+		if ((setcode2 & 0xfff) == settype && (setcode2 & 0xf000 & setsubtype) == setsubtype)
+			return TRUE;
+		setcode2 = setcode2 >> 16;
+	}
+	return FALSE;
+}
 uint32 card::get_type() {
 	if(assume_type == ASSUME_TYPE)
 		return assume_value;
@@ -1754,7 +1796,7 @@ int32 card::is_equipable(card* pcard) {
 int32 card::is_summonable() {
 	if(!(data.type & TYPE_MONSTER))
 		return FALSE;
-	return !(status & (STATUS_REVIVE_LIMIT | STATUS_UNSUMMONABLE_CARD));
+	return !is_affected_by_effect(EFFECT_UNSUMMONABLE_CARD);
 }
 int32 card::is_summonable(effect* peffect) {
 	effect* oreason = pduel->game_field->core.reason_effect;
@@ -1832,7 +1874,7 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 			return FALSE;
 		}
 	} else if(current.location == LOCATION_HAND) {
-		if(is_status(STATUS_REVIVE_LIMIT) || is_affected_by_effect(EFFECT_CANNOT_SUMMON)) {
+		if(is_affected_by_effect(EFFECT_CANNOT_SUMMON)) {
 			pduel->game_field->restore_lp_cost();
 			return FALSE;
 		}
@@ -1907,7 +1949,7 @@ int32 card::get_set_tribute_count() {
 	return min + (max << 16);
 }
 int32 card::is_can_be_flip_summoned(uint8 playerid) {
-	if(is_status(STATUS_SUMMON_TURN) || is_status(STATUS_FLIP_SUMMON_TURN) || is_status(STATUS_FORM_CHANGED))
+	if(is_status(STATUS_SUMMON_TURN) || is_status(STATUS_FLIP_SUMMON_TURN) || is_status(STATUS_SPSUMMON_TURN) || is_status(STATUS_FORM_CHANGED))
 		return FALSE;
 	if(announce_count > 0)
 		return FALSE;
@@ -1972,7 +2014,7 @@ int32 card::is_can_be_special_summoned(effect * reason_effect, uint32 sumtype, u
 		return FALSE;
 	if(current.location == LOCATION_REMOVED && (current.position & POS_FACEDOWN))
 		return FALSE;
-	if(is_status(STATUS_REVIVE_LIMIT) && !is_status(STATUS_PROC_COMPLETE)) {
+	if(is_affected_by_effect(EFFECT_REVIVE_LIMIT) && !is_status(STATUS_PROC_COMPLETE)) {
 		if((!nolimit && (current.location & 0x38)) || (!nocheck && !nolimit && (current.location & 0x3)))
 			return FALSE;
 		if(!nolimit && (data.type & TYPE_PENDULUM) && current.location == LOCATION_EXTRA && (current.position & POS_FACEUP))
@@ -2028,7 +2070,7 @@ int32 card::is_can_be_special_summoned(effect * reason_effect, uint32 sumtype, u
 int32 card::is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect, uint8 min_tribute) {
 	if(!(data.type & TYPE_MONSTER))
 		return FALSE;
-	if(status & (STATUS_REVIVE_LIMIT | STATUS_UNSUMMONABLE_CARD))
+	if(is_affected_by_effect(EFFECT_UNSUMMONABLE_CARD))
 		return FALSE;
 	if(current.location != LOCATION_HAND)
 		return FALSE;
@@ -2363,7 +2405,7 @@ int32 card::is_capable_attack_announce(uint8 playerid) {
 	return TRUE;
 }
 int32 card::is_capable_change_position(uint8 playerid) {
-	if(is_status(STATUS_SUMMON_TURN) || is_status(STATUS_FLIP_SUMMON_TURN) || is_status(STATUS_FORM_CHANGED))
+	if(is_status(STATUS_SUMMON_TURN) || is_status(STATUS_FLIP_SUMMON_TURN) || is_status(STATUS_SPSUMMON_TURN) || is_status(STATUS_FORM_CHANGED))
 		return FALSE;
 	if(announce_count > 0)
 		return FALSE;
@@ -2446,7 +2488,7 @@ int32 card::is_can_be_synchro_material(card* scard, card* tuner) {
 		return FALSE;
 	if(!(get_type() & TYPE_MONSTER))
 		return FALSE;
-	if(scard && current.controler != scard->current.controler && !is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL))
+	if(scard && current.location == LOCATION_MZONE && current.controler != scard->current.controler && !is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_FORBIDDEN))
 		return FALSE;

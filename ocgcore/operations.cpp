@@ -1549,10 +1549,10 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 					oeit->second = 0;
 		}
 		target->set_status(STATUS_SUMMONING, FALSE);
+		target->set_status(STATUS_SUMMON_TURN, TRUE);
 		target->enable_field_effect(TRUE);
 		if(target->is_status(STATUS_DISABLED))
 			target->reset(RESET_DISABLE, RESET_EVENT);
-		target->set_status(STATUS_SUMMON_TURN, TRUE);
 		core.summoning_card = 0;
 		return FALSE;
 	}
@@ -1666,7 +1666,7 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target) {
 int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, uint8 ignore_count, uint8 min_tribute) {
 	switch(step) {
 	case 0: {
-		if(target->is_status(STATUS_REVIVE_LIMIT))
+		if(target->is_affected_by_effect(EFFECT_UNSUMMONABLE_CARD))
 			return TRUE;
 		if(target->current.location != LOCATION_HAND)
 			return TRUE;
@@ -2043,10 +2043,6 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, uint32 summon_type) {
 	switch(step) {
 	case 0: {
-		if(!(target->data.type & TYPE_MONSTER))
-			return FALSE;
-		if(target->current.location & (LOCATION_GRAVE + LOCATION_REMOVED) && !target->is_status(STATUS_REVIVE_LIMIT))
-			return FALSE;
 		effect_set eset;
 		card* tuner = core.limit_tuner;
 		group* materials = core.limit_xyz;
@@ -2225,10 +2221,10 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 			if(oeit->second == core.units.begin()->peffect)
 				oeit->second = 0;
 		target->set_status(STATUS_SUMMONING, FALSE);
+		target->set_status(STATUS_PROC_COMPLETE | STATUS_SPSUMMON_TURN, TRUE);
 		target->enable_field_effect(TRUE);
 		if(target->is_status(STATUS_DISABLED))
 			target->reset(RESET_DISABLE, RESET_EVENT);
-		target->set_status(STATUS_PROC_COMPLETE | STATUS_SUMMON_TURN, TRUE);
 		core.summoning_card = 0;
 		return FALSE;
 	}
@@ -2381,10 +2377,10 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 				oeit->second = 0;
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 			(*cit)->set_status(STATUS_SUMMONING, FALSE);
+			(*cit)->set_status(STATUS_SPSUMMON_TURN, TRUE);
 			(*cit)->enable_field_effect(TRUE);
 			if((*cit)->is_status(STATUS_DISABLED))
 				(*cit)->reset(RESET_DISABLE, RESET_EVENT);
-			(*cit)->set_status(STATUS_SUMMON_TURN, TRUE);
 		}
 		return FALSE;
 	}
@@ -2416,7 +2412,7 @@ int32 field::special_summon_step(uint16 step, group * targets, card * target) {
 		returns.ivalue[0] = FALSE;
 		uint32 result = TRUE;
 		effect_set eset;
-		if(target->is_status(STATUS_REVIVE_LIMIT) && !target->is_status(STATUS_PROC_COMPLETE)) {
+		if(target->is_affected_by_effect(EFFECT_REVIVE_LIMIT) && !target->is_status(STATUS_PROC_COMPLETE)) {
 			if((!nolimit && (target->current.location & 0x38)) || (!nocheck && !nolimit && (target->current.location & 0x3)))
 				result = FALSE;
 		}
@@ -2539,7 +2535,7 @@ int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_pl
 			core.spsummon_once_map[1][*cit]++;
 		for(auto cit = targets->container.begin(); cit != targets->container.end(); ++cit) {
 			(*cit)->set_status(STATUS_SPSUMMON_STEP, FALSE);
-			(*cit)->set_status(STATUS_SUMMON_TURN, TRUE);
+			(*cit)->set_status(STATUS_SPSUMMON_TURN, TRUE);
 			if((*cit)->is_position(POS_FACEUP))
 				(*cit)->enable_field_effect(TRUE);
 		}
@@ -3032,7 +3028,9 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		card_set leave_p, destroying;
 		for(auto cit = targets->container.begin(); cit != targets->container.end(); ++cit) {
 			card* pcard = *cit;
-			if((pcard->current.location == LOCATION_MZONE) && pcard->is_status(STATUS_BATTLE_DESTROYED) && !(pcard->current.reason & (REASON_DESTROY | REASON_EFFECT))) {
+			if((pcard->current.location == LOCATION_MZONE) && pcard->is_status(STATUS_BATTLE_DESTROYED) 
+					&& !(pcard->current.reason & REASON_RULE) 
+					&& (pcard->current.reason & (REASON_DESTROY | REASON_EFFECT)) != (REASON_DESTROY | REASON_EFFECT)) {
 				pcard->current.reason |= REASON_DESTROY | REASON_BATTLE;
 				raise_single_event(pcard, 0, EVENT_DESTROY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 				destroying.insert(pcard);
@@ -3414,7 +3412,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				released.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_RELEASE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
-			if(pcard->current.reason & REASON_DESTROY) {
+			if(pcard->current.reason & REASON_DESTROY && !pcard->is_status(STATUS_BATTLE_DESTROYED)) {
 				destroyed.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_DESTROYED, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
@@ -3660,6 +3658,7 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 			if(target->turnid != infos.turn_id) {
 				target->set_status(STATUS_SUMMON_TURN, FALSE);
 				target->set_status(STATUS_FLIP_SUMMON_TURN, FALSE);
+				target->set_status(STATUS_SPSUMMON_TURN, FALSE);
 				target->set_status(STATUS_SET_TURN, FALSE);
 				target->set_status(STATUS_FORM_CHANGED, FALSE);
 			}
