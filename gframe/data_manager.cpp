@@ -85,7 +85,7 @@ bool DataManager::LoadStrings(const char* file) {
 			continue;
 		sscanf(linebuf, "!%s", strbuf);
 		if(!strcmp(strbuf, "system")) {
-			sscanf(&linebuf[7], "%d %99[^\n]", &value, strbuf);
+			sscanf(&linebuf[7], "%x %99[^\n]", &value, strbuf);
 			int len = BufferIO::DecodeUTF8(strbuf, strBuffer);
 			wchar_t* pbuf = new wchar_t[len + 1];
 			wcscpy(pbuf, strBuffer);
@@ -188,8 +188,15 @@ const wchar_t* DataManager::GetCounterName(int code) {
 		return unknown_string;
 	return csit->second;
 }
-const wchar_t* DataManager::GetNumString(int num) {
-	return numStrings[num];
+const wchar_t* DataManager::GetNumString(int num, bool bracket) {
+	if (!bracket)
+		return numStrings[num];
+	wchar_t* p = numBuffer;
+	*p++ = L'(';
+	BufferIO::CopyWStrRef(numStrings[num], p, 4);
+	*p = L')';
+	*++p = 0;
+	return numBuffer;
 }
 const unsigned int DataManager::GetSetcode(wchar_t* name) {
 	auto csit = _setcodeStrings.find(name);
@@ -200,9 +207,9 @@ const unsigned int DataManager::GetSetcode(wchar_t* name) {
 const std::vector<wchar_t*> DataManager::GetSetcodeList() {
 	std::vector<wchar_t*> keys;
 	keys.reserve(_setcodeStrings.size());
-	for(std::unordered_map<wchar_t*, unsigned int>::iterator it = _setcodeStrings.begin(); 
-        it != _setcodeStrings.end(); ++it)
-			keys.push_back(it->first);
+	for (std::unordered_map<wchar_t*, unsigned int>::iterator it = _setcodeStrings.begin();
+		it != _setcodeStrings.end(); ++it)
+		keys.push_back(it->first);
 	return keys;
 }
 const wchar_t* DataManager::FormatLocation(int location, int sequence) {
