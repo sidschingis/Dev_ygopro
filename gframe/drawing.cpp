@@ -466,9 +466,6 @@ void Game::DrawMisc() {
 		adFont->draw(pcard->rscstring, mainGame->Resize(429, 246, 461, 266), 0xffffffff, true, false, 0);
 	}
 	if (dField.extra[0].size()) {
-		int offset = (dField.extra[0].size() >= 10) ? 0 : mainGame->textFont->getDimension(dataManager.GetNumString(1)).Width;
-		numFont->draw(dataManager.GetNumString(dField.extra[0].size()), recti(320 + offset, 562, 371, 552), 0xff000000, true, false, 0);
-		numFont->draw(dataManager.GetNumString(dField.extra[0].size()), recti(320 + offset, 563, 373, 553), 0xffffff00, true, false, 0);
 		numFont->draw(dataManager.GetNumString(dField.extra[0].size()), mainGame->Resize(330, 562, 381, 552), 0xff000000, true, false, 0);
 		numFont->draw(dataManager.GetNumString(dField.extra[0].size()), mainGame->Resize(330, 563, 383, 553), 0xffffff00, true, false, 0);
 	}
@@ -485,9 +482,6 @@ void Game::DrawMisc() {
 		numFont->draw(dataManager.GetNumString(dField.remove[0].size()), mainGame->Resize(1015, 376, 959, 381), 0xffffff00, true, false, 0);
 	}
 	if (dField.extra[1].size()) {
-		int offset = (dField.extra[1].size() >= 10) ? 0 : mainGame->textFont->getDimension(dataManager.GetNumString(1)).Width;
-		numFont->draw(dataManager.GetNumString(dField.extra[1].size()), recti(808 + offset, 207, 898, 232), 0xff000000, true, false, 0);
-		numFont->draw(dataManager.GetNumString(dField.extra[1].size()), recti(808 + offset, 208, 900, 233), 0xffffff00, true, false, 0);
 		numFont->draw(dataManager.GetNumString(dField.extra[1].size()), mainGame->Resize(818, 207, 908, 232), 0xff000000, true, false, 0);
 		numFont->draw(dataManager.GetNumString(dField.extra[1].size()), mainGame->Resize(818, 208, 910, 233), 0xffffff00, true, false, 0);
 	}
