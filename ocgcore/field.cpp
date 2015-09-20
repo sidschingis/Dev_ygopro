@@ -27,7 +27,7 @@ field::field(duel* pduel) {
 	this->pduel = pduel;
 	infos.field_id = 1;
 	infos.copy_id = 1;
-	infos.shuffle_count = 0;
+	infos.can_shuffle = TRUE;
 	infos.turn_id = 0;
 	infos.card_id = 1;
 	infos.phase = 0;
@@ -41,6 +41,7 @@ field::field(duel* pduel) {
 		player[i].draw_count = 1;
 		player[i].disabled_location = 0;
 		player[i].used_location = 0;
+		player[i].extra_p_count = 0;
 		player[i].list_mzone.reserve(5);
 		player[i].list_szone.reserve(8);
 		player[i].list_main.reserve(45);
@@ -128,6 +129,7 @@ void field::reload_field_info() {
 		pduel->write_buffer8(player[playerid].list_grave.size());
 		pduel->write_buffer8(player[playerid].list_remove.size());
 		pduel->write_buffer8(player[playerid].list_extra.size());
+		pduel->write_buffer8(player[playerid].extra_p_count);
 	}
 	pduel->write_buffer8(core.current_chain.size());
 	for(auto chit = core.current_chain.begin(); chit != core.current_chain.end(); ++chit) {
@@ -374,6 +376,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 	}
 	add_card(playerid, pcard, location, sequence);
 }
+// add EFFECT_SET_CONTROL
 void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 reset_count) {
 	if((core.remove_brainwashing && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING)) || pcard->refresh_control_status() == playerid)
 		return;
@@ -699,6 +702,9 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 		peffect->effect_owner = owner_player;
 		peffect->id = infos.field_id++;
 	}
+	if((peffect->type & 0x7e0)
+		|| (core.reason_effect && (core.reason_effect->status & EFFECT_STATUS_ACTIVATED)))
+		peffect->status |= EFFECT_STATUS_ACTIVATED;
 	peffect->card_type = peffect->owner->data.type;
 	effect_container::iterator it;
 	if (!(peffect->type & EFFECT_TYPE_ACTIONS)) {

@@ -71,6 +71,7 @@ struct player_info {
 	int32 draw_count;
 	uint32 used_location;
 	uint32 disabled_location;
+	uint32 extra_p_count;
 	card_vector list_mzone;
 	card_vector list_szone;
 	card_vector list_main;
@@ -114,7 +115,7 @@ struct field_info {
 	uint8 phase;
 	uint8 turn_player;
 	uint8 priorities[2];
-	uint8 shuffle_count;
+	uint8 can_shuffle;
 };
 struct lpcost {
 	int32 count;
