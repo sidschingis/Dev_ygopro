@@ -68,7 +68,14 @@ void ClientField::Clear() {
 	extra_act = false;
 	pzone_act[0] = false;
 	pzone_act[1] = false;
-	deck_reversed = false;
+	deck_reversed = false;	
+	activatable_cards.clear();
+	summonable_cards.clear();
+	spsummonable_cards.clear();
+	msetable_cards.clear();
+	ssetable_cards.clear();
+	reposable_cards.clear();
+	attackable_cards.clear();
 }
 void ClientField::Initial(int player, int deckc, int extrac) {
 	ClientCard* pcard;
