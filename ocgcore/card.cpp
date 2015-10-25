@@ -165,8 +165,7 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 	}
 	if(query_flag & QUERY_COUNTERS) {
 		*p++ = counters.size();
-		counter_map::iterator cmit;
-		for(cmit = counters.begin(); cmit != counters.end(); ++cmit)
+		for(auto cmit = counters.begin(); cmit != counters.end(); ++cmit)
 			*p++ = cmit->first + (cmit->second << 16);
 	}
 	if(query_flag & QUERY_OWNER)
@@ -527,14 +526,14 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 			break;
 		}
 		if (!rev) {
-			if (temp.attack != -1)
+			if (swap || patk)
 				temp.attack = base_atk + up_atk + upc_atk;
-			if (temp.defence != -1)
+			if (swap || pdef)
 				temp.defence = base_def + up_def + upc_def;
 		} else {
-			if (temp.attack != -1)
+			if (swap || patk)
 				temp.attack = base_atk - up_atk - upc_atk;
-			if (temp.defence != -1)
+			if (swap || pdef)
 				temp.defence = base_def - up_def - upc_def;
 		}
 	}
@@ -1408,7 +1407,7 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count) {
 	return TRUE;
 }
 int32 card::remove_counter(uint16 countertype, uint16 count) {
-	counter_map::iterator cmit = counters.find(countertype);
+	auto cmit = counters.find(countertype);
 	if(cmit == counters.end())
 		return FALSE;
 	if(cmit->second <= count)
@@ -1434,7 +1433,7 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count)
 		return FALSE;
 	int32 limit = -1;
 	int32 cur = 0;
-	counter_map::iterator cmit = counters.find(countertype);
+	auto cmit = counters.find(countertype);
 	if(cmit != counters.end())
 		cur = cmit->second;
 	filter_effect(EFFECT_COUNTER_LIMIT + countertype, &eset);
@@ -1445,7 +1444,7 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count)
 	return TRUE;
 }
 int32 card::get_counter(uint16 countertype) {
-	counter_map::iterator cmit = counters.find(countertype);
+	auto cmit = counters.find(countertype);
 	if(cmit == counters.end())
 		return 0;
 	return cmit->second;
@@ -2482,13 +2481,16 @@ int32 card::is_capable_be_effect_target(effect* peffect, uint8 playerid) {
 	}
 	return TRUE;
 }
-int32 card::is_can_be_fusion_material(uint8 ignore_mon) {
+int32 card::is_can_be_fusion_material(card* fcard, uint8 ignore_mon) {
 	if(!ignore_mon && !(get_type() & TYPE_MONSTER))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_FORBIDDEN))
 		return FALSE;
-	if(is_affected_by_effect(EFFECT_CANNOT_BE_FUSION_MATERIAL))
-		return FALSE;
+	effect_set eset;
+	filter_effect(EFFECT_CANNOT_BE_FUSION_MATERIAL, &eset);
+	for(int32 i = 0; i < eset.size(); ++i)
+		if(eset[i]->get_value(fcard))
+			return FALSE;
 	return TRUE;
 }
 int32 card::is_can_be_synchro_material(card* scard, card* tuner) {

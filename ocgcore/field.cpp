@@ -42,6 +42,7 @@ field::field(duel* pduel) {
 		player[i].disabled_location = 0;
 		player[i].used_location = 0;
 		player[i].extra_p_count = 0;
+		player[i].tag_extra_p_count = 0;
 		player[i].list_mzone.reserve(5);
 		player[i].list_szone.reserve(8);
 		player[i].list_main.reserve(45);
@@ -142,7 +143,8 @@ void field::reload_field_info() {
 		pduel->write_buffer32(peffect->description);
 	}
 }
-
+// Debug.AddCard() will call this function directly
+// check Fusion/S/X monster redirection by the rule
 void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence) {
 	if (pcard->current.location != 0)
 		return;
@@ -197,6 +199,8 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 	case LOCATION_EXTRA:
 		player[playerid].list_extra.push_back(pcard);
 		pcard->current.sequence = player[playerid].list_extra.size() - 1;
+		if((pcard->operation_param >> 24) & POS_FACEUP)
+			++player[playerid].extra_p_count;
 		break;
 	}
 	pcard->apply_field_effect();
@@ -240,6 +244,8 @@ void field::remove_card(card* pcard) {
 	case LOCATION_EXTRA:
 		player[playerid].list_extra.erase(player[playerid].list_extra.begin() + pcard->current.sequence);
 		reset_sequence(playerid, LOCATION_EXTRA);
+		if(pcard->current.position & POS_FACEUP)
+			--player[playerid].extra_p_count;
 		break;
 	}
 	pcard->cancel_field_effect();
@@ -255,6 +261,8 @@ void field::remove_card(card* pcard) {
 	pcard->current.location = 0;
 	pcard->current.sequence = 0;
 }
+// check Fusion/S/X monster redirection by the rule
+// it will call remove_card(), add_card()
 void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence) {
 	if (!is_location_useable(playerid, location, sequence))
 		return;
@@ -679,6 +687,7 @@ void field::tag_swap(uint8 playerid) {
 		(*clit)->cancel_field_effect();
 	}
 	std::swap(player[playerid].list_extra, player[playerid].tag_list_extra);
+	std::swap(player[playerid].extra_p_count, player[playerid].tag_extra_p_count);
 	for(clit = player[playerid].list_extra.begin(); clit != player[playerid].list_extra.end(); ++clit) {
 		(*clit)->apply_field_effect();
 		(*clit)->enable_field_effect(true);
@@ -687,6 +696,7 @@ void field::tag_swap(uint8 playerid) {
 	pduel->write_buffer8(playerid);
 	pduel->write_buffer8(player[playerid].list_main.size());
 	pduel->write_buffer8(player[playerid].list_extra.size());
+	pduel->write_buffer8(player[playerid].extra_p_count);
 	pduel->write_buffer8(player[playerid].list_hand.size());
 	if(core.deck_reversed && player[playerid].list_main.size())
 		pduel->write_buffer32(player[playerid].list_main.back()->data.code);
@@ -694,6 +704,8 @@ void field::tag_swap(uint8 playerid) {
 		pduel->write_buffer32(0);
 	for(auto cit = player[playerid].list_hand.begin(); cit != player[playerid].list_hand.end(); ++cit)
 		pduel->write_buffer32((*cit)->data.code | ((*cit)->is_status(STATUS_IS_PUBLIC) ? 0x80000000 : 0));
+	for(auto cit = player[playerid].list_extra.begin(); cit != player[playerid].list_extra.end(); ++cit)
+		pduel->write_buffer32((*cit)->data.code | ((*cit)->is_position(POS_FACEUP) ? 0x80000000 : 0));
 }
 void field::add_effect(effect* peffect, uint8 owner_player) {
 	if (!peffect->handler) {
@@ -1407,6 +1419,7 @@ void field::adjust_disable_check_list() {
 		}
 	} while(effects.disable_check_list.size());
 }
+// adjust check_unique_onfield(), EFFECT_SELF_DESTROY, EFFECT_SELF_TOGRAVE
 void field::adjust_self_destroy_set() {
 	if(core.selfdes_disabled || !core.self_destroy_set.empty() || !core.self_tograve_set.empty())
 		return;
