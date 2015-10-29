@@ -120,8 +120,13 @@ public:
 	void DrawShadowB(CGUITTFont *font, const stringw &text, recti position);
 
 	int LocalPlayer(int player);
-	const wchar_t* LocalName(int local_player);
+	const wchar_t* LocalName(int local_player);	
 	
+	bool HasFocus(EGUI_ELEMENT_TYPE type) const {
+		irr::gui::IGUIElement* focus = env->getFocus();
+		return focus && focus->hasType(type);
+	}
+
 	void OnResize();
 	recti Resize(s32 x, s32 y, s32 x2, s32 y2);
 	recti Resize(s32 x, s32 y, s32 x2, s32 y2, s32 dx, s32 dy, s32 dx2, s32 dy2);
@@ -288,6 +293,12 @@ public:
 	irr::gui::IGUIWindow* wMessage;
 	irr::gui::IGUIStaticText* stMessage;
 	irr::gui::IGUIButton* btnMsgOK;
+	//card display
+	irr::gui::IGUIWindow* wCardDisplay;
+	irr::gui::CGUIImageButton* btnCardDisplay[5];
+	irr::gui::IGUIStaticText *stDisplayPos[5];
+	irr::gui::IGUIScrollBar *scrDisplayList;
+	irr::gui::IGUIButton* btnDisplayOK;
 	//auto close message
 	irr::gui::IGUIWindow* wACMessage;
 	irr::gui::IGUIStaticText* stACMessage;
@@ -500,8 +511,15 @@ extern Game* mainGame;
 #define BUTTON_CLEAR_LOG			270
 #define LISTBOX_LOG					271
 #define SCROLL_CARDTEXT				280
-#define SCROLL_SOUND				290
-#define SCROLL_MUSIC				291
+#define SCROLL_SOUND				281
+#define SCROLL_MUSIC				282
+#define BUTTON_DISPLAY_0			290
+#define BUTTON_DISPLAY_1			291
+#define BUTTON_DISPLAY_2			292
+#define BUTTON_DISPLAY_3			293
+#define BUTTON_DISPLAY_4			294
+#define SCROLL_CARD_DISPLAY			295
+#define BUTTON_CARD_DISP_OK			296
 #define BUTTON_CATEGORY_OK			300
 #define COMBOBOX_DBLFLIST			301
 #define COMBOBOX_DBDECKS			302

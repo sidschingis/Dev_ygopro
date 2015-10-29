@@ -317,6 +317,8 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			dragx = event.MouseInput.X;
 			dragy = event.MouseInput.Y;
 			draging_pointer = dataManager.GetCodePointer(hovered_code);
+			if (draging_pointer == dataManager._datas.end())
+				break;
 			unsigned int limitcode = draging_pointer->second.alias ? draging_pointer->second.alias : draging_pointer->first;
 			if(hovered_pos == 4) {
 				int limit = 3;
@@ -419,6 +421,8 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				if(hovered_pos == 0 || hovered_seq == -1)
 					break;
 				draging_pointer = dataManager.GetCodePointer(hovered_code);
+				if (draging_pointer == dataManager._datas.end())
+					break;
 				if(hovered_pos == 1) {
 					if(deckManager.current_deck.side.size() < 20) {
 						deckManager.current_deck.main.erase(deckManager.current_deck.main.begin() + hovered_seq);
@@ -445,8 +449,11 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				break;
 			if(hovered_pos == 0 || hovered_seq == -1)
 				break;
-			if(!is_draging)
+			if (!is_draging) {
 				draging_pointer = dataManager.GetCodePointer(hovered_code);
+				if (draging_pointer == dataManager._datas.end())
+					break;
+			}
 			if(hovered_pos == 1) {
 				if(!is_draging)
 					deckManager.current_deck.main.erase(deckManager.current_deck.main.begin() + hovered_seq);
@@ -606,12 +613,13 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 	case irr::EET_KEY_INPUT_EVENT: {
 		switch(event.KeyInput.Key) {
 		case irr::KEY_KEY_R: {
-			if(!event.KeyInput.PressedDown)
+			if (!event.KeyInput.PressedDown && !mainGame->HasFocus(EGUIET_EDIT_BOX))
 				mainGame->textFont->setTransparency(true);
 			break;
 		}
 		case irr::KEY_ESCAPE: {
-			mainGame->device->minimizeWindow();
+			if (!mainGame->HasFocus(EGUIET_EDIT_BOX))
+				mainGame->device->minimizeWindow();
 			break;
 		}
 		default: break;
@@ -726,7 +734,7 @@ void DeckBuilder::FilterCards(bool checkDescription) {
 	const wchar_t* pstr = mainGame->ebCardName->getText();
 	int trycode = BufferIO::GetVal(pstr);
 	if(dataManager.GetData(trycode, 0)) {
-		auto ptr = dataManager.GetCodePointer(trycode);
+		auto ptr = dataManager.GetCodePointer(trycode); // verified by GetData()
 		results.push_back(ptr);
 		mainGame->scrFilter->setVisible(false);
 		mainGame->scrFilter->setPos(0);

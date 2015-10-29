@@ -532,6 +532,10 @@ void Game::DrawGUI() {
 							for(int i = 0; i < 5; ++i)
 								btnCardSelect[i]->setDrawImage(true);
 						}
+						if (fu.guiFading == wCardDisplay) {
+							for (int i = 0; i < 5; ++i)
+								btnCardDisplay[i]->setDrawImage(true);
+						}
 						env->setFocus(fu.guiFading);
 					} else
 						fu.guiFading->setRelativePosition(irr::core::recti(fu.fadingUL, fu.fadingLR));
@@ -558,6 +562,10 @@ void Game::DrawGUI() {
 						if(fu.guiFading == wCardSelect) {
 							for(int i = 0; i < 5; ++i)
 								btnCardSelect[i]->setDrawImage(true);
+						}
+						if (fu.guiFading == wCardDisplay) {
+							for (int i = 0; i < 5; ++i)
+								btnCardDisplay[i]->setDrawImage(true);
 						}
 					} else
 						fu.guiFading->setRelativePosition(irr::core::recti(fu.fadingUL, fu.fadingLR));
@@ -816,6 +824,10 @@ void Game::ShowElement(irr::gui::IGUIElement * win, int autoframe) {
 		for(int i = 0; i < 5; ++i)
 			btnCardSelect[i]->setDrawImage(false);
 	}
+	if (fu.guiFading == wCardDisplay) {
+		for (int i = 0; i < 5; ++i)
+			btnCardDisplay[i]->setDrawImage(true);
+	}
 	win->setRelativePosition(irr::core::recti(center.X, center.Y, 0, 0));
 	fadingList.push_back(fu);
 }
@@ -843,6 +855,10 @@ void Game::HideElement(irr::gui::IGUIElement * win, bool set_action) {
 	if(win == wCardSelect) {
 		for(int i = 0; i < 5; ++i)
 			btnCardSelect[i]->setDrawImage(false);
+	}
+	if (fu.guiFading == wCardDisplay) {
+		for (int i = 0; i < 5; ++i)
+			btnCardDisplay[i]->setDrawImage(true);
 	}
 	fadingList.push_back(fu);
 }
