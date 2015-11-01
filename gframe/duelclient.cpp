@@ -3197,21 +3197,21 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 				mainGame->dField.GetCardLocation(ccard, &ccard->curPos, &ccard->curRot, true);
 			}
 			val = BufferIO::ReadInt8(pbuf);
-			for(int seq = 0; seq < val; ++seq) {
-				ClientCard* ccard = new ClientCard;
-				mainGame->dField.AddCard(ccard, p, LOCATION_EXTRA, seq);
-				mainGame->dField.GetCardLocation(ccard, &ccard->curPos, &ccard->curRot, true);
-			}
-			val = BufferIO::ReadInt8(pbuf);
-			for(int seq = 0; seq < val; ++seq) {
+			for (int seq = 0; seq < val; ++seq) {
 				ClientCard* ccard = new ClientCard;
 				mainGame->dField.AddCard(ccard, p, LOCATION_GRAVE, seq);
 				mainGame->dField.GetCardLocation(ccard, &ccard->curPos, &ccard->curRot, true);
 			}
 			val = BufferIO::ReadInt8(pbuf);
-			for(int seq = 0; seq < val; ++seq) {
+			for (int seq = 0; seq < val; ++seq) {
 				ClientCard* ccard = new ClientCard;
 				mainGame->dField.AddCard(ccard, p, LOCATION_REMOVED, seq);
+				mainGame->dField.GetCardLocation(ccard, &ccard->curPos, &ccard->curRot, true);
+			}
+			val = BufferIO::ReadInt8(pbuf);
+			for(int seq = 0; seq < val; ++seq) {
+				ClientCard* ccard = new ClientCard;
+				mainGame->dField.AddCard(ccard, p, LOCATION_EXTRA, seq);
 				mainGame->dField.GetCardLocation(ccard, &ccard->curPos, &ccard->curRot, true);
 			}
 			val = BufferIO::ReadInt8(pbuf);
