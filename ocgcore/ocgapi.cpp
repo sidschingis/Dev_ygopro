@@ -284,11 +284,13 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(ptr pduel, uint8 playerid, uint
 	}
 	return ct;
 }
-extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
+extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf, bool isSwapped) {
 	duel* ptduel = (duel*)pduel;
 	*buf++ = MSG_RELOAD_FIELD;
 	card* pcard;
 	for(int playerid = 0; playerid < 2; ++playerid) {
+		if (isSwapped)
+			playerid = 1 - playerid;
 		*((int*)(buf)) = ptduel->game_field->player[playerid].lp;
 		buf += 4;
 		for(uint32 i = 0; i < 5; ++i) {
