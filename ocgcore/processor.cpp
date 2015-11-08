@@ -1602,7 +1602,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		//forced trigger
 		for (auto clit = core.new_fchain_s.begin(); clit != core.new_fchain_s.end(); ++clit) {
 			effect* peffect = clit->triggering_effect;
-			if(!(peffect->is_flag((EFFECT_FLAG_EVENT_PLAYER | EFFECT_FLAG_BOTH_SIDE))) && peffect->handler->is_has_relation(peffect)) {
+			if(!peffect->is_flag((EFFECT_FLAG_EVENT_PLAYER | EFFECT_FLAG_BOTH_SIDE)) && peffect->handler->is_has_relation(peffect)) {
 				clit->triggering_player = peffect->handler->current.controler;
 				clit->triggering_controler = peffect->handler->current.controler;
 				clit->triggering_location = peffect->handler->current.location;
@@ -1673,10 +1673,10 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		}
 		for (auto clit = core.new_ochain_s.begin(); clit != core.new_ochain_s.end(); ++clit) {
 			effect* peffect = clit->triggering_effect;
-			if((!(peffect->is_flag((EFFECT_FLAG_EVENT_PLAYER | EFFECT_FLAG_BOTH_SIDE))) && peffect->handler->is_has_relation(peffect))
-			        || (!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && (peffect->type & EFFECT_TYPE_FIELD)
+			if((!peffect->is_flag((EFFECT_FLAG_EVENT_PLAYER | EFFECT_FLAG_BOTH_SIDE)) && peffect->handler->is_has_relation(peffect))
+			        || (!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && (peffect->type & EFFECT_TYPE_FIELD)
 			            && (peffect->range & LOCATION_HAND) && peffect->handler->current.location == LOCATION_HAND)) {
-				if (!peffect->handler->is_has_relation(peffect))
+				if(!peffect->handler->is_has_relation(peffect))
 					peffect->handler->create_relation(peffect);
 				clit->triggering_player = peffect->handler->current.controler;
 				clit->triggering_controler = peffect->handler->current.controler;
@@ -1716,8 +1716,8 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 		        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x3)
 		            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_status(STATUS_IS_PUBLIC))) {
-			if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
-			        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(peffect))
+			if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && clit->triggering_location == LOCATION_HAND
+			        && (((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE) && peffect->handler->is_has_relation(peffect))
 					/*|| (peffect->range & LOCATION_HAND)*/)) {
 				core.new_ochain_h.push_back(*clit);
 				act = false;
@@ -1795,8 +1795,8 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 			        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x3)
 			            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_status(STATUS_IS_PUBLIC))) {
-				if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
-				        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(peffect))
+				if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && clit->triggering_location == LOCATION_HAND
+				        && (((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE) && peffect->handler->is_has_relation(peffect))
 				            || (peffect->range & LOCATION_HAND))) {
 					continue;
 				} else if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) || !(peffect->type & EFFECT_TYPE_FIELD)
@@ -2077,7 +2077,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 					for(auto cait = core.current_chain.begin(); cait != core.current_chain.end(); ++cait) {
 						if(cait->triggering_player == priority) {
 							effect* pchaineff = cait->triggering_effect;
-							if (!(pchaineff->is_flag(EFFECT_FLAG_FIELD_ONLY)) && (pchaineff->type & EFFECT_TYPE_TRIGGER_O)
+							if(!(pchaineff->is_flag(EFFECT_FLAG_FIELD_ONLY)) && (pchaineff->type & EFFECT_TYPE_TRIGGER_O)
 							        && (!(pchaineff->type & EFFECT_TYPE_SINGLE) || (pchaineff->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 							        && (pchaineff->range & LOCATION_HAND)) {
 								act = false;
@@ -2265,7 +2265,7 @@ int32 field::process_instant_event() {
 			if(!peffect->is_condition_check(peffect->handler->current.controler, *elit))
 				continue;
 			if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
-			        || ((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
+			        || ((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))
 			        || !(peffect->range & LOCATION_HAND) || (peffect->range & peffect->handler->current.location))
 				peffect->handler->create_relation(peffect);
 			peffect->s_range = peffect->handler->current.location;
@@ -3626,14 +3626,10 @@ int32 field::process_battle_command(uint16 step) {
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 1);
 		raise_event((card*)0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 0);
+		if(core.attack_target)
+			core.attack_target->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 		process_single_event();
 		process_instant_event();
-		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
-		core.attacker->set_status(STATUS_OPPO_BATTLE, FALSE);
-		if(core.attack_target) {
-			core.attack_target->set_status(STATUS_BATTLE_DESTROYED, FALSE);
-			core.attack_target->set_status(STATUS_OPPO_BATTLE, FALSE);
-		}
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(0);
@@ -3659,6 +3655,9 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 39: {
 		//end of damage step
+		core.attacker->set_status(STATUS_OPPO_BATTLE, FALSE);
+		if (core.attack_target)
+			core.attack_target->set_status(STATUS_OPPO_BATTLE, FALSE);
 		core.units.begin()->step = -1;
 		infos.phase = PHASE_BATTLE;
 		pduel->write_buffer8(MSG_DAMAGE_STEP_END);
@@ -3965,7 +3964,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 			for(auto iter = effects.spsummon_count_eff.begin(); iter != effects.spsummon_count_eff.end(); ++iter) {
 				effect* peffect = *iter;
 				card* pcard = peffect->handler;
-				if(!(peffect->is_flag(EFFECT_FLAG_NO_TURN_RESET))) {
+				if(!peffect->is_flag(EFFECT_FLAG_NO_TURN_RESET)) {
 					pcard->spsummon_counter[0] = pcard->spsummon_counter[1] = 0;
 					pcard->spsummon_counter_rst[0] = pcard->spsummon_counter_rst[1] = 0;
 				}
@@ -4245,7 +4244,7 @@ int32 field::add_chain(uint16 step) {
 				peffect->handler->filter_effect(ecode, &eset);
 				effect* pactin = 0;
 				for(int32 i = 0; i < eset.size(); ++i) {
-					if(!(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT))){
+					if(!(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT))) {
 						pactin = eset[i];
 						break;
 					}
@@ -4310,13 +4309,13 @@ int32 field::add_chain(uint16 step) {
 		core.current_chain.push_back(clit);
 		check_chain_counter(peffect, clit.triggering_player, clit.chain_count);
 		// triggered events which are not caused by RaiseEvent create relation with the handler
-		if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && (!(peffect->type & 0x2a0) || (peffect->code & EVENT_PHASE) == EVENT_PHASE)) {
+		if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && (!(peffect->type & 0x2a0) || (peffect->code & EVENT_PHASE) == EVENT_PHASE)) {
 			peffect->handler->create_relation(peffect);
 		}
 		peffect->effect_owner = clit.triggering_player;
 		// DISABLE_CHAIN should be check before cost
 		effect* deffect;
-		if (!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && phandler->is_has_relation(phandler) && (deffect = phandler->is_affected_by_effect(EFFECT_DISABLE_EFFECT))) {
+		if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && phandler->is_has_relation(peffect) && (deffect = phandler->is_affected_by_effect(EFFECT_DISABLE_EFFECT))) {
 			effect* negeff = pduel->new_effect();
 			negeff->owner = deffect->owner;
 			negeff->type = EFFECT_TYPE_SINGLE;
@@ -4782,7 +4781,7 @@ int32 field::break_effect() {
 	for (auto chit = core.new_ochain.begin(); chit != core.new_ochain.end();) {
 		auto rm = chit++;
 		effect* peffect = rm->triggering_effect;
-		if (!(peffect->is_flag(EFFECT_FLAG_DELAY))) {
+		if (!peffect->is_flag(EFFECT_FLAG_DELAY)) {
 			if ((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 			        || !(peffect->type & EFFECT_TYPE_FIELD) || peffect->in_range(rm->triggering_location, rm->triggering_sequence)) {
 				pduel->write_buffer8(MSG_MISSED_EFFECT);
