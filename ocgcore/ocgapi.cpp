@@ -288,7 +288,8 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf, bool isSw
 	duel* ptduel = (duel*)pduel;
 	*buf++ = MSG_RELOAD_FIELD;
 	card* pcard;
-	for(int playerid = 0; playerid < 2; ++playerid) {
+	for(int player = 0; player < 2; ++player) {
+		int playerid = player;
 		if (isSwapped)
 			playerid = 1 - playerid;
 		*((int*)(buf)) = ptduel->game_field->player[playerid].lp;
