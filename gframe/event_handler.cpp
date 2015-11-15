@@ -11,7 +11,6 @@
 #include "../ocgcore/field.h"
 
 namespace ygo {
-	f
 bool ClientField::OnEvent(const irr::SEvent& event) {
 	switch(event.EventType) {
 	case irr::EET_GUI_EVENT: {
