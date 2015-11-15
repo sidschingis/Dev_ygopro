@@ -736,6 +736,12 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->gMutex.Unlock();
 			mainGame->WaitFrameSignal(11);
 		}
+		if (mainGame->wOptions->isVisible()) {
+			mainGame->gMutex.Lock();
+			mainGame->HideElement(mainGame->wOptions);
+			mainGame->gMutex.Unlock();
+			mainGame->WaitFrameSignal(11);
+		}
 	}
 	if(mainGame->dInfo.time_player == 1)
 		mainGame->dInfo.time_player = 2;
@@ -3194,6 +3200,10 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			for(int seq = 0; seq < val; ++seq) {
 				ClientCard* ccard = new ClientCard;
 				mainGame->dField.AddCard(ccard, p, LOCATION_HAND, seq);
+			}
+			// Use another loop to refresh the hand locations to prevent incorrect positioning
+				for (int seq = 0; seq < val; ++seq) {
+				ClientCard* ccard = mainGame->dField.hand[p][seq];
 				mainGame->dField.GetCardLocation(ccard, &ccard->curPos, &ccard->curRot, true);
 			}
 			val = BufferIO::ReadInt8(pbuf);
