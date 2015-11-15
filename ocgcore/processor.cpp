@@ -1602,7 +1602,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		//forced trigger
 		for (auto clit = core.new_fchain_s.begin(); clit != core.new_fchain_s.end(); ++clit) {
 			effect* peffect = clit->triggering_effect;
-			if(!peffect->is_flag((EFFECT_FLAG_EVENT_PLAYER | EFFECT_FLAG_BOTH_SIDE)) && peffect->handler->is_has_relation(peffect)) {
+			if(!peffect->is_flag(EFFECT_FLAG_EVENT_PLAYER | EFFECT_FLAG_BOTH_SIDE) && peffect->handler->is_has_relation(peffect)) {
 				clit->triggering_player = peffect->handler->current.controler;
 				clit->triggering_controler = peffect->handler->current.controler;
 				clit->triggering_location = peffect->handler->current.location;
@@ -1673,7 +1673,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		}
 		for (auto clit = core.new_ochain_s.begin(); clit != core.new_ochain_s.end(); ++clit) {
 			effect* peffect = clit->triggering_effect;
-			if((!peffect->is_flag((EFFECT_FLAG_EVENT_PLAYER | EFFECT_FLAG_BOTH_SIDE)) && peffect->handler->is_has_relation(peffect))
+			if((!peffect->is_flag(EFFECT_FLAG_EVENT_PLAYER | EFFECT_FLAG_BOTH_SIDE) && peffect->handler->is_has_relation(peffect))
 			        || (!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && (peffect->type & EFFECT_TYPE_FIELD)
 			            && (peffect->range & LOCATION_HAND) && peffect->handler->current.location == LOCATION_HAND)) {
 				if(!peffect->handler->is_has_relation(peffect))
@@ -3625,7 +3625,8 @@ int32 field::process_battle_command(uint16 step) {
 		raise_single_event(core.attacker, 0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 0);
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 1);
-		raise_event((card*)0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 0);
+		raise_event((card*)0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 0); 
+		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 		if(core.attack_target)
 			core.attack_target->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 		process_single_event();
