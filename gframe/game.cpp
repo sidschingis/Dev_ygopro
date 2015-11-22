@@ -1056,7 +1056,8 @@ void Game::ShowCardInfo(int code) {
 		else if(cd.defence < 0)
 			myswprintf(adBuffer, L"%d/?", cd.attack);
 		else
-			myswprintf(adBuffer, L"%d/%d", cd.attack, cd.defence);
+			myswprintf(adBuffer, L"%d/%d", cd.attack, cd.defence); 
+		wcscat(formatBuffer, adBuffer);
 		if(cd.type & TYPE_PENDULUM) {
 			wchar_t scaleBuffer[16];
 			myswprintf(scaleBuffer, L" %d/%d", cd.lscale, cd.rscale);
