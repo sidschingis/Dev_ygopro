@@ -1021,10 +1021,11 @@ void Game::DrawDeckBd() {
 			driver->draw2DRectangle(0x80000000, mainGame->Resize(806, 164 + i * 66, 1019, 230 + i * 66));
 		DrawThumb(ptr, position2di(810, 165 + i * 66), deckBuilder.filterList);
 		if(ptr->second.type & TYPE_MONSTER) {
+			int form = 0x2605;
+			if (ptr->second.type & TYPE_XYZ) ++form;
 			myswprintf(textBuffer, L"%ls", dataManager.GetName(ptr->first));
 			DrawShadowB(textFont, textBuffer, mainGame->Resize(859, 164 + i * 66, 955, 185 + i * 66));
-			myswprintf(textBuffer, L"%ls/%ls \x2605%d", dataManager.FormatAttribute(ptr->second.attribute), dataManager.FormatRace(ptr->second.race), ptr->second.level);
-			DrawShadowB(textFont, textBuffer, mainGame->Resize(859, 186 + i * 66, 955, 207 + i * 66));
+			myswprintf(textBuffer, L"%ls/%ls %c%d", dataManager.FormatAttribute(ptr->second.attribute), dataManager.FormatRace(ptr->second.race), form, ptr->second.level); DrawShadowB(textFont, textBuffer, mainGame->Resize(859, 186 + i * 66, 955, 207 + i * 66));
 			if(ptr->second.attack < 0 && ptr->second.defence < 0)
 				myswprintf(textBuffer, L"?/?");
 			else if(ptr->second.attack < 0)
