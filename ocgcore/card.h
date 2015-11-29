@@ -84,7 +84,7 @@ public:
 	typedef std::unordered_map<effect*, effect_container::iterator> effect_indexer;
 	typedef std::unordered_map<effect*, uint32> effect_relation;
 	typedef std::unordered_map<card*, uint32> relation_map;
-	typedef std::map<uint16, uint16> counter_map;
+	typedef std::map<uint16, std::array<uint16, 2> > counter_map;
 	typedef std::unordered_map<uint16, card*> attacker_map;
 	int32 scrtype;
 	int32 ref_handle;
@@ -404,7 +404,7 @@ public:
 #define STATUS_ACTIVATED			0x800000
 #define STATUS_JUST_POS				0x1000000
 #define STATUS_CONTINUOUS_POS		0x2000000
-#define STATUS_IS_PUBLIC			0x4000000
+//#define STATUS_IS_PUBLIC			0x4000000
 #define STATUS_ACT_FROM_HAND		0x8000000
 #define STATUS_OPPO_BATTLE			0x10000000
 #define STATUS_FLIP_SUMMON_TURN		0x20000000
