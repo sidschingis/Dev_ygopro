@@ -76,7 +76,7 @@ int DeckManager::TypeCount(std::vector<code_pointer> cards,int type){
 	return count;
 }
 
-int DeckManager::CheckLFList(Deck& deck, int lfhash, bool allow_ocg, bool allow_tcg) {
+int DeckManager::CheckLFList(Deck& deck, int lfhash, bool allow_ocg, bool allow_tcg, bool allow_pre = false) {
 	std::unordered_map<int, int> ccount;
 	std::unordered_map<int, int>* list = 0;
 	for(size_t i = 0; i < _lfList.size(); ++i) {
@@ -92,7 +92,7 @@ int DeckManager::CheckLFList(Deck& deck, int lfhash, bool allow_ocg, bool allow_
 		return 1;
 	for(size_t i = 0; i < deck.main.size(); ++i) {
 		code_pointer cit = deck.main[i];
-		if((!allow_ocg && (cit->second.ot == 0x1)) || (!allow_tcg && (cit->second.ot == 0x2)))
+		if((!allow_ocg && (cit->second.ot & 0x1 > 0)) || (!allow_tcg && (cit->second.ot & 0x2 > 0)) || (!allow_pre && (cit->second.ot & 0x4 > 0)))
 			return cit->first;
 		if(cit->second.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_TOKEN))
 			return 1;
@@ -105,7 +105,7 @@ int DeckManager::CheckLFList(Deck& deck, int lfhash, bool allow_ocg, bool allow_
 	}
 	for(size_t i = 0; i < deck.extra.size(); ++i) {
 		code_pointer cit = deck.extra[i];
-		if((!allow_ocg && (cit->second.ot == 0x1)) || (!allow_tcg && (cit->second.ot == 0x2)))
+		if((!allow_ocg && (cit->second.ot & 0x1 > 0)) || (!allow_tcg && (cit->second.ot & 0x2 > 0)) || (!allow_pre && (cit->second.ot & 0x4 > 0)))
 			return cit->first;
 		int code = cit->second.alias ? cit->second.alias : cit->first;
 		ccount[code]++;
@@ -116,7 +116,7 @@ int DeckManager::CheckLFList(Deck& deck, int lfhash, bool allow_ocg, bool allow_
 	}
 	for(size_t i = 0; i < deck.side.size(); ++i) {
 		code_pointer cit = deck.side[i];
-		if((!allow_ocg && (cit->second.ot == 0x1)) || (!allow_tcg && (cit->second.ot == 0x2)))
+		if((!allow_ocg && (cit->second.ot & 0x1 > 0)) || (!allow_tcg && (cit->second.ot & 0x2 > 0)) || (!allow_pre && (cit->second.ot & 0x4 > 0)))
 			return cit->first;
 		int code = cit->second.alias ? cit->second.alias : cit->first;
 		ccount[code]++;

@@ -1038,12 +1038,12 @@ void Game::DrawDeckBd() {
 				myswprintf(scaleBuffer, L" %d/%d", ptr->second.lscale, ptr->second.rscale);
 				wcscat(textBuffer, scaleBuffer);
 			}
-			if((ptr->second.ot & 0x7) == 1)
+			if((ptr->second.ot & 0x1) == 1)
 				wcscat(textBuffer, L" [OCG]");
-			else if((ptr->second.ot & 0x7) == 2)
+			else if((ptr->second.ot & 0x2) == 2)
 				wcscat(textBuffer, L" [TCG]");
-			else if((ptr->second.ot & 0x7) == 4)
-				wcscat(textBuffer, L" [Anime]");
+			if((ptr->second.ot & 0x4) == 4)
+				wcscat(textBuffer, L"(Prerelease)");
 			DrawShadowB(textFont, textBuffer, mainGame->Resize(859, 208 + i * 66, 955, 229 + i * 66));
 		} else {
 			myswprintf(textBuffer, L"%ls", dataManager.GetName(ptr->first));
@@ -1051,12 +1051,12 @@ void Game::DrawDeckBd() {
 			const wchar_t* ptype = dataManager.FormatType(ptr->second.type);
 			DrawShadowB(textFont, ptype, mainGame->Resize(859, 186 + i * 66, 955, 207 + i * 66));
 			textBuffer[0] = 0;
-			if((ptr->second.ot & 0x7) == 1)
-				wcscat(textBuffer, L"[OCG]");
-			else if((ptr->second.ot & 0x7) == 2)
-				wcscat(textBuffer, L"[TCG]");
-			else if((ptr->second.ot & 0x7) == 4)
-				wcscat(textBuffer, L"[Anime]");
+			if ((ptr->second.ot & 0x1) == 1)
+				wcscat(textBuffer, L" [OCG]");
+			else if ((ptr->second.ot & 0x2) == 2)
+				wcscat(textBuffer, L" [TCG]");
+			if ((ptr->second.ot & 0x4) == 4)
+				wcscat(textBuffer, L"(Prerelease)");
 			DrawShadowB(textFont, textBuffer, mainGame->Resize(859, 208 + i * 66, 955, 229 + i * 66));
 		}
 	}

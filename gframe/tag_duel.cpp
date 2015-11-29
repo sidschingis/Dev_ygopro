@@ -224,9 +224,10 @@ void TagDuel::PlayerReady(DuelPlayer* dp, bool is_ready) {
 	if(dp->type > 3 || ready[dp->type] == is_ready)
 		return;
 	if(is_ready) {
-		bool allow_ocg = host_info.rule == 0 || host_info.rule == 2;
-		bool allow_tcg = host_info.rule == 1 || host_info.rule == 2;
-		int res = host_info.no_check_deck ? false : deckManager.CheckLFList(pdeck[dp->type], host_info.lflist, allow_ocg, allow_tcg);
+		bool allow_ocg = host_info.rule % 4 == 0 || host_info.rule % 4 == 2;
+		bool allow_tcg = host_info.rule % 4 == 1 || host_info.rule % 4 == 2;
+		bool allow_pre = host_info.rule >= 4;
+		int res = host_info.no_check_deck ? false : deckManager.CheckLFList(pdeck[dp->type], host_info.lflist, allow_ocg, allow_tcg, allow_pre);
 		if(res) {
 			STOC_HS_PlayerChange scpc;
 			scpc.status = (dp->type << 4) | PLAYERCHANGE_NOTREADY;
