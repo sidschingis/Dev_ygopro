@@ -193,7 +193,7 @@ void ClientField::AddCard(ClientCard* pcard, int controler, int location, int se
 	case LOCATION_EXTRA: {
 		extra[controler].push_back(pcard);
 		pcard->sequence = extra[controler].size() - 1;
-		if ((pcard->type & TYPE_PENDULUM) && (pcard->position & POS_FACEUP))
+		if (pcard->position & POS_FACEUP)
 			extra_p_count[controler]++;
 		break;
 	}
@@ -263,7 +263,7 @@ ClientCard* ClientField::RemoveCard(int controler, int location, int sequence) {
 			extra[controler][i]->mTransform.setTranslation(extra[controler][i]->curPos);
 		}
 		extra[controler].erase(extra[controler].end() - 1);
-		if ((pcard->type & TYPE_PENDULUM) && (pcard->position & POS_FACEUP))
+		if (pcard->position & POS_FACEUP)
 			extra_p_count[controler]--;
 		break;
 	}
