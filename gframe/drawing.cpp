@@ -466,8 +466,10 @@ void Game::DrawMisc() {
 		adFont->draw(pcard->rscstring, mainGame->Resize(429, 246, 461, 266), 0xffffffff, true, false, 0);
 	}
 	if (dField.extra[0].size()) {
-		numFont->draw(dataManager.GetNumString(dField.extra[0].size()), mainGame->Resize(330, 562, 381, 552), 0xff000000, true, false, 0);
-		numFont->draw(dataManager.GetNumString(dField.extra[0].size()), mainGame->Resize(330, 563, 383, 553), 0xffffff00, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.extra[0].size()), mainGame->Resize(320, 562, 371, 552), 0xff000000, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.extra[0].size()), mainGame->Resize(320, 563, 373, 553), 0xffffff00, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.extra_p_count[0], true), mainGame->Resize(340, 562, 391, 552), 0xff000000, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.extra_p_count[0], true), mainGame->Resize(340, 563, 393, 553), 0xffffff00, true, false, 0);
 	}
 	if(dField.deck[0].size()) {
 		numFont->draw(dataManager.GetNumString(dField.deck[0].size()), mainGame->Resize(907, 562, 1021, 552), 0xff000000, true, false, 0);
@@ -482,8 +484,10 @@ void Game::DrawMisc() {
 		numFont->draw(dataManager.GetNumString(dField.remove[0].size()), mainGame->Resize(1015, 376, 959, 381), 0xffffff00, true, false, 0);
 	}
 	if (dField.extra[1].size()) {
-		numFont->draw(dataManager.GetNumString(dField.extra[1].size()), mainGame->Resize(818, 207, 908, 232), 0xff000000, true, false, 0);
-		numFont->draw(dataManager.GetNumString(dField.extra[1].size()), mainGame->Resize(818, 208, 910, 233), 0xffffff00, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.extra[1].size()), mainGame->Resize(808, 207, 898, 232), 0xff000000, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.extra[1].size()), mainGame->Resize(808, 208, 900, 233), 0xffffff00, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.extra_p_count[1], true), mainGame->Resize(828, 207, 918, 232), 0xff000000, true, false, 0);
+		numFont->draw(dataManager.GetNumString(dField.extra_p_count[1], true), mainGame->Resize(828, 208, 920, 233), 0xffffff00, true, false, 0);
 	}
 	if(dField.deck[1].size()) {
 		numFont->draw(dataManager.GetNumString(dField.deck[1].size()), mainGame->Resize(465, 207, 481, 232), 0xff000000, true, false, 0);
