@@ -138,7 +138,6 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				case MSG_SELECT_CARD:
 				case MSG_SELECT_TRIBUTE:
 				case MSG_SELECT_SUM: {
-					SetResponseSelectedCards();
 					mainGame->HideElement(mainGame->wQuery);
 					break;
 				}
