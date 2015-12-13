@@ -81,20 +81,22 @@ extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int options) {
 		pd->game_field->draw(0, REASON_RULE, PLAYER_NONE, 1, pd->game_field->player[1].start_count);
 	if(options & DUEL_TAG_MODE) {
 		for(int i = 0; i < pd->game_field->player[0].start_count && pd->game_field->player[0].tag_list_main.size(); ++i) {
-			card* pcard = *pd->game_field->player[0].tag_list_main.rbegin();
+			card* pcard = pd->game_field->player[0].tag_list_main.back();
 			pd->game_field->player[0].tag_list_main.pop_back();
 			pd->game_field->player[0].tag_list_hand.push_back(pcard);
 			pcard->current.controler = 0;
 			pcard->current.location = LOCATION_HAND;
 			pcard->current.sequence = pd->game_field->player[0].tag_list_hand.size() - 1;
+			pcard->current.position = POS_FACEDOWN;
 		}
 		for(int i = 0; i < pd->game_field->player[1].start_count && pd->game_field->player[1].tag_list_main.size(); ++i) {
-			card* pcard = *pd->game_field->player[1].tag_list_main.rbegin();
+			card* pcard = pd->game_field->player[1].tag_list_main.back();
 			pd->game_field->player[1].tag_list_main.pop_back();
 			pd->game_field->player[1].tag_list_hand.push_back(pcard);
 			pcard->current.controler = 1;
 			pcard->current.location = LOCATION_HAND;
 			pcard->current.sequence = pd->game_field->player[1].tag_list_hand.size() - 1;
+			pcard->current.position = POS_FACEDOWN;
 		}
 	}
 	pd->game_field->add_process(PROCESSOR_TURN, 0, 0, 0, 0, 0);
@@ -290,7 +292,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf, bool isSw
 	duel* ptduel = (duel*)pduel;
 	*buf++ = MSG_RELOAD_FIELD;
 	card* pcard;
-	for(int player = 0; player < 2; ++player) {
+	for (int player = 0; player < 2; ++player) {
 		int playerid = player;
 		if (isSwapped)
 			playerid = 1 - playerid;
@@ -301,7 +303,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf, bool isSw
 			if(pcard) {
 				*buf++ = 1;
 				*buf++ = pcard->current.position;
-				*buf++ = (uint8) pcard->xyz_materials.size();
+				*buf++ = (uint8)pcard->xyz_materials.size();
 			} else {
 				*buf++ = 0;
 			}
@@ -315,14 +317,14 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf, bool isSw
 				*buf++ = 0;
 			}
 		}
-		*buf++ = (uint8) ptduel->game_field->player[playerid].list_main.size();
-		*buf++ = (uint8) ptduel->game_field->player[playerid].list_hand.size();
-		*buf++ = (uint8) ptduel->game_field->player[playerid].list_grave.size();
-		*buf++ = (uint8) ptduel->game_field->player[playerid].list_remove.size();
-		*buf++ = (uint8) ptduel->game_field->player[playerid].list_extra.size();
-		*buf++ = (uint8) ptduel->game_field->player[playerid].extra_p_count;
+		*buf++ = (uint8)ptduel->game_field->player[playerid].list_main.size();
+		*buf++ = (uint8)ptduel->game_field->player[playerid].list_hand.size();
+		*buf++ = (uint8)ptduel->game_field->player[playerid].list_grave.size();
+		*buf++ = (uint8)ptduel->game_field->player[playerid].list_remove.size();
+		*buf++ = (uint8)ptduel->game_field->player[playerid].list_extra.size();
+		*buf++ = (uint8)ptduel->game_field->player[playerid].extra_p_count;
 	}
-	*buf++ = (uint8) ptduel->game_field->core.current_chain.size();
+	*buf++ = (uint8)ptduel->game_field->core.current_chain.size();
 	for(auto chit = ptduel->game_field->core.current_chain.begin(); chit != ptduel->game_field->core.current_chain.end(); ++chit) {
 		effect* peffect = chit->triggering_effect;
 		*((int*)(buf)) = peffect->handler->data.code;
