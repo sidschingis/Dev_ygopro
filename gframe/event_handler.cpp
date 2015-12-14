@@ -617,7 +617,10 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 						myswprintf(formatBuffer, L"%d", select_min);
 						mainGame->stCardPos[id - BUTTON_CARD_0]->setText(formatBuffer);
 						if(select_min == select_max) {
-							SetResponseSelectedCards();
+							unsigned char respbuf[64];
+							for (int i = 0; i < select_max; ++i)
+								respbuf[i] = sort_list[i] - 1;
+							DuelClient::SetResponseB(respbuf, select_max);
 							mainGame->HideElement(mainGame->wCardSelect, true);
 							sort_list.clear();
 						}
@@ -1279,7 +1282,12 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					clicked_card->is_selectable = false;
 				select_counter_count--;
 				if (select_counter_count == 0) {
-					SetResponseSelectedCards();
+					unsigned char respbuf[64];
+					for (size_t i = 0; i < selectable_cards.size(); ++i)
+						respbuf[i] = (selectable_cards[i]->opParam >> 16) - (selectable_cards[i]->opParam & 0xffff);
+					mainGame->stHintMsg->setVisible(false);
+					ClearSelect();
+					DuelClient::SetResponseB(respbuf, selectable_cards.size());
 					DuelClient::SendResponse();
 				} else {
 					myswprintf(formatBuffer, dataManager.GetSysString(204), select_counter_count, dataManager.GetCounterName(select_counter_type));
