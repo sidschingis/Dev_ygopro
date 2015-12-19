@@ -336,6 +336,10 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			myswprintf(msgbuf, L"*%ls\n", dataManager.GetSysString(1236));
 			str.append(msgbuf);
 		}
+		if (pkt->info.enable_prerelease) {
+			myswprintf(msgbuf, L"*%ls\n", dataManager.GetSysString(1239));
+			str.append(msgbuf);
+		}
 		if(pkt->info.no_check_deck) {
 			myswprintf(msgbuf, L"*%ls\n", dataManager.GetSysString(1229));
 			str.append(msgbuf);

@@ -804,11 +804,20 @@ void DeckBuilder::FilterCards(bool checkDescription) {
 		if(filter_lm) {
 			if(filter_lm <= 3 && (!filterList->count(ptr->first) || (*filterList)[ptr->first] != filter_lm - 1))
 				continue;
-			if(filter_lm == 4 && data.ot != 1)
+			//ocg
+			if (filter_lm == 4 && !(data.ot & 0x1))
 				continue;
-			if(filter_lm == 5 && data.ot != 2)
+			//tcg
+			if (filter_lm == 5 && !(data.ot & 0x2))
 				continue;
-			if(filter_lm == 6 && data.ot != 4)
+			//prerelease only
+			if (filter_lm == 6 && !(data.ot & 0x4))
+				continue;
+			//ocg only
+			if (filter_lm == 7 && (data.ot & 0x2))
+				continue;
+			//tcg only
+			if (filter_lm == 8 && (data.ot & 0x1))
 				continue;
 		}
 		if(pstr) {

@@ -490,6 +490,8 @@ bool Game::Initialize() {
 	cbLimit->addItem(dataManager.GetSysString(1318));
 	cbLimit->addItem(dataManager.GetSysString(1240));
 	cbLimit->addItem(dataManager.GetSysString(1241));
+	cbLimit->addItem(dataManager.GetSysString(2018));
+	cbLimit->addItem(dataManager.GetSysString(2019));
 	cbLimit->addItem(dataManager.GetSysString(2020));
 	stLabel5 = env->addStaticText(dataManager.GetSysString(1319), rect<s32>(10, 28, 70, 48), false, false, wFilter);
 	cbAttribute = env->addComboBox(rect<s32>(60, 26, 190, 46), wFilter, -1);
