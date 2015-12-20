@@ -334,7 +334,7 @@ bool SingleMode::SinglePlayAnalyze(char* msg, unsigned int len) {
 			break;
 		}
 		case MSG_NEW_PHASE: {
-			pbuf++;
+			pbuf += 2;
 			DuelClient::ClientAnalyze(offset, pbuf - offset);
 			SinglePlayRefresh();
 			break;

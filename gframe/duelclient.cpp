@@ -1506,20 +1506,31 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		mainGame->dField.select_sumval = BufferIO::ReadInt32(pbuf);
 		mainGame->dField.select_min = BufferIO::ReadInt8(pbuf);
 		mainGame->dField.select_max = BufferIO::ReadInt8(pbuf);
-		int count = BufferIO::ReadInt8(pbuf);
+		mainGame->dField.must_select_count = BufferIO::ReadInt8(pbuf);
 		mainGame->dField.selectsum_all.clear();
 		mainGame->dField.selected_cards.clear();
 		mainGame->dField.selectsum_cards.clear();
-		int c, l, s;
-		unsigned int code;
 		bool panelmode = false;
-		ClientCard* pcard;
+		ClientCard* pcard; 
+		for (int i = 0; i < mainGame->dField.must_select_count; ++i) {
+			unsigned int code = (unsigned int)BufferIO::ReadInt32(pbuf);
+			int c = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
+			int l = BufferIO::ReadInt8(pbuf);
+			int s = BufferIO::ReadInt8(pbuf);
+			ClientCard* pcard = mainGame->dField.GetCard(c, l, s);
+			if (code != 0 && pcard->code != code)
+				pcard->SetCode(code);
+			pcard->opParam = BufferIO::ReadInt32(pbuf);
+			pcard->select_seq = 0;
+			mainGame->dField.selected_cards.push_back(pcard);
+		}
+		int count = BufferIO::ReadInt8(pbuf);
 		for (int i = 0; i < count; ++i) {
-			code = (unsigned int)BufferIO::ReadInt32(pbuf);
-			c = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
-			l = BufferIO::ReadInt8(pbuf);
-			s = BufferIO::ReadInt8(pbuf);
-			pcard = mainGame->dField.GetCard(c, l, s);
+			unsigned int code = (unsigned int)BufferIO::ReadInt32(pbuf);
+			int c = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
+			int l = BufferIO::ReadInt8(pbuf);
+			int s = BufferIO::ReadInt8(pbuf);
+			ClientCard* pcard = mainGame->dField.GetCard(c, l, s);
 			if (code != 0 && pcard->code != code)
 				pcard->SetCode(code);
 			pcard->opParam = BufferIO::ReadInt32(pbuf);
@@ -1932,7 +1943,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 	case MSG_NEW_PHASE: {
 		mainGame->PlaySound("./sound/phase.wav");
 		mainGame->dField.ClearCommandFlag();
-		int phase = (unsigned char)BufferIO::ReadInt8(pbuf);
+		int phase = (unsigned char)BufferIO::ReadInt16(pbuf);
 		mainGame->btnDP->setVisible(false);
 		mainGame->btnSP->setVisible(false);
 		mainGame->btnM1->setVisible(false);
@@ -2931,7 +2942,6 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 	}
 	case MSG_ANNOUNCE_RACE: {
 		/*int player = */mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
-		mainGame->dField.declarable_type = BufferIO::ReadInt32(pbuf);
 		mainGame->dField.announce_count = BufferIO::ReadInt8(pbuf);
 		int available = BufferIO::ReadInt32(pbuf);
 		for(int i = 0, filter = 0x1; i < 24; ++i, filter <<= 1) {
@@ -2972,6 +2982,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 	}
 	case MSG_ANNOUNCE_CARD: {
 		/*int player = */mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
+		mainGame->dField.declarable_type = BufferIO::ReadInt32(pbuf);
 		if(select_hint)
 			myswprintf(textBuffer, L"%ls", dataManager.GetDesc(select_hint));
 		else myswprintf(textBuffer, dataManager.GetSysString(564));
