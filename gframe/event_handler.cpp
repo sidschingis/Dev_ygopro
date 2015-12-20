@@ -831,6 +831,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			}
+			break;
 		}
 		case irr::gui::EGET_EDITBOX_ENTER: {
 			switch(id) {
