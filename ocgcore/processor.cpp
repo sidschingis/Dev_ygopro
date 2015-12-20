@@ -569,7 +569,7 @@ int32 field::process() {
 		return PROCESSOR_WAITING + pduel->bufferlen;
 	}
 	case PROCESSOR_ANNOUNCE_CARD: {
-		if (announce_card(it->step, it->arg1, it->arg2)) {
+		if(announce_card(it->step, it->arg1, it->arg2)) {
 			pduel->lua->add_param(returns.ivalue[0], PARAM_TYPE_INT);
 			core.units.pop_front();
 		} else {
@@ -646,11 +646,9 @@ int32 field::process() {
 		} else {
 			group* pgroup = pduel->new_group();
 			card* pcard;
-			int32 mcount = core.must_select_cards.size();
-			for (int32 i = mcount; i < returns.bvalue[0]; ++i) {
-				card* pcard = core.select_cards[returns.bvalue[i + 1]];
+			for(int32 i = 0; i < returns.bvalue[0]; ++i) {
+				pcard = core.select_cards[returns.bvalue[i + 1]];
 				pgroup->container.insert(pcard);
-				core.must_select_cards.clear();
 			}
 			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
 			core.units.pop_front();
@@ -790,11 +788,12 @@ int32 field::process() {
 			it->step++;
 		} else {
 			group* pgroup = pduel->new_group();
-			card* pcard;
-			for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-				pcard = core.select_cards[returns.bvalue[i + 1]];
+			int32 mcount = core.must_select_cards.size();
+			for(int32 i = mcount; i < returns.bvalue[0]; ++i) {
+				card* pcard = core.select_cards[returns.bvalue[i + 1]];
 				pgroup->container.insert(pcard);
 			}
+			core.must_select_cards.clear();
 			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
 			core.units.pop_front();
 		}
@@ -1317,8 +1316,8 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 	switch(step) {
 	case 0: {
 		if((phase == PHASE_DRAW && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_DP))
-			|| (phase == PHASE_STANDBY && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_SP))
-			|| (phase == PHASE_BATTLE_START && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP))) {
+		        || (phase == PHASE_STANDBY && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_SP))
+		        || (phase == PHASE_BATTLE_START && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP))) {
 			core.units.begin()->step = 24;
 			return FALSE;
 		}
@@ -1392,7 +1391,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 				core.hint_timing[infos.turn_player] = TIMING_DRAW_PHASE;
 			else if(phase == PHASE_STANDBY)
 				core.hint_timing[infos.turn_player] = TIMING_STANDBY_PHASE;
-			else if (phase == PHASE_BATTLE_START)
+			else if(phase == PHASE_BATTLE_START)
 				core.hint_timing[infos.turn_player] = TIMING_BATTLE_START;
 			else if(phase == PHASE_BATTLE)
 				core.hint_timing[infos.turn_player] = TIMING_BATTLE_END;
@@ -1446,10 +1445,10 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 				pduel->write_buffer32(20);
 			else if(infos.phase == PHASE_STANDBY)
 				pduel->write_buffer32(21);
+			else if(infos.phase == PHASE_BATTLE_START)
+				pduel->write_buffer32(28);
 			else if(infos.phase == PHASE_BATTLE)
 				pduel->write_buffer32(25);
-			else if (infos.phase == PHASE_BATTLE_START)
-				pduel->write_buffer32(28);
 			else
 				pduel->write_buffer32(26);
 			add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, check_player, core.spe_effect[check_player] | (tf_count + cn_count ? 0x10000 : 0));
@@ -1647,7 +1646,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 					core.ntpchain.push_back(*clit);
 				peffect->handler->set_status(STATUS_CHAINING, TRUE);
 				peffect->dec_count(tp);
-				if (peffect->is_flag(EFFECT_FLAG_CVAL_CHECK))
+				if(peffect->is_flag(EFFECT_FLAG_CVAL_CHECK))
 					peffect->get_value();
 			}
 		}
@@ -1732,7 +1731,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				core.new_ochain_h.push_back(*clit);
 				act = false;
 			} else if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) || !(peffect->type & EFFECT_TYPE_FIELD)
-		            || peffect->in_range(clit->triggering_location, clit->triggering_sequence)) {
+				|| peffect->in_range(clit->triggering_location, clit->triggering_sequence)) {
 				if (clit->triggering_location == LOCATION_HAND) {
 					if (tp == infos.turn_player) {
 						for (auto tpit = core.tpchain.begin(); tpit != core.tpchain.end(); ++tpit) {
@@ -1804,10 +1803,10 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			bool act = true;
 			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 			        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x3)
-						|| !(peffect->handler->current.location & 0x3) || peffect->handler->is_position(POS_FACEUP))) {
-				if (!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && clit->triggering_location == LOCATION_HAND
-					&& (((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE) && peffect->handler->is_has_relation(peffect))
-						|| (peffect->range & LOCATION_HAND))) {
+			            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_position(POS_FACEUP))) {
+				if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
+				        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(peffect))
+				            || (peffect->range & LOCATION_HAND))) {
 					continue;
 				} else if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) || !(peffect->type & EFFECT_TYPE_FIELD)
 			            || peffect->in_range(clit->triggering_location, clit->triggering_sequence)) {
@@ -3993,7 +3992,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		return FALSE;
 	}
 	case 3: {
-				// EVENT_PHASE_PRESTART is removed
+		// EVENT_PHASE_PRESTART is removed
 		return FALSE;
 	}
 	case 4: {
@@ -4043,7 +4042,6 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		core.delayed_quick_tmp.clear();
 		pduel->write_buffer8(MSG_NEW_PHASE);
 		pduel->write_buffer16(infos.phase);
-		
 		add_process(PROCESSOR_IDLE_COMMAND, 0, 0, 0, 0, 0);
 		return FALSE;
 	}
@@ -4064,7 +4062,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		return FALSE;
 	}
 	case 10: {
-		if (core.new_fchain.size() || core.new_ochain.size() || core.instant_event.size())
+		if(core.new_fchain.size() || core.new_ochain.size() || core.instant_event.size())
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
 		add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE_START, 0);
 		return FALSE;
