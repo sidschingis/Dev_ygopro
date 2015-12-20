@@ -2470,8 +2470,13 @@ int32 scriptlib::duel_select_xyz_material(lua_State *L) {
 	uint32 lv = lua_tointeger(L, 4);
 	uint32 minc = lua_tointeger(L, 5);
 	uint32 maxc = lua_tointeger(L, 6);
+	group* mg = 0;
+	if(lua_gettop(L) >= 7 && !lua_isnil(L, 7)) {
+		check_param(L, PARAM_TYPE_GROUP, 7);
+		mg = *(group**) lua_touserdata(L, 7);
+	}
 	duel* pduel = scard->pduel;
-	pduel->game_field->get_xyz_material(scard, findex, lv, maxc);
+	pduel->game_field->get_xyz_material(scard, findex, lv, maxc, mg);
 	scard->pduel->game_field->add_process(PROCESSOR_SELECT_XMATERIAL, 0, 0, (group*)scard, playerid + (lv << 16), minc + (maxc << 16));
 	return lua_yield(L, 0);
 }
@@ -2702,7 +2707,10 @@ int32 scriptlib::duel_announce_card(lua_State * L) {
 	check_param_count(L, 1);
 	int32 playerid = lua_tointeger(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	pduel->game_field->add_process(PROCESSOR_ANNOUNCE_CARD, 0, 0, 0, playerid, 0);
+	uint32 ttype = TYPE_MONSTER | TYPE_SPELL | TYPE_TRAP;
+	if(lua_gettop(L) >= 2)
+		ttype = lua_tointeger(L, 2);
+	pduel->game_field->add_process(PROCESSOR_ANNOUNCE_CARD, 0, 0, 0, playerid, ttype);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_announce_type(lua_State * L) {
