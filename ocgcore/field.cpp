@@ -79,8 +79,10 @@ field::field(duel* pduel) {
 	core.overdraw[1] = FALSE;
 	core.check_level = 0;
 	core.limit_tuner = 0;
-	core.limit_xyz = 0;
 	core.limit_syn = 0;
+	core.limit_xyz = 0;
+	core.limit_xyz_minc = 0;
+	core.limit_xyz_maxc = 0;
 	core.duel_options = 0;
 	core.attacker = 0;
 	core.attack_target = 0;
@@ -2328,6 +2330,6 @@ int32 field::check_chain_target(uint8 chaincount, card * pcard) {
 }
 int32 field::is_able_to_enter_bp() {
 	return ((core.duel_options & DUEL_ATTACK_FIRST_TURN) || infos.turn_id != 1)
-	        && infos.phase < PHASE_BATTLE
+	        && infos.phase < PHASE_BATTLE_START
 	        && !is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP);
 }
