@@ -1511,7 +1511,6 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		mainGame->dField.selected_cards.clear();
 		mainGame->dField.selectsum_cards.clear();
 		bool panelmode = false;
-		ClientCard* pcard; 
 		for (int i = 0; i < mainGame->dField.must_select_count; ++i) {
 			unsigned int code = (unsigned int)BufferIO::ReadInt32(pbuf);
 			int c = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
@@ -1943,7 +1942,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 	case MSG_NEW_PHASE: {
 		mainGame->PlaySound("./sound/phase.wav");
 		mainGame->dField.ClearCommandFlag();
-		int phase = (unsigned char)BufferIO::ReadInt16(pbuf);
+		unsigned short phase = BufferIO::ReadInt16(pbuf);
 		mainGame->btnDP->setVisible(false);
 		mainGame->btnSP->setVisible(false);
 		mainGame->btnM1->setVisible(false);

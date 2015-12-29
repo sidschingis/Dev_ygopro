@@ -1221,7 +1221,7 @@ bool ClientField::check_sel_sum_s(const std::set<ClientCard*>& left, int index, 
 	return res1 || res2;
 }
 void ClientField::check_sel_sum_t(const std::set<ClientCard*>& left, int acc) {
-	int count = selected_cards.size() + 1;
+	int count = selected_cards.size() + 1 - must_select_count;;
 	for (auto sit = left.begin(); sit != left.end(); ++sit) {
 		if (selectsum_cards.find(*sit) != selectsum_cards.end())
 			continue;
@@ -1275,7 +1275,7 @@ void ClientField::UpdateDeclarableCode() {
 	mainGame->lstANCard->clear();
 	ancard.clear();
 	for(auto cit = dataManager._strings.begin(); cit != dataManager._strings.end(); ++cit) {
-		if(wcsstr(cit->second.name, pname) != 0) {
+		if(DeckBuilder::CardNameCompare(cit->second.name, pname)) {
 			auto cp = dataManager.GetCodePointer(cit->first);	//verified by _strings
 			//datas.alias can be double card names or alias
 			if(is_declarable(cp->second, declarable_type)) {
