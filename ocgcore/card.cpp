@@ -361,6 +361,13 @@ int32 card::is_fusion_set_card(uint32 set_code) {
 			setcode = setcode >> 16;
 		}
 	}
+	effect_set eset2;
+	filter_effect(EFFECT_ADD_FUSION_SETCODE, &eset2);
+	for(int32 i = 0; i < eset2.size(); ++i) {
+		uint32 setcode = eset2[i]->get_value(this);
+		if ((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
+			return TRUE;
+	}
 	return FALSE;
 }
 uint32 card::get_type() {
@@ -1163,6 +1170,15 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		if (peffect->is_disable_related())
 			pduel->game_field->add_to_disable_check_list(check_target);
 	}
+	if (peffect->is_flag(EFFECT_FLAG_INITIAL) && peffect->copy_id && is_status(STATUS_EFFECT_REPLACED)) {
+		set_status(STATUS_EFFECT_REPLACED, FALSE);
+		if ((!(data.type & TYPE_NORMAL) || (data.type & TYPE_PENDULUM))) {
+			set_status(STATUS_INITIALIZING, TRUE);
+			pduel->lua->add_param(this, PARAM_TYPE_CARD);
+			pduel->lua->call_card_function(this, (char*) "initial_effect", 1, 0);
+			set_status(STATUS_INITIALIZING, FALSE);
+		}
+	}
 	indexer.erase(peffect);
 	if(peffect->is_flag(EFFECT_FLAG_OATH))
 		pduel->game_field->effects.oath.erase(peffect);
@@ -1216,6 +1232,65 @@ int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
 	for(auto eit = pduel->uncopy.begin(); eit != pduel->uncopy.end(); ++eit)
 		pduel->delete_effect(*eit);
 	pduel->uncopy.clear();
+	if(!(data.type & TYPE_EFFECT)) {
+		effect* peffect = pduel->new_effect();
+		if(pduel->game_field->core.reason_effect)
+			peffect->owner = pduel->game_field->core.reason_effect->handler;
+		else
+			peffect->owner = this;
+		peffect->handler = this;
+		peffect->type = EFFECT_TYPE_SINGLE;
+		peffect->code = EFFECT_ADD_TYPE;
+		peffect->value = TYPE_EFFECT;
+		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
+		peffect->reset_flag = reset;
+		peffect->reset_count |= count & 0xff;
+		this->add_effect(peffect);
+	}
+	return pduel->game_field->infos.copy_id - 1;
+}
+int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
+	card_data cdata;
+	read_card(code, &cdata);
+	if(cdata.type & TYPE_NORMAL)
+		return -1;
+	for(auto i = indexer.begin(); i != indexer.end();) {
+		auto rm = i++;
+		effect* peffect = rm->first;
+		auto it = rm->second;
+		if(peffect->is_flag(EFFECT_FLAG_INITIAL))
+			remove_effect(peffect, it);
+	}
+	uint32 cr = pduel->game_field->core.copy_reset;
+	uint8 crc = pduel->game_field->core.copy_reset_count;
+	pduel->game_field->core.copy_reset = reset;
+	pduel->game_field->core.copy_reset_count = count;
+	set_status(STATUS_INITIALIZING | STATUS_COPYING_EFFECT, TRUE);
+	pduel->lua->add_param(this, PARAM_TYPE_CARD);
+	pduel->lua->call_code_function(code, (char*) "initial_effect", 1, 0);
+	set_status(STATUS_INITIALIZING | STATUS_COPYING_EFFECT, FALSE);
+	pduel->game_field->infos.copy_id++;
+	pduel->game_field->core.copy_reset = cr;
+	pduel->game_field->core.copy_reset_count = crc;
+	set_status(STATUS_EFFECT_REPLACED, TRUE);
+	for(auto eit = pduel->uncopy.begin(); eit != pduel->uncopy.end(); ++eit)
+		pduel->delete_effect(*eit);
+	pduel->uncopy.clear();
+	if(!(data.type & TYPE_EFFECT)) {
+		effect* peffect = pduel->new_effect();
+		if(pduel->game_field->core.reason_effect)
+			peffect->owner = pduel->game_field->core.reason_effect->handler;
+		else
+			peffect->owner = this;
+		peffect->handler = this;
+		peffect->type = EFFECT_TYPE_SINGLE;
+		peffect->code = EFFECT_ADD_TYPE;
+		peffect->value = TYPE_EFFECT;
+		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
+		peffect->reset_flag = reset;
+		peffect->reset_count |= count & 0xff;
+		this->add_effect(peffect);
+	}
 	return pduel->game_field->infos.copy_id - 1;
 }
 // add EFFECT_SET_CONTROL
