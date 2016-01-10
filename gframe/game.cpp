@@ -910,6 +910,7 @@ void Game::LoadConfig() {
 	gameConf.muteopponent = false;
 	gameConf.forced = false;
 	gameConf.savereplay = false;
+	gameConf.control_mode = 0;
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -989,6 +990,8 @@ void Game::LoadConfig() {
 			gameConf.forced = atoi(valbuf) > 0;
 		} else if (!strcmp(strbuf, "save_last_replay")) {
 			gameConf.savereplay = atoi(valbuf) > 0;
+		} else if (!strcmp(strbuf, "control_mode")) {
+			gameConf.control_mode = atoi(valbuf);
 		}
 	}
 	fclose(fp);
@@ -1015,7 +1018,9 @@ void Game::SaveConfig() {
 	BufferIO::EncodeUTF8(gameConf.lastip, linebuf);
 	fprintf(fp, "lastip = %s\n", linebuf);
 	BufferIO::EncodeUTF8(gameConf.lastport, linebuf);
-	fprintf(fp, "lastport = %s\n", linebuf);
+	fprintf(fp, "lastport = %s\n", linebuf); 
+	fprintf(fp, "#control_mode = 0: Key A/S/R. control_mode = 1: MouseLeft/MouseRight/F9\n");
+	fprintf(fp, "control_mode = %d\n", gameConf.control_mode);
 	fclose(fp);
 }
 void Game::PlayMusic(char* song, bool loop){

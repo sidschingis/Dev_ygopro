@@ -44,6 +44,7 @@ struct Config {
 	bool mutespectator;
 	bool forced;
 	bool savereplay;
+	int control_mode;
 };
 
 struct DuelInfo {

@@ -577,9 +577,17 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					command_card = selectable_cards[id - BUTTON_CARD_0 + mainGame->scrCardList->getPos() / 10];
 					selected_cards.push_back(command_card);
 					if (CheckSelectSum()) {
-						SetResponseSelectedCards();
-						mainGame->HideElement(mainGame->wCardSelect, true);
+						if (selectsum_cards.size() == 0 || selectable_cards.size() == 0) {
+							SetResponseSelectedCards();
+							mainGame->HideElement(mainGame->wCardSelect, true);
+						}
+						else {
+							select_ready = true;
+							mainGame->wCardSelect->setVisible(false);
+							mainGame->dField.ShowSelectCard(true);
+						}
 					} else {
+						select_ready = false;
 						mainGame->wCardSelect->setVisible(false);
 						mainGame->dField.ShowSelectCard();
 					}
@@ -628,7 +636,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					mainGame->HideElement(mainGame->wCardSelect);
 					break;
 				}
-				if(mainGame->dInfo.curMsg == MSG_SELECT_CARD) {
+				if(mainGame->dInfo.curMsg == MSG_SELECT_CARD || mainGame->dInfo.curMsg == MSG_SELECT_SUM) {
 					if(select_ready) {
 						SetResponseSelectedCards();
 						mainGame->HideElement(mainGame->wCardSelect, true);
@@ -904,6 +912,8 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 			s32 y = pos.Y;
 			if(x < 300)
 				break;
+			if (mainGame->gameConf.control_mode == 1)
+				mainGame->always_chain = event.MouseInput.isLeftPressed();
 			if(mainGame->wCmdMenu->isVisible() && !mainGame->wCmdMenu->getRelativePosition().isPointInside(mousepos))
 				mainGame->wCmdMenu->setVisible(false);
 			if(panel && panel->isVisible())
@@ -1269,6 +1279,8 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 		case irr::EMIE_RMOUSE_LEFT_UP: {
 			if(mainGame->dInfo.isReplay)
 				break;
+			if (mainGame->gameConf.control_mode == 1 && event.MouseInput.X > 300)
+				mainGame->ignore_chain = event.MouseInput.isRightPressed();
 			mainGame->wCmdMenu->setVisible(false);
 			if(mainGame->fadingList.size())
 				break;
@@ -1561,6 +1573,22 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 		case irr::EMIE_MOUSE_WHEEL: {
 			break;
 		}
+		case irr::EMIE_LMOUSE_PRESSED_DOWN: {
+			if (!mainGame->dInfo.isStarted)
+				break;
+			if (mainGame->gameConf.control_mode == 1 && event.MouseInput.X > 300)
+				mainGame->always_chain = event.MouseInput.isLeftPressed();
+			// check field
+			SetForceMode(event.MouseInput.isLeftPressed());
+			break;
+		}
+		case irr::EMIE_RMOUSE_PRESSED_DOWN: {
+			if (!mainGame->dInfo.isStarted)
+				break;
+			if (mainGame->gameConf.control_mode == 1 && event.MouseInput.X > 300)
+				mainGame->ignore_chain = event.MouseInput.isRightPressed();
+			break;
+		}
 		default:
 			break;
 		}
@@ -1571,23 +1599,21 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 		case irr::KEY_KEY_A: {
 			if (mainGame->always_chain == event.KeyInput.PressedDown)
 				break;
-			mainGame->always_chain = event.KeyInput.PressedDown;
+			if (mainGame->gameConf.control_mode == 0)
+				mainGame->always_chain = event.KeyInput.PressedDown;
 			// check field
-			if (mainGame->dInfo.isSingleMode)
-				break;
-
-			CTOS_HandResult cshr;
-			cshr.res = event.KeyInput.PressedDown;
-			DuelClient::SendPacketToServer(CTOS_FORCE_CHAIN, cshr);
+			SetForceMode(event.KeyInput.PressedDown);
 
 			break;
 		}
 		case irr::KEY_KEY_S: {
-			mainGame->ignore_chain = event.KeyInput.PressedDown;
+			if (mainGame->gameConf.control_mode == 0)
+				mainGame->ignore_chain = event.KeyInput.PressedDown;
 			break;
 		}
 		case irr::KEY_KEY_R: {
-			if(!event.KeyInput.PressedDown && !mainGame->HasFocus(EGUIET_EDIT_BOX))
+			if (mainGame->gameConf.control_mode == 0
+				&& !event.KeyInput.PressedDown && !mainGame->HasFocus(EGUIET_EDIT_BOX))
 				mainGame->textFont->setTransparency(true);
 			break;
 		}
@@ -1659,6 +1685,12 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					ShowLocationCard();
 				}
 			}
+			break;
+		}
+		case irr::KEY_F9: {
+			if (mainGame->gameConf.control_mode == 1
+				&& !event.KeyInput.PressedDown && !mainGame->HasFocus(EGUIET_EDIT_BOX))
+				mainGame->textFont->setTransparency(true);
 			break;
 		}
 		case irr::KEY_ESCAPE: {
@@ -1895,5 +1927,14 @@ void ClientField::SetResponseSelectedCards() const {
 	for (size_t i = 0; i < selected_cards.size(); ++i)
 		respbuf[i + 1] = selected_cards[i]->select_seq;
 	DuelClient::SetResponseB(respbuf, selected_cards.size() + 1);
+}
+
+void SetForceMode(bool value){
+	if (mainGame->dInfo.isSingleMode)
+		return;
+
+	CTOS_HandResult cshr;
+	cshr.res = value;
+	DuelClient::SendPacketToServer(CTOS_FORCE_CHAIN, cshr);
 }
 }
