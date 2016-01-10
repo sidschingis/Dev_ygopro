@@ -67,13 +67,13 @@ void field::change_target(uint8 chaincount, group* targets) {
 	if(chaincount > core.current_chain.size() || chaincount < 1)
 		chaincount = core.current_chain.size();
 	group* ot = core.current_chain[chaincount - 1].target_cards;
-	effect* te = core.current_chain[chaincount - 1].triggering_effect;
 	if(ot) {
+		effect* te = core.current_chain[chaincount - 1].triggering_effect;
 		for(auto cit = ot->container.begin(); cit != ot->container.end(); ++cit)
-			(*cit)->release_relation(te);
+			(*cit)->release_relation(core.current_chain[chaincount - 1]);
 		ot->container = targets->container;
 		for(auto cit = ot->container.begin(); cit != ot->container.end(); ++cit)
-			(*cit)->create_relation(te);
+			(*cit)->create_relation(core.current_chain[chaincount - 1]);
 		if(te->is_flag(EFFECT_FLAG_CARD_TARGET)) {
 			for(auto cit = ot->container.begin(); cit != ot->container.end(); ++cit) {
 				if((*cit)->current.location & 0x30)
@@ -600,8 +600,7 @@ int32 field::remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplay
 			core.select_options.push_back(10);
 			core.select_effects.push_back(0);
 		}
-		pair<effect_container::iterator, effect_container::iterator> pr;
-		pr = effects.continuous_effect.equal_range(EFFECT_RCOUNTER_REPLACE + countertype);
+		auto pr = effects.continuous_effect.equal_range(EFFECT_RCOUNTER_REPLACE + countertype);
 		effect* peffect;
 		tevent e;
 		e.event_cards = 0;
@@ -3210,7 +3209,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			pcard->current.reason &= ~REASON_TEMPORARY;
 			pcard->fieldid = infos.field_id++;
 			pcard->reset(RESET_LEAVE, RESET_EVENT);
-			pcard->relate_effect.clear();
+			pcard->clear_relate_effect();
 			remove_card(pcard);
 			param->leave.insert(pcard);
 			++param->cvit;
@@ -3622,7 +3621,7 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 			uint32 flag;
 			uint32 lreason = (target->current.location == LOCATION_MZONE) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
 			uint32 ct = get_useable_count(playerid, location, move_player, lreason, &flag);
-			if((ret == 1) && (ct <= 0 || !(target->data.type & TYPE_MONSTER))) {
+			if((ret == 1) && (ct <= 0)) {
 				core.units.begin()->step = 3;
 				send_to(target, core.reason_effect, REASON_EFFECT, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
 				return FALSE;
@@ -3733,6 +3732,8 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 			target->unequip();
 		if(enable || ((ret == 1) && target->is_position(POS_FACEUP)))
 			target->enable_field_effect(TRUE);
+		if(ret == 1 && target->current.location == LOCATION_MZONE && !(target->data.type & TYPE_MONSTER))
+			send_to(target, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
 		adjust_disable_check_list();
 		return FALSE;
 	}

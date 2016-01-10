@@ -12,12 +12,14 @@
 #include "effectset.h"
 #include <set>
 #include <map>
+#include <unordered_set>
 #include <unordered_map>
 
 class card;
 class duel;
 class effect;
 class group;
+struct chain;
 
 struct card_data {
 	uint32 code;
@@ -78,11 +80,16 @@ struct query_cache {
 
 class card {
 public:
+	struct effect_relation_hash {
+		inline std::size_t operator()(const std::pair<effect*, uint16>& v) const {
+			return std::hash<uint16>()(v.second);
+		}
+	};
 	typedef std::vector<card*> card_vector;
 	typedef std::multimap<uint32, effect*> effect_container;
 	typedef std::set<card*, card_sort> card_set;
 	typedef std::unordered_map<effect*, effect_container::iterator> effect_indexer;
-	typedef std::unordered_map<effect*, uint32> effect_relation;
+	typedef std::unordered_set<std::pair<effect*, uint16>, effect_relation_hash> effect_relation;
 	typedef std::unordered_map<card*, uint32> relation_map;
 	typedef std::map<uint16, std::array<uint16, 2> > counter_map;
 	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32> > {
@@ -191,10 +198,14 @@ public:
 
 	void count_turn(uint16 ct);
 	void create_relation(card* target, uint32 reset);
-	void create_relation(effect* peffect);
 	int32 is_has_relation(card* target);
-	int32 is_has_relation(effect* peffect);
 	void release_relation(card* target);
+	void create_relation(const chain& ch);
+	int32 is_has_relation(const chain& ch);
+	void release_relation(const chain& ch);
+	void clear_relate_effect();
+	void create_relation(effect* peffect);
+	int32 is_has_relation(effect* peffect);
 	void release_relation(effect* peffect);
 	int32 leave_field_redirect(uint32 reason);
 	int32 destination_redirect(uint8 destination, uint32 reason);
