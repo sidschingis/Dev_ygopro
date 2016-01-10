@@ -1929,7 +1929,7 @@ void ClientField::SetResponseSelectedCards() const {
 	DuelClient::SetResponseB(respbuf, selected_cards.size() + 1);
 }
 
-void SetForceMode(bool value){
+void ClientField::SetForceMode(bool value){
 	if (mainGame->dInfo.isSingleMode)
 		return;
 

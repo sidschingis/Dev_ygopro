@@ -123,6 +123,7 @@ public:
 	void GetHoverField(int x, int y);
 	void ShowMenu(int flag, int x, int y);
 	void SetResponseSelectedCards() const;
+	void SetForceMode(bool value);
 };
 
 }
