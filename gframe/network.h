@@ -92,7 +92,7 @@ struct STOC_Sleeve {
 	unsigned short dir[256];
 };
 struct STOC_HS_PlayerEnter {
-	unsigned short name[20];
+	unsigned short name[40];
 	unsigned char pos;
 	unsigned short elo[5];
 };
