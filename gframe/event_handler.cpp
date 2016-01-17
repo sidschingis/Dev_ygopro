@@ -1930,7 +1930,7 @@ void ClientField::SetResponseSelectedCards() const {
 }
 
 void ClientField::SetForceMode(bool value){
-	if (mainGame->dInfo.isSingleMode)
+	if (mainGame->dInfo.isSingleMode || mainGame->dInfo.isReplay)
 		return;
 
 	CTOS_HandResult cshr;
