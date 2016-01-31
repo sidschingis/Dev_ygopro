@@ -45,8 +45,8 @@ void TagDuel::JoinGame(DuelPlayer* dp, void* pdata, bool is_creater) {
 			NetServer::DisconnectPlayer(dp);
 			return;
 		}
-		wchar_t jpass[30];
-		BufferIO::CopyWStr(pkt->pass, jpass, 30);
+		wchar_t jpass[20];
+		BufferIO::CopyWStr(pkt->pass, jpass, 20);
 		if(wcscmp(jpass, pass)) {
 			STOC_ErrorMsg scem;
 			scem.msg = ERRMSG_JOINERROR;
@@ -812,7 +812,7 @@ int TagDuel::Analyze(char* msgbuffer, unsigned int len) {
 			break;
 		}
 		case MSG_NEW_PHASE: {
-			pbuf+=2;
+			pbuf += 2;
 			NetServer::SendBufferToPlayer(players[0], STOC_GAME_MSG, offset, pbuf - offset);
 			NetServer::ReSendToPlayer(players[1]);
 			NetServer::ReSendToPlayer(players[2]);
@@ -1184,7 +1184,7 @@ int TagDuel::Analyze(char* msgbuffer, unsigned int len) {
 			break;
 		}
 		case MSG_ADD_COUNTER: {
-			pbuf += 6;
+			pbuf += 7;
 			NetServer::SendBufferToPlayer(players[0], STOC_GAME_MSG, offset, pbuf - offset);
 			NetServer::ReSendToPlayer(players[1]);
 			NetServer::ReSendToPlayer(players[2]);
@@ -1194,7 +1194,7 @@ int TagDuel::Analyze(char* msgbuffer, unsigned int len) {
 			break;
 		}
 		case MSG_REMOVE_COUNTER: {
-			pbuf += 6;
+			pbuf += 7;
 			NetServer::SendBufferToPlayer(players[0], STOC_GAME_MSG, offset, pbuf - offset);
 			NetServer::ReSendToPlayer(players[1]);
 			NetServer::ReSendToPlayer(players[2]);
@@ -1428,7 +1428,7 @@ void TagDuel::TimeConfirm(DuelPlayer* dp) {
 	event_add(etimer, &timeout);
 }
 void TagDuel::RefreshMzone(int player, int flag, int use_cache) {
-	char query_buffer[0x1000];
+	char query_buffer[0x2000];
 	char* qbuf = query_buffer;
 	BufferIO::WriteInt8(qbuf, MSG_UPDATE_DATA);
 	BufferIO::WriteInt8(qbuf, player);
@@ -1452,7 +1452,7 @@ void TagDuel::RefreshMzone(int player, int flag, int use_cache) {
 		NetServer::ReSendToPlayer(*pit);
 }
 void TagDuel::RefreshSzone(int player, int flag, int use_cache) {
-	char query_buffer[0x1000];
+	char query_buffer[0x2000];
 	char* qbuf = query_buffer;
 	BufferIO::WriteInt8(qbuf, MSG_UPDATE_DATA);
 	BufferIO::WriteInt8(qbuf, player);
@@ -1476,7 +1476,7 @@ void TagDuel::RefreshSzone(int player, int flag, int use_cache) {
 		NetServer::ReSendToPlayer(*pit);
 }
 void TagDuel::RefreshHand(int player, int flag, int use_cache) {
-	char query_buffer[0x1000];
+	char query_buffer[0x2000];
 	char* qbuf = query_buffer;
 	BufferIO::WriteInt8(qbuf, MSG_UPDATE_DATA);
 	BufferIO::WriteInt8(qbuf, player);
@@ -1504,7 +1504,7 @@ void TagDuel::RefreshHand(int player, int flag, int use_cache) {
 		NetServer::ReSendToPlayer(*pit);
 }
 void TagDuel::RefreshGrave(int player, int flag, int use_cache) {
-	char query_buffer[0x1000];
+	char query_buffer[0x2000];
 	char* qbuf = query_buffer;
 	BufferIO::WriteInt8(qbuf, MSG_UPDATE_DATA);
 	BufferIO::WriteInt8(qbuf, player);
@@ -1518,7 +1518,7 @@ void TagDuel::RefreshGrave(int player, int flag, int use_cache) {
 		NetServer::ReSendToPlayer(*pit);
 }
 void TagDuel::RefreshExtra(int player, int flag, int use_cache) {
-	char query_buffer[0x1000];
+	char query_buffer[0x2000];
 	char* qbuf = query_buffer;
 	BufferIO::WriteInt8(qbuf, MSG_UPDATE_DATA);
 	BufferIO::WriteInt8(qbuf, player);
@@ -1527,7 +1527,7 @@ void TagDuel::RefreshExtra(int player, int flag, int use_cache) {
 	NetServer::SendBufferToPlayer(cur_player[player], STOC_GAME_MSG, query_buffer, len + 3);
 }
 void TagDuel::RefreshSingle(int player, int location, int sequence, int flag) {
-	char query_buffer[0x1000];
+	char query_buffer[0x2000];
 	char* qbuf = query_buffer;
 	BufferIO::WriteInt8(qbuf, MSG_UPDATE_CARD);
 	BufferIO::WriteInt8(qbuf, player);
