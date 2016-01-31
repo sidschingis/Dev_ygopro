@@ -642,8 +642,8 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		STOC_HS_PlayerEnter* pkt = (STOC_HS_PlayerEnter*)pdata;
 		if(pkt->pos > 3)
 			break;
-		wchar_t name[40];
-		BufferIO::CopyWStr(pkt->name, name, 40);
+		wchar_t name[20];
+		BufferIO::CopyWStr(pkt->name, name, 20);
 		wchar_t elo[5];
 		BufferIO::CopyWStr(pkt->elo, elo, 5);
 		if(mainGame->dInfo.isTag) {
