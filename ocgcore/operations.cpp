@@ -793,7 +793,7 @@ int32 field::get_control(uint16 step, effect * reason_effect, uint8 reason_playe
 			return TRUE;
 		if(get_useable_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
 			return TRUE;
-		if(pcard->data.type & TYPE_TRAPMONSTER && get_useable_count(playerid, LOCATION_SZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
+		if((pcard->get_type() & TYPE_TRAPMONSTER) && get_useable_count(playerid, LOCATION_SZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
 			return TRUE;
 		if(!pcard->is_capable_change_control())
 			return TRUE;
@@ -2615,7 +2615,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 			if (!(pcard->current.reason & REASON_RULE)) {
 				int32 is_destructable = true;
 				if (pcard->is_destructable() && pcard->is_affect_by_effect(pcard->current.reason_effect)) {
-					effect* indestructable_effect = pcard->check_indestructable_by_effect(pcard->current.reason_effect, reason_player);
+					effect* indestructable_effect = pcard->check_indestructable_by_effect(pcard->current.reason_effect, pcard->current.reason_player);
 					if (indestructable_effect) {
 						if(reason_player != 5)
 							indestructable_effect_set.insert(indestructable_effect);
