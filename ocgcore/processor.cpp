@@ -1585,6 +1585,9 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 	}
 	return TRUE;
 }
+// skip_trigger = lower byte of arg1
+// skip_freechain = higher byte of arg1
+// skip_new = arg2
 int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_freechain, int32 skip_new) {
 	switch(step) {
 	case 0: {
@@ -1727,9 +1730,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 		        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x43)
 		            || !(peffect->handler->current.location & 0x43) || peffect->handler->is_position(POS_FACEUP))) {
-			if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
-			        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(*clit))
-			            || (peffect->range & LOCATION_HAND))) {
+			if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND && (peffect->range & LOCATION_HAND)) {
 				core.new_ochain_h.push_back(*clit);
 				act = false;
 			} else if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) || !(peffect->type & EFFECT_TYPE_FIELD)
@@ -1788,9 +1789,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 			        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x43)
 			            || !(peffect->handler->current.location & 0x43) || peffect->handler->is_position(POS_FACEUP))) {
-				if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
-				        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(*clit))
-				            || (peffect->range & LOCATION_HAND))) {
+				if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND && (peffect->range & LOCATION_HAND)) {
 					continue;
 				} else if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) || !(peffect->type & EFFECT_TYPE_FIELD)
 			            || peffect->in_range(clit->triggering_location, clit->triggering_sequence)) {
@@ -2070,12 +2069,11 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 						if(cait->triggering_player == priority) {
 							effect* pchaineff = cait->triggering_effect;
 							if(!(pchaineff->is_flag(EFFECT_FLAG_FIELD_ONLY)) && (pchaineff->type & EFFECT_TYPE_TRIGGER_O)
-							        && (!(pchaineff->type & EFFECT_TYPE_SINGLE) || (pchaineff->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
-							        && (pchaineff->range & LOCATION_HAND)) {
+							        && cait->triggering_location == LOCATION_HAND && (pchaineff->range & LOCATION_HAND)) {
 								act = false;
 								break;
 							}
-							if((peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) && (cait->triggering_effect->handler->data.code == peffect->handler->data.code)) {
+							if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE) && cait->triggering_effect->handler->data.code == peffect->handler->data.code) {
 								act = false;
 								break;
 							}
@@ -2209,7 +2207,7 @@ int32 field::process_instant_event() {
 			peffect = pr.first->second;
 			uint8 owner_player = peffect->get_handler_player();
 			if(peffect->is_activateable(owner_player, *elit)) {
-				if((peffect->is_flag(EFFECT_FLAG_DELAY)) && (core.chain_solving || core.conti_solving)) {
+				if(peffect->is_flag(EFFECT_FLAG_DELAY) && (core.chain_solving || core.conti_solving)) {
 					if(owner_player == infos.turn_player) {
 						core.delayed_tp.push_back(peffect);
 						core.delayed_tev.push_back(*elit);
@@ -2301,13 +2299,13 @@ int32 field::process_instant_event() {
 		pr = effects.activate_effect.equal_range(elit->event_code);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
-			if((peffect->is_flag(EFFECT_FLAG_DELAY)) && peffect->is_condition_check(peffect->handler->current.controler, *elit))
+			if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_condition_check(peffect->handler->current.controler, *elit))
 				core.delayed_quick_tmp.insert(std::make_pair(peffect, *elit));
 		}
 		pr = effects.quick_o_effect.equal_range(elit->event_code);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
-			if((peffect->is_flag(EFFECT_FLAG_DELAY)) && peffect->is_condition_check(peffect->handler->current.controler, *elit))
+			if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_condition_check(peffect->handler->current.controler, *elit))
 				core.delayed_quick_tmp.insert(std::make_pair(peffect, *elit));
 		}
 	}
@@ -2344,7 +2342,7 @@ int32 field::process_single_event() {
 			if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
 				uint8 owner_player = peffect->get_handler_player();
 				if(peffect->is_activateable(owner_player, e)) {
-					if((peffect->is_flag(EFFECT_FLAG_DELAY)) && (core.chain_solving || core.conti_solving)) {
+					if(peffect->is_flag(EFFECT_FLAG_DELAY) && (core.chain_solving || core.conti_solving)) {
 						if(owner_player == infos.turn_player) {
 							core.delayed_tp.push_back(peffect);
 							core.delayed_tev.push_back(e);
@@ -2729,9 +2727,7 @@ int32 field::process_battle_command(uint16 step) {
 		core.attack_target = 0;
 		if((peffect = is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP))) {
 			core.units.begin()->step = 41;
-			if(core.phase_action || core.battle_phase_action)
-				core.units.begin()->arg1 = 2;
-			else core.units.begin()->arg1 = 3;
+			core.units.begin()->arg1 = 2;
 			if(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE))
 				core.units.begin()->arg2 = 1;
 			else core.units.begin()->arg2 = 0;
@@ -2746,7 +2742,6 @@ int32 field::process_battle_command(uint16 step) {
 			}
 			return FALSE;
 		}
-		core.battle_phase_action = TRUE;
 		auto pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
@@ -3325,12 +3320,14 @@ int32 field::process_battle_command(uint16 step) {
 		uint8 pa = core.attacker->current.controler, pd;
 		core.attacker->q_cache.attack = aa;
 		core.attacker->q_cache.defence = ad;
+		core.attacker->set_status(STATUS_BATTLE_RESULT, FALSE);
 		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 		if(core.attack_target) {
 			da = core.attack_target->get_attack();
 			dd = core.attack_target->get_defence();
 			core.attack_target->q_cache.attack = da;
 			core.attack_target->q_cache.defence = dd;
+			core.attack_target->set_status(STATUS_BATTLE_RESULT, FALSE);
 			core.attack_target->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 			pd = core.attack_target->current.controler;
 			if(pa != pd) {
@@ -3351,7 +3348,7 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer32(indestructable_effect->owner->data.code);
 				bd[0] = FALSE;
 			} else
-				core.attacker->set_status(STATUS_BATTLE_DESTROYED, TRUE);
+				core.attacker->set_status(STATUS_BATTLE_RESULT, TRUE);
 		}
 		if(bd[1]) {
 			effect* indestructable_effect = core.attack_target->is_affected_by_effect(EFFECT_INDESTRUCTABLE_BATTLE, core.attacker);
@@ -3362,7 +3359,7 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer32(indestructable_effect->owner->data.code);
 				bd[1] = FALSE;
 			} else
-				core.attack_target->set_status(STATUS_BATTLE_DESTROYED, TRUE);
+				core.attack_target->set_status(STATUS_BATTLE_RESULT, TRUE);
 		}
 		pduel->write_buffer8(MSG_BATTLE);
 		pduel->write_buffer32(core.attacker->get_info_location());
@@ -3443,7 +3440,7 @@ int32 field::process_battle_command(uint16 step) {
 		card_set des;
 		effect* peffect;
 		uint32 dest, seq;
-		if(core.attacker->is_status(STATUS_BATTLE_DESTROYED)
+		if(core.attacker->is_status(STATUS_BATTLE_RESULT)
 		        && core.attacker->current.location == LOCATION_MZONE && core.attacker->fieldid_r == core.pre_field[0]) {
 			des.insert(core.attacker);
 			core.attacker->temp.reason = core.attacker->current.reason;
@@ -3463,7 +3460,7 @@ int32 field::process_battle_command(uint16 step) {
 			}
 			core.attacker->operation_param = (POS_FACEUP << 24) + (((uint32)core.attacker->owner) << 16) + (dest << 8) + seq;
 		}
-		if(core.attack_target && core.attack_target->is_status(STATUS_BATTLE_DESTROYED)
+		if(core.attack_target && core.attack_target->is_status(STATUS_BATTLE_RESULT)
 		        && core.attack_target->current.location == LOCATION_MZONE && core.attack_target->fieldid_r == core.pre_field[1]) {
 			des.insert(core.attack_target);
 			core.attack_target->temp.reason = core.attack_target->current.reason;
@@ -3483,9 +3480,9 @@ int32 field::process_battle_command(uint16 step) {
 			}
 			core.attack_target->operation_param = (POS_FACEUP << 24) + (((uint32)core.attack_target->owner) << 16) + (dest << 8) + seq;
 		}
-		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
+		core.attacker->set_status(STATUS_BATTLE_RESULT, FALSE);
 		if(core.attack_target)
-			core.attack_target->set_status(STATUS_BATTLE_DESTROYED, FALSE);
+			core.attack_target->set_status(STATUS_BATTLE_RESULT, FALSE);
 		core.battle_destroy_rep.clear();
 		core.desrep_chain.clear();
 		if(des.size()) {
@@ -3499,6 +3496,14 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 29: {
 		core.selfdes_disabled = FALSE;
+		if(core.battle_destroy_rep.size())
+			destroy(&core.battle_destroy_rep, 0, REASON_EFFECT, PLAYER_NONE);
+		if(core.desrep_chain.size())
+			add_process(PROCESSOR_OPERATION_REPLACE, 15, 0, 0, 0, 0);
+		adjust_all();
+		return FALSE;
+	}
+	case 30: {
 		group* des = core.units.begin()->ptarget;
 		if(des && des->container.size()) {
 			for(auto cit = des->container.begin(); cit != des->container.end(); ++cit) {
@@ -3507,14 +3512,11 @@ int32 field::process_battle_command(uint16 step) {
 			}
 		}
 		adjust_all();
-		return FALSE;
-	}
-	case 30: {
 		//EVENT_BATTLE_END was here, but this timing does not exist in Master Rule 3
-		core.units.begin()->arg1 = 1;
 		return FALSE;
 	}
 	case 31: {
+		core.units.begin()->arg1 = 1;
 		core.flip_delayed = FALSE;
 		core.new_fchain.splice(core.new_fchain.begin(), core.new_fchain_b);
 		core.new_ochain.splice(core.new_ochain.begin(), core.new_ochain_b);
@@ -3537,10 +3539,6 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 32: {
 		group* des = core.units.begin()->ptarget;
-		if(core.battle_destroy_rep.size())
-			destroy(&core.battle_destroy_rep, 0, REASON_EFFECT, PLAYER_NONE);
-		if(core.desrep_chain.size())
-			add_process(PROCESSOR_OPERATION_REPLACE, 15, 0, 0, 0, 0);
 		if(des) {
 			card_set::iterator cit, rm;
 			for(cit = des->container.begin(); cit != des->container.end();) {
@@ -3660,6 +3658,7 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	return TRUE;
 }
+// perform damage calculation by an effect
 int32 field::process_damage_step(uint16 step) {
 	switch(step) {
 	case 0: {
@@ -4070,10 +4069,18 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		core.quick_f_chain.clear();
 		core.delayed_quick_tmp.clear();
 		core.phase_action = FALSE;
-		core.battle_phase_action = FALSE;
 		core.battle_phase_count[infos.turn_player]++;
 		pduel->write_buffer8(MSG_NEW_PHASE);
 		pduel->write_buffer16(infos.phase);
+		// Show the texts to indicate that BP is entered and skipped
+		if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP)) {
+			core.units.begin()->step = 14;
+			reset_phase(PHASE_BATTLE_START);
+			reset_phase(PHASE_BATTLE_STEP);
+			reset_phase(PHASE_BATTLE);
+			adjust_all();
+			return FALSE;
+		}
 		raise_event((card*)0, EVENT_PHASE_START + PHASE_BATTLE_START, 0, 0, 0, turn_player, 0);
 		process_instant_event();
 		adjust_all();
@@ -4443,6 +4450,8 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		core.continuous_chain.push_back(newchain);
 		if(peffect->is_flag(EFFECT_FLAG_DELAY))
 			core.conti_solving = TRUE;
+		core.units.begin()->ptarget = (group*)core.reason_effect;
+		core.units.begin()->arg2 = core.reason_player;
 		if(!peffect->target)
 			return FALSE;
 		core.sub_solving_event.push_back(core.solving_event.front());
@@ -4461,6 +4470,8 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		return FALSE;
 	}
 	case 3: {
+		core.reason_effect = (effect*)core.units.begin()->ptarget;
+		core.reason_player = core.units.begin()->arg2;
 		if(core.continuous_chain.back().target_cards)
 			pduel->delete_group(core.continuous_chain.back().target_cards);
 		for(auto oit = core.continuous_chain.back().opinfos.begin(); oit != core.continuous_chain.back().opinfos.end(); ++oit) {
@@ -4472,6 +4483,8 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		if(peffect->is_flag(EFFECT_FLAG_DELAY)) {
 			core.conti_solving = FALSE;
 			adjust_all();
+			if(core.conti_player == PLAYER_NONE)
+				core.conti_player = infos.turn_player;
 			if(core.conti_player == infos.turn_player) {
 				if(core.delayed_tp.size()) {
 					core.sub_solving_event.push_back(core.delayed_tev.front());
@@ -4742,9 +4755,11 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 	case 13: {
 		raise_event((card*)0, EVENT_CHAIN_END, 0, 0, 0, 0, 0);
 		process_instant_event();
-		core.hint_timing[0] |= TIMING_CHAIN_END;
-		core.hint_timing[1] |= TIMING_CHAIN_END;
-		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, chainend_arg1, chainend_arg2);
+		if(chainend_arg1 != 0x101 || chainend_arg2 != TRUE){
+			core.hint_timing[0] |= TIMING_CHAIN_END;
+			core.hint_timing[1] |= TIMING_CHAIN_END;
+			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, chainend_arg1, chainend_arg2);
+		}
 		returns.ivalue[0] = TRUE;
 		return TRUE;
 	}

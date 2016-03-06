@@ -211,9 +211,9 @@ public:
 	void release_relation(effect* peffect);
 	int32 leave_field_redirect(uint32 reason);
 	int32 destination_redirect(uint8 destination, uint32 reason);
-	int32 add_counter(uint8 playerid, uint16 countertype, uint16 count);
+	int32 add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly);
 	int32 remove_counter(uint16 countertype, uint16 count);
-	int32 is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count);
+	int32 is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly);
 	int32 get_counter(uint16 countertype);
 	void set_material(card_set* materials);
 	void add_card_target(card* pcard);
@@ -404,7 +404,7 @@ public:
 #define STATUS_PROC_COMPLETE		0x0008	//
 #define STATUS_SET_TURN				0x0010	//
 #define STATUS_NO_LEVEL				0x0020	//
-#define STATUS_SET_AVAILABLE		0x0040	//
+#define STATUS_BATTLE_RESULT		0x0040	//
 #define STATUS_SPSUMMON_STEP		0x0080	//
 #define STATUS_FORM_CHANGED			0x0100	//
 #define STATUS_SUMMONING			0x0200	//

@@ -793,7 +793,7 @@ int32 field::get_control(uint16 step, effect * reason_effect, uint8 reason_playe
 			return TRUE;
 		if(get_useable_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
 			return TRUE;
-		if(pcard->data.type & TYPE_TRAPMONSTER && get_useable_count(playerid, LOCATION_SZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
+		if((pcard->get_type() & TYPE_TRAPMONSTER) && get_useable_count(playerid, LOCATION_SZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
 			return TRUE;
 		if(!pcard->is_capable_change_control())
 			return TRUE;
@@ -1543,8 +1543,6 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 			core.units.begin()->step = 14;
 			return FALSE;
 		}
-		if(proc)
-			remove_oath_effect(proc);
 		if(target->current.location == LOCATION_MZONE)
 			send_to(target, 0, REASON_RULE, sumplayer, sumplayer, LOCATION_GRAVE, 0, 0);
 		adjust_instant();
@@ -2217,7 +2215,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 			core.units.begin()->step = 14;
 			return FALSE;
 		}
-		remove_oath_effect(core.units.begin()->peffect);
 		if(target->current.location == LOCATION_MZONE)
 			send_to(target, 0, REASON_RULE, sumplayer, sumplayer, LOCATION_GRAVE, 0, 0);
 		adjust_instant();
@@ -2345,14 +2342,12 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		card_set cset;
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 			if(!(*cit)->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SPSUMMON)) {
-				raise_single_event(*cit, 0, EVENT_SPSUMMON, (*cit)->current.reason_effect, 0, (*cit)->summon_player, (*cit)->summon_player, 0);
 				cset.insert(*cit);
 			}
 			(*cit)->set_status(STATUS_SUMMONING, TRUE);
 		}
 		if(cset.size())
 			raise_event(&cset, EVENT_SPSUMMON, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
-		process_single_event();
 		process_instant_event();
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x101, TRUE);
 		return FALSE;
@@ -2556,8 +2551,8 @@ int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_pl
 			if(summontype && (*cit)->material_cards.size()) {
 				int32 matreason = (summontype == SUMMON_TYPE_FUSION) ? REASON_FUSION : (summontype == SUMMON_TYPE_RITUAL) ? REASON_RITUAL : (summontype == SUMMON_TYPE_XYZ) ? REASON_XYZ : 0;
 				for(auto mit = (*cit)->material_cards.begin(); mit != (*cit)->material_cards.end(); ++mit)
-					raise_single_event(*mit, &targets->container, EVENT_BE_MATERIAL, core.reason_effect, matreason, core.reason_player, (*cit)->summon_player, 0);
-				raise_event(&((*cit)->material_cards), EVENT_BE_MATERIAL, core.reason_effect, matreason, core.reason_player, (*cit)->summon_player, 0);
+					raise_single_event(*mit, &targets->container, EVENT_BE_MATERIAL, (*cit)->current.reason_effect, matreason, (*cit)->current.reason_player, (*cit)->summon_player, 0);
+				raise_event(&((*cit)->material_cards), EVENT_BE_MATERIAL, reason_effect, matreason, reason_player, (*cit)->summon_player, 0);
 			}
 		}
 		process_single_event();
@@ -2579,6 +2574,7 @@ int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_pl
 	}
 	return TRUE;
 }
+// PROCESSOR_DESTROY_STEP goes here
 int32 field::destroy(uint16 step, group * targets, card * target, uint8 battle) {
 	if(target->current.location & (LOCATION_GRAVE | LOCATION_REMOVED)) {
 		target->current.reason = target->temp.reason;
@@ -2615,7 +2611,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 			if (!(pcard->current.reason & REASON_RULE)) {
 				int32 is_destructable = true;
 				if (pcard->is_destructable() && pcard->is_affect_by_effect(pcard->current.reason_effect)) {
-					effect* indestructable_effect = pcard->check_indestructable_by_effect(pcard->current.reason_effect, reason_player);
+					effect* indestructable_effect = pcard->check_indestructable_by_effect(pcard->current.reason_effect, pcard->current.reason_player);
 					if (indestructable_effect) {
 						if(reason_player != 5)
 							indestructable_effect_set.insert(indestructable_effect);
@@ -2674,6 +2670,13 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				}
 			}
 		}
+		for (auto cit = indestructable_set.begin(); cit != indestructable_set.end(); ++cit) {
+			(*cit)->current.reason = (*cit)->temp.reason;
+			(*cit)->current.reason_effect = (*cit)->temp.reason_effect;
+			(*cit)->current.reason_player = (*cit)->temp.reason_player;
+			(*cit)->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
+			targets->container.erase(*cit);
+		}
 		for (auto cit = extra.begin(); cit != extra.end(); ++cit) {
 			card* rep = *cit;
 			if(targets->container.count(rep) == 0) {
@@ -2686,13 +2689,6 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				rep->operation_param = (POS_FACEUP << 24) + (((int32)rep->owner) << 16) + (LOCATION_GRAVE << 8);
 				targets->container.insert(rep);
 			}
-		}
-		for (auto cit = indestructable_set.begin(); cit != indestructable_set.end(); ++cit) {
-			(*cit)->current.reason = (*cit)->temp.reason;
-			(*cit)->current.reason_effect = (*cit)->temp.reason_effect;
-			(*cit)->current.reason_player = (*cit)->temp.reason_player;
-			(*cit)->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
-			targets->container.erase(*cit);
 		}
 		for (auto eit = indestructable_effect_set.begin(); eit != indestructable_effect_set.end(); ++eit) {
 			pduel->write_buffer8(MSG_HINT);
@@ -2835,6 +2831,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					if(eset[i]->check_value_condition(3)) {
 						core.battle_destroy_rep.insert(eset[i]->handler);
 						sub = true;
+						break;
 					}
 				}
 				if(sub) {
@@ -2846,9 +2843,11 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				}
 			}
 		}
-		auto pr = effects.continuous_effect.equal_range(EFFECT_DESTROY_REPLACE);
-		for (; pr.first != pr.second; ++pr.first)
-			add_process(PROCESSOR_OPERATION_REPLACE, 12, pr.first->second, targets, 0, 1);
+		if(targets->container.size()){
+			auto pr = effects.continuous_effect.equal_range(EFFECT_DESTROY_REPLACE);
+			for (; pr.first != pr.second; ++pr.first)
+				add_process(PROCESSOR_OPERATION_REPLACE, 12, pr.first->second, targets, 0, 1);
+		}
 		return FALSE;
 	}
 	case 11: {
@@ -3039,6 +3038,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		card_set leave_p, destroying;
 		for(auto cit = targets->container.begin(); cit != targets->container.end(); ++cit) {
 			card* pcard = *cit;
+			// REASON_RULE or (REASON_EFFECT + REASON_DESTROY) => not battle destroyed
 			if((pcard->current.location == LOCATION_MZONE) && pcard->is_status(STATUS_BATTLE_DESTROYED) && !(pcard->current.reason & REASON_RULE)
 					&& (pcard->current.reason & (REASON_EFFECT + REASON_DESTROY)) != (REASON_EFFECT + REASON_DESTROY) && !(pcard->current.reason & REASON_BATTLE)) {
 				pcard->current.reason |= REASON_DESTROY | REASON_BATTLE;
