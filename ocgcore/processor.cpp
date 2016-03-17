@@ -1244,6 +1244,7 @@ void field::raise_event(card_set* event_cards, uint32 event_code, effect* reason
 	new_event.event_value = event_value;
 	core.queue_event.push_back(new_event);
 }
+// add events to core.single_event
 void field::raise_single_event(card* trigger_card, card_set* event_cards, uint32 event_code, effect * reason_effect, uint32 reason, uint8 reason_player, uint8 event_player, uint32 event_value) {
 	tevent new_event;
 	new_event.trigger_card = trigger_card;
@@ -4448,7 +4449,7 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		newchain.disable_reason = 0;
 		newchain.flag = 0;
 		core.continuous_chain.push_back(newchain);
-		if(peffect->is_flag(EFFECT_FLAG_DELAY))
+		if(peffect->is_flag(EFFECT_FLAG_DELAY) || !(peffect->code & 0x10030000) && (peffect->code & (EVENT_PHASE | EVENT_PHASE_START)))
 			core.conti_solving = TRUE;
 		core.units.begin()->ptarget = (group*)core.reason_effect;
 		core.units.begin()->arg2 = core.reason_player;
@@ -4480,7 +4481,7 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		}
 		core.continuous_chain.pop_back();
 		core.solving_event.pop_front();
-		if(peffect->is_flag(EFFECT_FLAG_DELAY)) {
+		if(peffect->is_flag(EFFECT_FLAG_DELAY) || !(peffect->code & 0x10030000) && (peffect->code & (EVENT_PHASE | EVENT_PHASE_START))) {
 			core.conti_solving = FALSE;
 			adjust_all();
 			if(core.conti_player == PLAYER_NONE)
