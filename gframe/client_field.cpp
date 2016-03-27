@@ -380,7 +380,7 @@ void ClientField::ShowSelectCard(bool buttonok, bool chain) {
 		mainGame->btnCardSelect[i]->setPressed(false);
 		mainGame->btnCardSelect[i]->setVisible(true);
 		if(mainGame->dInfo.curMsg != MSG_SORT_CHAIN && mainGame->dInfo.curMsg != MSG_SORT_CARD) {
-			if(chain && selectable_cards[i]->is_conti)
+			if (chain && selectable_cards[i]->is_conti && !selectable_cards[i]->code)
 				myswprintf(formatBuffer, L"%ls", DataManager::unknown_string);
 			else if(selectable_cards[i]->location == LOCATION_OVERLAY)
 				myswprintf(formatBuffer, L"%ls[%d](%d)", 
@@ -1108,12 +1108,17 @@ void ClientField::FadeCard(ClientCard * pcard, int alpha, int frame) {
 	pcard->aniFrame = frame;
 }
 
-void ClientField::ShowSelectSum(bool panelmode) {
+bool	 ClientField::ShowSelectSum(bool panelmode) {
 	if (panelmode) {
 		if (CheckSelectSum()) {
 			if (selectsum_cards.size() == 0 || selectable_cards.size() == 0) {
 				SetResponseSelectedCards();
-				mainGame->HideElement(mainGame->wCardSelect, true);
+				if (mainGame->wCardSelect->isVisible())
+					mainGame->HideElement(mainGame->wCardSelect, true);
+				else {
+					DuelClient::SendResponse();
+					return true;
+				}
 			}
 			else {
 				select_ready = true;
@@ -1132,6 +1137,7 @@ void ClientField::ShowSelectSum(bool panelmode) {
 			if (selectsum_cards.size() == 0 || selectable_cards.size() == 0) {
 				SetResponseSelectedCards();
 				DuelClient::SendResponse();
+				return true;
 			}
 			else {
 				select_ready = true;
@@ -1146,6 +1152,7 @@ void ClientField::ShowSelectSum(bool panelmode) {
 		else
 			select_ready = false;
 	}
+	return false;	
 }
 bool ClientField::CheckSelectSum() {
 	std::set<ClientCard*> selable;

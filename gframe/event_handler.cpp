@@ -729,7 +729,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 						else
 							myswprintf(formatBuffer, L"");
 					} else {
-						if(selectable_cards[i + pos]->is_conti)
+						if (selectable_cards[i + pos]->is_conti && !selectable_cards[i + pos]->code)
 							myswprintf(formatBuffer, L"%ls", DataManager::unknown_string);
 						else if(selectable_cards[i + pos]->location == LOCATION_OVERLAY)
 							myswprintf(formatBuffer, L"%ls[%d](%d)",
@@ -1452,7 +1452,9 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 								}
 								myswprintf(formatBuffer, L"\n%ls/%ls", mcard->atkstring, mcard->defstring);
 								str.append(formatBuffer);
-								myswprintf(formatBuffer, L"\n\x2605%d %ls/%ls", (mcard->level ? mcard->level : mcard->rank), dataManager.FormatRace(mcard->race), dataManager.FormatAttribute(mcard->attribute));
+								int form = 0x2605;
+								if (mcard->rank) ++form;
+								myswprintf(formatBuffer, L"\n%c%d %ls/%ls", form, (mcard->level ? mcard->level : mcard->rank), dataManager.FormatRace(mcard->race), dataManager.FormatAttribute(mcard->attribute));
 								str.append(formatBuffer);
 								if(mcard->location == LOCATION_HAND && (mcard->type & TYPE_PENDULUM)) {
 									myswprintf(formatBuffer, L"\n%d/%d", mcard->lscale, mcard->rscale);
@@ -1890,7 +1892,7 @@ void ClientField::ShowMenu(int flag, int x, int y) {
 	position2di mouse = mainGame->Resize(x, y);
 	x = mouse.X;
 	y = mouse.Y;
-	mainGame->wCmdMenu->setRelativePosition(irr::core::recti(x - 20, y, x + 80, y + height));
+	mainGame->wCmdMenu->setRelativePosition(irr::core::recti(x - 20, y - 20 - height, x + 80, y - 20));
 }
 
 void ClientField::SetResponseSelectedCards() const {

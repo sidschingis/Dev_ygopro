@@ -89,13 +89,13 @@ public:
 				*wp = *p;
 				p++;
 			} else if((*p & 0xe0) == 0xc0) {
-				*wp = (((int)p[0] & 0x1f) << 6) | ((int)p[1] & 0x3f);
+				*wp = (((unsigned)p[0] & 0x1f) << 6) | ((unsigned)p[1] & 0x3f);
 				p += 2;
 			} else if((*p & 0xf0) == 0xe0) {
-				*wp = (((int)p[0] & 0xf) << 12) | (((int)p[1] & 0x3f) << 6) | ((int)p[2] & 0x3f);
+				*wp = (((unsigned)p[0] & 0xf) << 12) | (((unsigned)p[1] & 0x3f) << 6) | ((unsigned)p[2] & 0x3f);
 				p += 3;
 			} else if((*p & 0xf8) == 0xf0) {
-				*wp = (((int)p[0] & 0x7) << 18) | (((int)p[1] & 0x3f) << 12) | (((int)p[2] & 0x3f) << 6) | ((int)p[3] & 0x3f);
+				*wp = (((unsigned)p[0] & 0x7) << 18) | (((unsigned)p[1] & 0x3f) << 12) | (((unsigned)p[2] & 0x3f) << 6) | ((unsigned)p[3] & 0x3f);
 				p += 4;
 			} else
 				p++;
