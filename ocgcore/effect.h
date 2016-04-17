@@ -63,6 +63,7 @@ public:
 	~effect();
 
 	int32 is_disable_related();
+	int32 is_can_be_forbidden();
 	int32 is_available();
 	int32 check_count_limit(uint8 playerid);
 	int32 is_activateable(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
@@ -149,7 +150,7 @@ enum effect_flag : uint32 {
 	EFFECT_FLAG_ABSOLUTE_TARGET		= 0x0040,
 	EFFECT_FLAG_IGNORE_IMMUNE		= 0x0080,
 	EFFECT_FLAG_SET_AVAILABLE		= 0x0100,
-	EFFECT_FLAG_CONTINUOUS			= 0x0200,
+	EFFECT_FLAG_CANNOT_NEGATE		= 0x0200,
 	EFFECT_FLAG_CANNOT_DISABLE		= 0x0400,
 	EFFECT_FLAG_PLAYER_TARGET		= 0x0800,
 	EFFECT_FLAG_BOTH_SIDE			= 0x1000,
@@ -168,7 +169,7 @@ enum effect_flag : uint32 {
 	EFFECT_FLAG_AVAILABLE_BD		= 0x2000000,
 	EFFECT_FLAG_CLIENT_HINT			= 0x4000000,
 	EFFECT_FLAG_CHAIN_UNIQUE		= 0x8000000,
-//	EFFECT_FLAG_NAGA				= 0x10000000,
+	EFFECT_FLAG_PHASE_MULTIPLE		= 0x10000000,
 //	EFFECT_FLAG_COF					= 0x20000000,
 	EFFECT_FLAG_CVAL_CHECK			= 0x40000000,
 	EFFECT_FLAG_IMMEDIATELY_APPLY	= 0x80000000,
@@ -355,7 +356,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_NONTUNER						244
 #define EFFECT_OVERLAY_REMOVE_REPLACE		245
 #define EFFECT_SCRAP_CHIMERA				246
-#define EFFECT_SPSUM_EFFECT_ACTIVATED	250
+//#define EFFECT_SPSUM_EFFECT_ACTIVATED	250
 #define EFFECT_MATERIAL_CHECK			251
 #define EFFECT_DISABLE_FIELD			260
 #define EFFECT_USE_EXTRA_MZONE			261
@@ -411,7 +412,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_CHAIN_SOLVING		1020
 #define EVENT_CHAIN_ACTIVATING	1021
 #define EVENT_CHAIN_SOLVED		1022
-#define EVENT_CHAIN_ACTIVATED	1023
+//#define EVENT_CHAIN_ACTIVATED	1023
 #define EVENT_CHAIN_NEGATED		1024
 #define EVENT_CHAIN_DISABLED	1025
 #define EVENT_CHAIN_END			1026
@@ -442,7 +443,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_PRE_DAMAGE_CALCULATE	1134
 #define EVENT_DAMAGE_CALCULATING	1135
 #define EVENT_PRE_BATTLE_DAMAGE		1136
-#define EVENT_BATTLE_END			1137
+//#define EVENT_BATTLE_END			1137
 #define EVENT_BATTLED				1138
 #define EVENT_BATTLE_DESTROYING		1139
 #define EVENT_BATTLE_DESTROYED		1140

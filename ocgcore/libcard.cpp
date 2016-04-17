@@ -984,7 +984,7 @@ int32 scriptlib::card_register_effect(lua_State *L) {
 	else {
 		if((peffect->type & (EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F)) 
 				&& !(peffect->code & 0x10032000) && (peffect->code & EVENT_PHASE)
-				&& !peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
+				&& !peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT | EFFECT_FLAG_PHASE_MULTIPLE)) {
 			peffect->flag[0] |= EFFECT_FLAG_COUNT_LIMIT;
 			peffect->reset_count |= ((1 << 12) & 0xf000) | ((1 << 8) & 0xf00);
 		}
@@ -1820,10 +1820,7 @@ int32 scriptlib::card_is_forbidden(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	if(pcard->is_affected_by_effect(EFFECT_FORBIDDEN))
-		lua_pushboolean(L, 1);
-	else
-		lua_pushboolean(L, 0);
+	lua_pushboolean(L, pcard->is_status(STATUS_FORBIDDEN));
 	return 1;
 }
 int32 scriptlib::card_is_able_to_change_controler(lua_State *L) {

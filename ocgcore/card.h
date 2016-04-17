@@ -93,6 +93,7 @@ public:
 	typedef std::unordered_set<std::pair<effect*, uint16>, effect_relation_hash> effect_relation;
 	typedef std::unordered_map<card*, uint32> relation_map;
 	typedef std::map<uint16, std::array<uint16, 2> > counter_map;
+	typedef std::map<uint32, int32> effect_count;
 	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32> > {
 	public:
 		void addcard(card* pcard);
@@ -133,6 +134,7 @@ public:
 	card* overlay_target;
 	relation_map relations;
 	counter_map counters;
+	effect_count indestructable_effects;
 	attacker_map announced_cards;
 	attacker_map attacked_cards;
 	attacker_map battled_cards;
@@ -195,7 +197,7 @@ public:
 	int32 replace_effect(uint32 code, uint32 reset, uint32 count);
 	void reset(uint32 id, uint32 reset_type);
 	void reset_effect_count();
-	int32 refresh_disable_status();
+	void refresh_disable_status();
 	uint8 refresh_control_status();
 
 	void count_turn(uint16 ct);
@@ -424,13 +426,13 @@ public:
 #define STATUS_ACTIVATED			0x800000
 #define STATUS_JUST_POS				0x1000000
 #define STATUS_CONTINUOUS_POS		0x2000000
-//#define STATUS_IS_PUBLIC			0x4000000
+#define STATUS_FORBIDDEN			0x4000000
 #define STATUS_ACT_FROM_HAND		0x8000000
 #define STATUS_OPPO_BATTLE			0x10000000
 #define STATUS_FLIP_SUMMON_TURN		0x20000000
 #define STATUS_SPSUMMON_TURN		0x40000000
 //Counter
-#define COUNTER_NEED_PERMIT		0x1000
+#define COUNTER_WITHOUT_PERMIT	0x1000
 #define COUNTER_NEED_ENABLE		0x2000
 //Query list
 #define QUERY_CODE			0x1
