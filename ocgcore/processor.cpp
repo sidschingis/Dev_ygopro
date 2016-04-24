@@ -1262,6 +1262,7 @@ void field::raise_single_event(card* trigger_card, card_set* event_cards, uint32
 	new_event.event_value = event_value;
 	core.single_event.push_back(new_event);
 }
+// called by Duel.CheckEvent()
 int32 field::check_event(uint32 code, tevent * pe) {
 	for(auto eit = core.point_event.begin(); eit != core.point_event.end(); ++eit) {
 		if(eit->event_code == code) {
@@ -1279,6 +1280,7 @@ int32 field::check_event(uint32 code, tevent * pe) {
 	}
 	return FALSE;
 }
+// called by Duel.CheckActivateEffect()
 int32 field::check_event_c(effect* peffect, uint8 playerid, int32 neglect_con, int32 neglect_cost, int32 copy_info, tevent* pe) {
 	if(peffect->code == EVENT_FREE_CHAIN) {
 		return peffect->is_activate_ready(playerid, nil_event, neglect_con, neglect_cost, FALSE);
@@ -1581,6 +1583,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 		core.quick_f_chain.clear();
 		core.instant_event.clear();
 		core.point_event.clear();
+		core.full_event.clear();
 		return TRUE;
 	}
 	}
@@ -1912,6 +1915,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			add_process(PROCESSOR_SOLVE_CHAIN, 0, 0, 0, skip_trigger | ((skip_freechain | skip_new) << 8), skip_new);
 		} else {
 			core.used_event.splice(core.used_event.end(), core.point_event);
+			core.full_event.clear();
 			if(core.chain_limit_p) {
 				luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, core.chain_limit_p);
 				core.chain_limit_p = 0;
@@ -2025,7 +2029,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 					peffect = pr.first->second;
 					peffect->s_range = peffect->handler->current.location;
 					peffect->o_range = peffect->handler->current.sequence;
-					if(peffect->is_chainable(priority) && peffect->is_activateable(priority, *evit)) {
+					if(!peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_chainable(priority) && peffect->is_activateable(priority, *evit)) {
 						newchain.flag = 0;
 						newchain.chain_id = infos.field_id++;
 						newchain.evt = *evit;
@@ -2035,8 +2039,6 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 						newchain.triggering_sequence = peffect->handler->current.sequence;
 						newchain.triggering_player = priority;
 						core.select_chains.push_back(newchain);
-						core.delayed_quick_tmp.erase(std::make_pair(peffect, *evit));
-						core.delayed_quick_break.erase(std::make_pair(peffect, *evit));
 					}
 				}
 				pr = effects.quick_o_effect.equal_range(evit->event_code);
@@ -2088,6 +2090,27 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 				if(act)
 					core.select_chains.push_back(*clit);
 			}
+			//delayed activate
+			for(auto evit = core.full_event.begin(); evit != core.full_event.end(); ++evit) {
+				auto pr = effects.activate_effect.equal_range(evit->event_code);
+				for(; pr.first != pr.second; ++pr.first) {
+					peffect = pr.first->second;
+					peffect->s_range = peffect->handler->current.location;
+					peffect->o_range = peffect->handler->current.sequence;
+					if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_chainable(priority) && peffect->is_activateable(priority, *evit)) {
+						newchain.flag = 0;
+						newchain.chain_id = infos.field_id++;
+						newchain.evt = *evit;
+						newchain.triggering_controler = peffect->handler->current.controler;
+						newchain.triggering_effect = peffect;
+						newchain.triggering_location = peffect->handler->current.location;
+						newchain.triggering_sequence = peffect->handler->current.sequence;
+						newchain.triggering_player = priority;
+						core.select_chains.push_back(newchain);
+					}
+				}
+			}
+			// delayed quick
 			for(auto eit = core.delayed_quick.begin(); eit != core.delayed_quick.end(); ++eit) {
 				peffect = eit->first;
 				peffect->s_range = peffect->handler->current.location;
@@ -2295,13 +2318,9 @@ int32 field::process_instant_event() {
 				peffect->handler->create_relation(newchain);
 			}
 		}
-		//delayed quick effect
-		pr = effects.activate_effect.equal_range(elit->event_code);
-		for(; pr.first != pr.second; ++pr.first) {
-			peffect = pr.first->second;
-			if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_condition_check(peffect->handler->current.controler, *elit))
-				core.delayed_quick_tmp.insert(std::make_pair(peffect, *elit));
-		}
+		// delayed activate effect
+		core.full_event.push_back(*elit);
+		// delayed quick effect
 		pr = effects.quick_o_effect.equal_range(elit->event_code);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
@@ -2735,8 +2754,7 @@ int32 field::process_battle_command(uint16 step) {
 			if(!peffect->value){
 				infos.phase = PHASE_BATTLE;
 				add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
-			}
-			else {
+			} else {
 				core.hint_timing[infos.turn_player] = 0;
 				reset_phase(PHASE_BATTLE);
 				adjust_all();
@@ -3063,8 +3081,7 @@ int32 field::process_battle_command(uint16 step) {
 			if(!peffect->value) {
 				infos.phase = PHASE_BATTLE;
 				add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
-			}
-			else {
+			} else {
 				core.hint_timing[infos.turn_player] = 0;
 				reset_phase(PHASE_BATTLE);
 				adjust_all();
@@ -4494,8 +4511,7 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
 					core.delayed_tp.pop_front();
 					core.delayed_tev.pop_front();
-				}
-				else
+				} else
 					core.conti_player = 1 - infos.turn_player;
 			}
 			if(core.conti_player == 1 - infos.turn_player) {
@@ -4504,15 +4520,13 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_ntp.front(), 0, 1 - infos.turn_player, 0);
 					core.delayed_ntp.pop_front();
 					core.delayed_ntev.pop_front();
-				}
-				else if(core.delayed_tp.size()) {
+				} else if(core.delayed_tp.size()) {
 					core.conti_player = infos.turn_player;
 					core.sub_solving_event.push_back(core.delayed_tev.front());
 					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
 					core.delayed_tp.pop_front();
 					core.delayed_tev.pop_front();
-				}
-				else
+				} else
 					core.conti_player = PLAYER_NONE;
 			}
 		}
@@ -4670,15 +4684,13 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
 			core.delayed_tp.pop_front();
 			core.delayed_tev.pop_front();
-		}
-		else if(core.delayed_ntp.size()) {
+		} else if(core.delayed_ntp.size()) {
 			core.conti_player = 1 - infos.turn_player;
 			core.sub_solving_event.push_back(core.delayed_ntev.front());
 			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_ntp.front(), 0, 1 - infos.turn_player, 0);
 			core.delayed_ntp.pop_front();
 			core.delayed_ntev.pop_front();
-		}
-		else
+		} else
 			core.conti_player = PLAYER_NONE;
 		pduel->write_buffer8(MSG_CHAIN_SOLVED);
 		pduel->write_buffer8(cait->chain_count);
