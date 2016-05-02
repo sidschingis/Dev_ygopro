@@ -1101,6 +1101,7 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 				change_position(equip_card, 0, equip_player, POS_FACEUP, 0);
 			return FALSE;
 		}
+		refresh_location_info_instant();
 		if(get_useable_count(equip_player, LOCATION_SZONE, equip_player, LOCATION_REASON_TOFIELD) <= 0)
 			return TRUE;
 		equip_card->enable_field_effect(false);
@@ -2334,15 +2335,16 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 			core.spsummon_once_map[sumplayer][*cit]++;
 		card_set cset;
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
+			(*cit)->set_status(STATUS_SUMMONING, TRUE);
 			if(!(*cit)->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SPSUMMON)) {
 				cset.insert(*cit);
 			}
-			(*cit)->set_status(STATUS_SUMMONING, TRUE);
 		}
-		if(cset.size())
+		if(cset.size()) {
 			raise_event(&cset, EVENT_SPSUMMON, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
-		process_instant_event();
-		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x101, TRUE);
+			process_instant_event();
+			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x101, TRUE);
+		}
 		return FALSE;
 	}
 	case 26: {
