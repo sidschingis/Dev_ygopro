@@ -793,13 +793,15 @@ int32 field::get_control(uint16 step, effect * reason_effect, uint8 reason_playe
 			return TRUE;
 		if(pcard->current.location != LOCATION_MZONE)
 			return TRUE;
-		if(get_useable_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
-			return TRUE;
-		if((pcard->get_type() & TYPE_TRAPMONSTER) && get_useable_count(playerid, LOCATION_SZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
-			return TRUE;
 		if(!pcard->is_capable_change_control())
 			return TRUE;
 		if(!pcard->is_affect_by_effect(reason_effect))
+			return TRUE;
+		if(get_useable_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_CONTROL) <= 0) {
+			core.units.begin()->step = 3;
+			return FALSE;
+		}
+		if((pcard->get_type() & TYPE_TRAPMONSTER) && get_useable_count(playerid, LOCATION_SZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
 			return TRUE;
 		pcard->filter_disable_related_cards();
 		if(pcard->unique_code && (pcard->unique_location & LOCATION_MZONE))
@@ -826,6 +828,10 @@ int32 field::get_control(uint16 step, effect * reason_effect, uint8 reason_playe
 	}
 	case 3: {
 		returns.ivalue[0] = 1;
+		return TRUE;
+	}
+	case 4: {
+		destroy(pcard, 0, REASON_RULE, PLAYER_NONE);
 		return TRUE;
 	}
 	}
@@ -4038,10 +4044,9 @@ int32 field::operation_replace(uint16 step, effect * replace_effect, group * tar
 	}
 	case 6: {
 		if (returns.ivalue[0]) {
-			card_set::iterator cit, rm;
 			uint32 is_destroy = arg2;
-			for (cit = targets->container.begin(); cit != targets->container.end();) {
-				rm = cit++;
+			for (auto cit = targets->container.begin(); cit != targets->container.end();) {
+				auto rm = cit++;
 				if (replace_effect->get_value(*rm)) {
 					(*rm)->current.reason = (*rm)->temp.reason;
 					(*rm)->current.reason_effect = (*rm)->temp.reason_effect;
@@ -4153,10 +4158,9 @@ int32 field::operation_replace(uint16 step, effect * replace_effect, group * tar
 	}
 	case 13: {
 		if (returns.ivalue[0]) {
-			card_set::iterator cit, rm;
 			uint32 is_destroy = arg2;
-			for (cit = targets->container.begin(); cit != targets->container.end();) {
-				rm = cit++;
+			for (auto cit = targets->container.begin(); cit != targets->container.end();) {
+				auto rm = cit++;
 				if (replace_effect->get_value(*rm)) {
 					(*rm)->current.reason = (*rm)->temp.reason;
 					(*rm)->current.reason_effect = (*rm)->temp.reason_effect;
