@@ -206,6 +206,7 @@ public:
 	static int32 card_is_can_be_ritual_material(lua_State *L);
 	static int32 card_is_can_be_xyz_material(lua_State *L);
 	static int32 card_check_fusion_material(lua_State *L);
+	static int32 card_check_fusion_substitute(lua_State *L);
 	static int32 card_is_immune_to_effect(lua_State *L);
 	static int32 card_is_can_be_effect_target(lua_State *L);
 	static int32 card_is_can_be_battle_target(lua_State *L);
@@ -360,6 +361,7 @@ public:
 	static int32 duel_draw(lua_State *L);
 	static int32 duel_damage(lua_State *L);
 	static int32 duel_recover(lua_State *L);
+	static int32 duel_rd_complete(lua_State *L);
 	static int32 duel_equip(lua_State *L);
 	static int32 duel_equip_complete(lua_State *L);
 	static int32 duel_get_control(lua_State *L);
@@ -373,7 +375,6 @@ public:
 	static int32 duel_shuffle_hand(lua_State *L);
 	static int32 duel_shuffle_setcard(lua_State *L);
 	static int32 duel_change_attacker(lua_State *L);
-	static int32 duel_replace_attacker(lua_State *L);
 	static int32 duel_change_attack_target(lua_State *L);
 	static int32 duel_replace_attack_target(lua_State *L);
 	static int32 duel_calculate_damage(lua_State *L);

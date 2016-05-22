@@ -97,7 +97,7 @@ public:
 	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32> > {
 	public:
 		void addcard(card* pcard);
-	} ;
+	};
 	int32 scrtype;
 	int32 ref_handle;
 	duel* pduel;
@@ -235,6 +235,7 @@ public:
 	effect* check_control_effect();
 	int32 fusion_check(group* fusion_m, card* cg, int32 chkf);
 	void fusion_select(uint8 playerid, group* fusion_m, card* cg, int32 chkf);
+	int32 check_fusion_substitute(card* fcard);
 	
 	int32 is_equipable(card* pcard);
 	int32 is_summonable();
