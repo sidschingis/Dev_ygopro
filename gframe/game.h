@@ -580,8 +580,8 @@ extern Game* mainGame;
 #define SCROLL_MUSIC				282
 #define CHECKBOX_ENABLE_SOUND		353
 #define CHECKBOX_ENABLE_MUSIC		354
-#define BUTTON_CLEAR_FILTER			1001
-#define BUTTON_DELETE_DECK			1002
+//#define BUTTON_CLEAR_FILTER			1001
+//#define BUTTON_DELETE_DECK			1002
 
 //DevPro
 #endif // GAME_H

@@ -131,17 +131,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_START_FILTER: {
-				filter_type = mainGame->cbCardType->getSelected();
-				filter_type2 = mainGame->cbCardType2->getItemData(mainGame->cbCardType2->getSelected());
-				filter_lm = mainGame->cbLimit->getSelected();
-				if(filter_type == 1) {
-					filter_attrib = mainGame->cbAttribute->getItemData(mainGame->cbAttribute->getSelected());
-					filter_race = mainGame->cbRace->getItemData(mainGame->cbRace->getSelected());
-					filter_atk = parse_filter(mainGame->ebAttack->getText(), &filter_atktype);
-					filter_def = parse_filter(mainGame->ebDefense->getText(), &filter_deftype);
-					filter_lv = parse_filter(mainGame->ebStar->getText(), &filter_lvtype);
-					filter_scl = parse_filter(mainGame->ebScale->getText(), &filter_scltype);
-				}
+				FilterStart();
 				FilterCards();
 				if(!mainGame->gameConf.separate_clear_button)
 					ClearFilter();
@@ -206,7 +196,17 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			switch(id) {
 			case SCROLL_CARDTEXT: {
 				u32 pos = mainGame->scrCardText->getPos();
-				mainGame->SetStaticText(mainGame->stText, mainGame->stText->getRelativePosition().getWidth()-25, mainGame->textFont, mainGame->showingtext, pos);
+				mainGame->SetStaticText(mainGame->stText, mainGame->stText->getRelativePosition().getWidth() - 30, mainGame->textFont, mainGame->showingtext, pos);
+				break;
+				}
+				case SCROLL_SOUND: {
+					mainGame->gameConf.soundvolume = (double)mainGame->scrSound->getPos() / 100;
+					mainGame->engineSound->setSoundVolume(mainGame->gameConf.soundvolume);
+					break;
+					}
+				case SCROLL_MUSIC: {
+					mainGame->gameConf.musicvolume = (double)mainGame->scrMusic->getPos() / 100;
+					mainGame->engineMusic->setSoundVolume(mainGame->gameConf.musicvolume);
 				break;
 			}
 			break;
@@ -226,6 +226,32 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			}
 			break;
 		}
+		case irr::gui::EGET_EDITBOX_CHANGED: {
+			switch (id) {
+				case EDITBOX_KEYWORD: {
+						FilterStart();
+						FilterCards();
+						break;
+				}
+			}
+			break;
+		}
+		case irr::gui::EGET_CHECKBOX_CHANGED:{
+			s32 id = event.GUIEvent.Caller->getID();
+			switch (id) {
+				case CHECKBOX_ENABLE_SOUND:{
+					mainGame->gameConf.enablesound = mainGame->chkEnableSound->isChecked();
+					break;
+					}
+				case CHECKBOX_ENABLE_MUSIC:{
+					mainGame->gameConf.enablemusic = mainGame->chkEnableMusic->isChecked();
+					if (!mainGame->gameConf.enablemusic)
+						 mainGame->engineMusic->stopAllSounds();
+					break;
+					}
+			}
+			break;
+			}
 		case irr::gui::EGET_COMBO_BOX_CHANGED: {
 			switch(id) {
 			case COMBOBOX_DBLFLIST: {
@@ -288,6 +314,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					mainGame->cbCardType2->addItem(dataManager.GetSysString(1059), TYPE_MONSTER + TYPE_SPIRIT);
 					mainGame->cbCardType2->addItem(dataManager.GetSysString(1071), TYPE_MONSTER + TYPE_FLIP);
 					mainGame->cbCardType2->addItem(dataManager.GetSysString(1072), TYPE_MONSTER + TYPE_TOON);
+					mainGame->cbCardType2->addItem(dataManager.GetSysString(1074), TYPE_MONSTER + TYPE_PENDULUM);
 					break;
 				}
 				case 2: {
@@ -550,8 +577,10 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			break;
 		}
 		case irr::EMIE_MOUSE_MOVED: {
-			int x = event.MouseInput.X;
-			int y = event.MouseInput.Y;
+			position2di pos = mainGame->Resize(event.MouseInput.X, event.MouseInput.Y, true);
+			position2di mousepos(event.MouseInput.X, event.MouseInput.Y);
+			s32 x = pos.X;
+			s32 y = pos.Y;
 			int pre_code = hovered_code;
 			if(x >= 314 && x <= 794 && y >= 164 && y <= 435) {
 				int lx = 10, px, py = (y - 164) / 68;
@@ -610,8 +639,8 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				hovered_code = 0;
 			}
 			if(is_draging) {
-				dragx = x;
-				dragy = y;
+				dragx = mousepos.X;
+				dragy = mousepos.Y;	
 			}
 			if(!is_draging && pre_code != hovered_code) {
 				if(hovered_code) {
@@ -661,6 +690,125 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 	}
 	return false;
 }
+
+void DeckBuilder::FilterStart(){
+	filter_type = mainGame->cbCardType->getSelected();
+	filter_type2 = mainGame->cbCardType2->getItemData(mainGame->cbCardType2->getSelected());
+	filter_lm = mainGame->cbLimit->getSelected();
+	if (filter_type > 1) {
+		FilterCards();
+		return;
+	}
+	filter_attrib = mainGame->cbAttribute->getItemData(mainGame->cbAttribute->getSelected());
+	filter_race = mainGame->cbRace->getItemData(mainGame->cbRace->getSelected());
+	//filter_setcode = mainGame->cbSetCode->getItemData(mainGame->cbSetCode->getSelected());
+	const wchar_t* pstr = mainGame->ebAttack->getText();
+	if (*pstr == 0) filter_atktype = 0;
+	else {
+		if (*pstr == L'=') {
+			filter_atktype = 1;
+			filter_atk = BufferIO::GetVal(pstr + 1);
+		}
+		else if (*pstr >= L'0' && *pstr <= L'9') {
+			filter_atktype = 1;
+			filter_atk = BufferIO::GetVal(pstr);
+		}
+		else if (*pstr == L'>') {
+			if (*(pstr + 1) == L'=') {
+				filter_atktype = 2;
+				filter_atk = BufferIO::GetVal(pstr + 2);
+			}
+			else {
+				filter_atktype = 3;
+				filter_atk = BufferIO::GetVal(pstr + 1);
+			}
+		}
+		else if (*pstr == L'<') {
+			if (*(pstr + 1) == L'=') {
+				filter_atktype = 4;
+				filter_atk = BufferIO::GetVal(pstr + 2);
+			}
+			else {
+				filter_atktype = 5;
+				filter_atk = BufferIO::GetVal(pstr + 1);
+			}
+		}
+		else if (*pstr == L'?') {
+			filter_atktype = 6;
+		}
+		else filter_atktype = 0;
+	}
+	pstr = mainGame->ebDefense->getText();
+	if (*pstr == 0) filter_deftype = 0;
+	else {
+		if (*pstr == L'=') {
+			filter_deftype = 1;
+			filter_def = BufferIO::GetVal(pstr + 1);
+		}
+		else if (*pstr >= L'0' && *pstr <= L'9') {
+			filter_deftype = 1;
+			filter_def = BufferIO::GetVal(pstr);
+		}
+		else if (*pstr == L'>') {
+			if (*(pstr + 1) == L'=') {
+				filter_deftype = 2;
+				filter_def = BufferIO::GetVal(pstr + 2);
+			}
+			else {
+				filter_deftype = 3;
+				filter_def = BufferIO::GetVal(pstr + 1);
+			}
+		}
+		else if (*pstr == L'<') {
+			if (*(pstr + 1) == L'=') {
+				filter_deftype = 4;
+				filter_def = BufferIO::GetVal(pstr + 2);
+			}
+			else {
+				filter_deftype = 5;
+				filter_def = BufferIO::GetVal(pstr + 1);
+			}
+		}
+		else if (*pstr == L'?') {
+			filter_deftype = 6;
+		}
+		else filter_deftype = 0;
+	}
+	pstr = mainGame->ebStar->getText();
+	if (*pstr == 0) filter_lvtype = 0;
+	else {
+		if (*pstr == L'=') {
+			filter_lvtype = 1;
+			filter_lv = BufferIO::GetVal(pstr + 1);
+		}
+		else if (*pstr >= L'0' && *pstr <= L'9') {
+			filter_lvtype = 1;
+			filter_lv = BufferIO::GetVal(pstr);
+		}
+		else if (*pstr == L'>') {
+			if (*(pstr + 1) == L'=') {
+				filter_lvtype = 2;
+				filter_lv = BufferIO::GetVal(pstr + 2);
+			}
+			else {
+				filter_lvtype = 3;
+				filter_lv = BufferIO::GetVal(pstr + 1);
+			}
+		}
+		else if (*pstr == L'<') {
+			if (*(pstr + 1) == L'=') {
+				filter_lvtype = 4;
+				filter_lv = BufferIO::GetVal(pstr + 2);
+			}
+			else {
+				filter_lvtype = 5;
+				filter_lv = BufferIO::GetVal(pstr + 1);
+			}
+		}
+		else filter_lvtype = 0;
+	}
+}
+
 void DeckBuilder::FilterCards() {
 	results.clear();
 	const wchar_t* pstr = mainGame->ebCardName->getText();
@@ -738,9 +886,20 @@ void DeckBuilder::FilterCards() {
 		if(filter_lm) {
 			if(filter_lm <= 3 && (!filterList->count(ptr->first) || (*filterList)[ptr->first] != filter_lm - 1))
 				continue;
-			if(filter_lm == 4 && data.ot != 1)
+			//ocg
+			if (filter_lm == 4 && !(data.ot & 0x1))
 				continue;
-			if(filter_lm == 5 && data.ot != 2)
+			//tcg
+			if (filter_lm == 5 && !(data.ot & 0x2))
+				continue;
+			//prerelease only
+			if (filter_lm == 6 && !(data.ot & 0x4))
+				continue;
+			//ocg only
+			if (filter_lm == 7 && (data.ot & 0x2))
+				continue;
+			//tcg only
+			if (filter_lm == 8 && (data.ot & 0x1))
 				continue;
 		}
 		if(pstr) {
