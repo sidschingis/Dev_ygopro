@@ -30,7 +30,7 @@ struct card_data {
 	uint32 attribute;
 	uint32 race;
 	int32 attack;
-	int32 defence;
+	int32 defense;
 	uint32 lscale;
 	uint32 rscale;
 };
@@ -47,9 +47,9 @@ struct card_state {
 	uint32 attribute;
 	uint32 race;
 	int32 attack;
-	int32 defence;
+	int32 defense;
 	int32 base_attack;
-	int32 base_defence;
+	int32 base_defense;
 	uint8 controler;
 	uint8 location;
 	uint8 sequence;
@@ -69,9 +69,9 @@ struct query_cache {
 	uint32 attribute;
 	uint32 race;
 	int32 attack;
-	int32 defence;
+	int32 defense;
 	int32 base_attack;
-	int32 base_defence;
+	int32 base_defense;
 	uint32 reason;
 	int32 is_public;
 	int32 is_disabled;
@@ -162,11 +162,10 @@ public:
 	int32 is_pre_set_card(uint32 set_code);
 	int32 is_fusion_set_card(uint32 set_code);
 	uint32 get_type();
-	int32 get_base_attack(uint8 swap = FALSE);
+	int32 get_base_attack();
 	int32 get_attack();
-	int32 get_base_defence(uint8 swap = FALSE);
-	int32 get_defence();
-	void calc_attack_defence(int32 *patk, int32 *pdef);
+	int32 get_base_defense();
+	int32 get_defense();
 	uint32 get_level();
 	uint32 get_rank();
 	uint32 get_synchro_level(card* pcard);
@@ -296,12 +295,12 @@ public:
 //Positions
 #define POS_FACEUP_ATTACK		0x1
 #define POS_FACEDOWN_ATTACK		0x2
-#define POS_FACEUP_DEFENCE		0x4
-#define POS_FACEDOWN_DEFENCE	0x8
+#define POS_FACEUP_DEFENSE		0x4
+#define POS_FACEDOWN_DEFENSE	0x8
 #define POS_FACEUP				0x5
 #define POS_FACEDOWN			0xa
 #define POS_ATTACK				0x3
-#define POS_DEFENCE				0xc
+#define POS_DEFENSE				0xc
 //Flip effect flags
 #define NO_FLIP_EFFECT			0x10000
 #define FLIP_SET_AVAILABLE		0x20000
@@ -445,9 +444,9 @@ public:
 #define QUERY_ATTRIBUTE		0x40
 #define QUERY_RACE			0x80
 #define QUERY_ATTACK		0x100
-#define QUERY_DEFENCE		0x200
+#define QUERY_DEFENSE		0x200
 #define QUERY_BASE_ATTACK	0x400
-#define QUERY_BASE_DEFENCE	0x800
+#define QUERY_BASE_DEFENSE	0x800
 #define QUERY_REASON		0x1000
 #define QUERY_REASON_CARD	0x2000
 #define QUERY_EQUIP_CARD	0x4000
@@ -467,5 +466,5 @@ public:
 #define ASSUME_ATTRIBUTE	5
 #define ASSUME_RACE			6
 #define ASSUME_ATTACK		7
-#define ASSUME_DEFENCE		8
+#define ASSUME_DEFENSE		8
 #endif /* CARD_H_ */

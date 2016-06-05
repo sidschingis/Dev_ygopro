@@ -681,7 +681,7 @@ int32 scriptlib::duel_confirm_decktop(lua_State *L) {
 				pduel->write_buffer8(MSG_DECK_TOP);
 				pduel->write_buffer8(playerid);
 				pduel->write_buffer8(count);
-				if(pcard->current.position != POS_FACEUP_DEFENCE)
+				if(pcard->current.position != POS_FACEUP_DEFENSE)
 					pduel->write_buffer32(pcard->data.code);
 				else
 					pduel->write_buffer32(pcard->data.code | 0x80000000);
@@ -1210,6 +1210,7 @@ int32 scriptlib::duel_change_attack_target(lua_State *L) {
 			else
 				pduel->game_field->core.opp_mzone[i] = 0;
 		}
+		pduel->game_field->attack_all_target_check();
 		if(target) {
 			pduel->game_field->raise_single_event(target, 0, EVENT_BE_BATTLE_TARGET, 0, REASON_REPLACE, 0, 1 - turnp, 0);
 			pduel->game_field->raise_event(target, EVENT_BE_BATTLE_TARGET, 0, REASON_REPLACE, 0, 1 - turnp, 0);
@@ -1233,9 +1234,12 @@ int32 scriptlib::duel_calculate_damage(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 2);
 	card* attacker = *(card**)lua_touserdata(L, 1);
 	card* attack_target = *(card**)lua_touserdata(L, 2);
+	int32 new_attack = FALSE;
+	if(lua_gettop(L) >= 3)
+		new_attack = lua_toboolean(L, 3);
 	if(attacker == attack_target)
 		return 0;
-	attacker->pduel->game_field->add_process(PROCESSOR_DAMAGE_STEP, 0, (effect*)attacker, (group*)attack_target, 0, 0);
+	attacker->pduel->game_field->add_process(PROCESSOR_DAMAGE_STEP, 0, (effect*)attacker, (group*)attack_target, 0, new_attack);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_get_battle_damage(lua_State *L) {
@@ -2996,7 +3000,7 @@ int32 scriptlib::duel_is_player_can_spsummon_monster(lua_State * L) {
 	if(!lua_isnil(L, 5))
 		dat.attack = lua_tointeger(L, 5);
 	if(!lua_isnil(L, 6))
-		dat.defence = lua_tointeger(L, 6);
+		dat.defense = lua_tointeger(L, 6);
 	if(!lua_isnil(L, 7))
 		dat.level = lua_tointeger(L, 7);
 	if(!lua_isnil(L, 8))
@@ -3276,6 +3280,16 @@ int32 scriptlib::duel_get_custom_activity_count(lua_State *L) {
 		lua_pushinteger(L, val & 0xffff);
 	else
 		lua_pushinteger(L, (val >> 16) & 0xffff);
+	return 1;
+}
+
+int32 scriptlib::duel_get_battled_count(lua_State *L) {
+	check_param_count(L, 1);
+	int32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	lua_pushinteger(L, pduel->game_field->core.battled_count[playerid]);
 	return 1;
 }
 int32 scriptlib::duel_is_able_to_enter_bp(lua_State *L) {

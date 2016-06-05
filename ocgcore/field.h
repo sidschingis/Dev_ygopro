@@ -285,6 +285,7 @@ struct processor {
 	bool spsummon_rst;
 	uint8 attack_state_count[2];
 	uint8 battle_phase_count[2];
+	uint8 battled_count[2];
 	uint8 phase_action;
 	uint32 hint_timing[2];
 	uint8 current_player;
@@ -384,7 +385,7 @@ public:
 
 	uint32 get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype);
 	int32 effect_replace_check(uint32 code, const tevent& e);
-	int32 get_attack_target(card* pcard, card_vector* v, uint8 chain_attack = FALSE);
+	int32 get_attack_target(card* pcard, card_vector* v, uint8 chain_attack = FALSE, bool choose_target = true);
 	void attack_all_target_check();
 	int32 check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
 	int32 check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
@@ -438,7 +439,7 @@ public:
 	int32 process_single_event();
 	int32 process_idle_command(uint16 step);
 	int32 process_battle_command(uint16 step);
-	int32 process_damage_step(uint16 step);
+	int32 process_damage_step(uint16 step, uint32 new_attack);
 	void calculate_battle_damage(effect** pdamchange, card** preason_card, uint8* battle_destroyed);
 	int32 process_turn(uint16 step, uint8 turn_player);
 

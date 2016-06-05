@@ -154,7 +154,7 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 		return;
 	if((pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)) && (location & (LOCATION_HAND | LOCATION_DECK))) {
 		location = LOCATION_EXTRA;
-		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN_DEFENCE << 24);
+		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN_DEFENSE << 24);
 	}
 	pcard->current.controler = playerid;
 	pcard->current.location = location;
@@ -279,7 +279,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 	uint8 presequence = pcard->current.sequence;
 	if((pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)) && (location & (LOCATION_HAND | LOCATION_DECK))) {
 		location = LOCATION_EXTRA;
-		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN_DEFENCE << 24);
+		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN_DEFENSE << 24);
 	}
 	if (pcard->current.location) {
 		if (pcard->current.location == location) {
@@ -386,7 +386,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 			        && (((pcard->current.location == LOCATION_MZONE) && !pcard->is_status(STATUS_SUMMON_DISABLED))
 			        || ((pcard->current.location == LOCATION_SZONE) && !pcard->is_status(STATUS_ACTIVATE_DISABLED)))) {
 				location = LOCATION_EXTRA;
-				pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEUP_DEFENCE << 24);
+				pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEUP_DEFENSE << 24);
 			}
 			remove_card(pcard);
 		}
@@ -559,11 +559,11 @@ void field::shuffle(uint8 playerid, uint8 location) {
 		core.shuffle_deck_check[playerid] = FALSE;
 		if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
 			card* ptop = svector.back();
-			if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENCE)) {
+			if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENSE)) {
 				pduel->write_buffer8(MSG_DECK_TOP);
 				pduel->write_buffer8(playerid);
 				pduel->write_buffer8(0);
-				if(ptop->current.position != POS_FACEUP_DEFENCE)
+				if(ptop->current.position != POS_FACEUP_DEFENSE)
 					pduel->write_buffer32(ptop->data.code);
 				else
 					pduel->write_buffer32(ptop->data.code | 0x80000000);
@@ -1484,7 +1484,7 @@ int32 field::check_spsummon_once(card* pcard, uint8 playerid) {
 	auto iter = core.spsummon_once_map[playerid].find(pcard->spsummon_code);
 	return (iter == core.spsummon_once_map[playerid].end()) || (iter->second == 0);
 }
-// increase the binary custom counter
+// increase the binary custom counter 1~5
 void field::check_card_counter(card* pcard, int32 counter_type, int32 playerid) {
 	auto& counter_map = (counter_type == 1) ? core.summon_counter :
 						(counter_type == 2) ? core.normalsummon_counter :
@@ -1645,7 +1645,7 @@ int32 field::effect_replace_check(uint32 code, const tevent& e) {
 	}
 	return FALSE;
 }
-int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) {
+int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack, bool choose_target) {
 	uint8 p = pcard->current.controler;
 	effect* peffect;
 	card* atarget;
@@ -1720,9 +1720,10 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 		dir = false;
 	else{
 		// effects with target limit
-		// The system only check the general case (never attacked player), and the script should check specific condition.
+		// The system only check the general case (never attacked player) and approximate solution
 		if((peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL))
-				&& pcard->announced_cards.find(0) == pcard->announced_cards.end() && pcard->battled_cards.find(0) == pcard->battled_cards.end()) {
+				&& pcard->announced_cards.find(0) == pcard->announced_cards.end() && pcard->battled_cards.find(0) == pcard->battled_cards.end()
+				&& pcard->attack_all_target) {
 			for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
 				atarget = *cit;
 				if(!atarget)
@@ -1761,14 +1762,21 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 		atarget = *cit;
 		if(!atarget)
 			continue;
-		if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
-			continue;
-		mcount++;
-		if(atarget->is_affected_by_effect(EFFECT_CANNOT_BE_BATTLE_TARGET, pcard))
-			continue;
-		if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
-			continue;
-		v->push_back(atarget);
+		if(choose_target){
+			if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
+				continue;
+			mcount++;
+			if(atarget->is_affected_by_effect(EFFECT_CANNOT_BE_BATTLE_TARGET, pcard))
+				continue;
+			if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
+				continue;
+			v->push_back(atarget);
+		}
+		else {
+			if(!atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
+				mcount++;
+			v->push_back(atarget);
+		}
 	}
 	if((mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK) || core.attack_player)
 			&& !pcard->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK) && dir)

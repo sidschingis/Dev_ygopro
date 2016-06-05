@@ -161,7 +161,7 @@ extern "C" DECL_DLLEXPORT void new_tag_card(ptr pduel, uint32 code, uint8 owner,
 		pcard->current.controler = owner;
 		pcard->current.location = LOCATION_DECK;
 		pcard->current.sequence = ptduel->game_field->player[owner].tag_list_main.size() - 1;
-		pcard->current.position = POS_FACEDOWN_DEFENCE;
+		pcard->current.position = POS_FACEDOWN_DEFENSE;
 		break;
 	case LOCATION_EXTRA:
 		ptduel->game_field->player[owner].tag_list_extra.push_back(pcard);
@@ -169,7 +169,7 @@ extern "C" DECL_DLLEXPORT void new_tag_card(ptr pduel, uint32 code, uint8 owner,
 		pcard->current.controler = owner;
 		pcard->current.location = LOCATION_EXTRA;
 		pcard->current.sequence = ptduel->game_field->player[owner].tag_list_extra.size() - 1;
-		pcard->current.position = POS_FACEDOWN_DEFENCE;
+		pcard->current.position = POS_FACEDOWN_DEFENSE;
 		break;
 	}
 }
@@ -286,14 +286,11 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(ptr pduel, uint8 playerid, uint
 	}
 	return ct;
 }
-extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf, bool isSwapped) {
+extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
 	duel* ptduel = (duel*)pduel;
 	*buf++ = MSG_RELOAD_FIELD;
 	card* pcard;
-	for (int player = 0; player < 2; ++player) {
-		int playerid = player;
-		if (isSwapped)
-			playerid = 1 - playerid;
+	for(int playerid = 0; playerid < 2; ++playerid) {
 		*((int*)(buf)) = ptduel->game_field->player[playerid].lp;
 		buf += 4;
 		for(uint32 i = 0; i < 5; ++i) {
@@ -301,7 +298,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf, bool isSw
 			if(pcard) {
 				*buf++ = 1;
 				*buf++ = pcard->current.position;
-				*buf++ = (uint8)pcard->xyz_materials.size();
+				*buf++ = pcard->xyz_materials.size();
 			} else {
 				*buf++ = 0;
 			}
@@ -315,14 +312,14 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf, bool isSw
 				*buf++ = 0;
 			}
 		}
-		*buf++ = (uint8)ptduel->game_field->player[playerid].list_main.size();
-		*buf++ = (uint8)ptduel->game_field->player[playerid].list_hand.size();
-		*buf++ = (uint8)ptduel->game_field->player[playerid].list_grave.size();
-		*buf++ = (uint8)ptduel->game_field->player[playerid].list_remove.size();
-		*buf++ = (uint8)ptduel->game_field->player[playerid].list_extra.size();
-		*buf++ = (uint8)ptduel->game_field->player[playerid].extra_p_count;
+		*buf++ = ptduel->game_field->player[playerid].list_main.size();
+		*buf++ = ptduel->game_field->player[playerid].list_hand.size();
+		*buf++ = ptduel->game_field->player[playerid].list_grave.size();
+		*buf++ = ptduel->game_field->player[playerid].list_remove.size();
+		*buf++ = ptduel->game_field->player[playerid].list_extra.size();
+		*buf++ = ptduel->game_field->player[playerid].extra_p_count;
 	}
-	*buf++ = (uint8)ptduel->game_field->core.current_chain.size();
+	*buf++ = ptduel->game_field->core.current_chain.size();
 	for(auto chit = ptduel->game_field->core.current_chain.begin(); chit != ptduel->game_field->core.current_chain.end(); ++chit) {
 		effect* peffect = chit->triggering_effect;
 		*((int*)(buf)) = peffect->handler->data.code;
