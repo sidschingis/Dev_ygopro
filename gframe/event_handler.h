@@ -12,6 +12,7 @@ public:
 	virtual bool OnEvent(const irr::SEvent& event);
 	void GetHoverField(int x, int y);
 	void ShowMenu(int flag, int x, int y);
+	void SetForceMode(bool value);
 	
 	irr::gui::IGUIElement* panel;
 	int hovered_controler;

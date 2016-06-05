@@ -13,7 +13,7 @@ private:
 	static long pduel;
 	static bool is_closing;
 	static bool is_continuing;
-
+	
 public:
 	static bool StartPlay();
 	static void StopPlay(bool is_exiting = false);

@@ -65,6 +65,7 @@ void TagDuel::JoinGame(DuelPlayer* dp, void* pdata, bool is_creater) {
 	if(!players[0] || !players[1] || !players[2] || !players[3]) {
 		STOC_HS_PlayerEnter scpe;
 		BufferIO::CopyWStr(dp->name, scpe.name, 20);
+		BufferIO::CopyWStr(dp->elo, scpe.elo, 5);
 		if(!players[0])
 			scpe.pos = 0;
 		else if(!players[1])
@@ -99,6 +100,7 @@ void TagDuel::JoinGame(DuelPlayer* dp, void* pdata, bool is_creater) {
 		if(players[i]) {
 			STOC_HS_PlayerEnter scpe;
 			BufferIO::CopyWStr(players[i]->name, scpe.name, 20);
+			BufferIO::CopyWStr(dp->elo, scpe.elo, 5);
 			scpe.pos = i;
 			NetServer::SendPacketToPlayer(dp, STOC_HS_PLAYER_ENTER, scpe);
 			if(ready[i]) {
@@ -154,6 +156,7 @@ void TagDuel::ToDuelist(DuelPlayer* dp) {
 		observers.erase(dp);
 		STOC_HS_PlayerEnter scpe;
 		BufferIO::CopyWStr(dp->name, scpe.name, 20);
+		BufferIO::CopyWStr(dp->elo, scpe.elo, 5);
 		if(!players[0])
 			dp->type = 0;
 		else if(!players[1])
@@ -221,9 +224,10 @@ void TagDuel::PlayerReady(DuelPlayer* dp, bool is_ready) {
 	if(dp->type > 3 || ready[dp->type] == is_ready)
 		return;
 	if(is_ready) {
-		bool allow_ocg = host_info.rule == 0 || host_info.rule == 2;
-		bool allow_tcg = host_info.rule == 1 || host_info.rule == 2;
-		int res = host_info.no_check_deck ? false : deckManager.CheckLFList(pdeck[dp->type], host_info.lflist, allow_ocg, allow_tcg);
+		bool allow_ocg = host_info.rule % 4 == 0 || host_info.rule % 4 == 2;
+		bool allow_tcg = host_info.rule % 4 == 1 || host_info.rule % 4 == 2;
+		bool allow_pre = host_info.rule >= 4;
+		int res = host_info.no_check_deck ? false : deckManager.CheckLFList(pdeck[dp->type], host_info.lflist, allow_ocg, allow_tcg, allow_pre);
 		if(res) {
 			STOC_HS_PlayerChange scpc;
 			scpc.status = (dp->type << 4) | PLAYERCHANGE_NOTREADY;
@@ -393,12 +397,12 @@ void TagDuel::TPResult(DuelPlayer* dp, unsigned char tp) {
 	//
 	last_replay.WriteInt32(pdeck[0].main.size(), false);
 	for(int32 i = (int32)pdeck[0].main.size() - 1; i >= 0; --i) {
-		new_card(pduel, pdeck[0].main[i]->first, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		new_card(pduel, pdeck[0].main[i]->first, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENCE);
 		last_replay.WriteInt32(pdeck[0].main[i]->first, false);
 	}
 	last_replay.WriteInt32(pdeck[0].extra.size(), false);
 	for(int32 i = (int32)pdeck[0].extra.size() - 1; i >= 0; --i) {
-		new_card(pduel, pdeck[0].extra[i]->first, 0, 0, LOCATION_EXTRA, 0, POS_FACEDOWN_DEFENSE);
+		new_card(pduel, pdeck[0].extra[i]->first, 0, 0, LOCATION_EXTRA, 0, POS_FACEDOWN_DEFENCE);
 		last_replay.WriteInt32(pdeck[0].extra[i]->first, false);
 	}
 	//
@@ -415,12 +419,12 @@ void TagDuel::TPResult(DuelPlayer* dp, unsigned char tp) {
 	//
 	last_replay.WriteInt32(pdeck[3].main.size(), false);
 	for(int32 i = (int32)pdeck[3].main.size() - 1; i >= 0; --i) {
-		new_card(pduel, pdeck[3].main[i]->first, 1, 1, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		new_card(pduel, pdeck[3].main[i]->first, 1, 1, LOCATION_DECK, 0, POS_FACEDOWN_DEFENCE);
 		last_replay.WriteInt32(pdeck[3].main[i]->first, false);
 	}
 	last_replay.WriteInt32(pdeck[3].extra.size(), false);
 	for(int32 i = (int32)pdeck[3].extra.size() - 1; i >= 0; --i) {
-		new_card(pduel, pdeck[3].extra[i]->first, 1, 1, LOCATION_EXTRA, 0, POS_FACEDOWN_DEFENSE);
+		new_card(pduel, pdeck[3].extra[i]->first, 1, 1, LOCATION_EXTRA, 0, POS_FACEDOWN_DEFENCE);
 		last_replay.WriteInt32(pdeck[3].extra[i]->first, false);
 	}
 	//
@@ -887,7 +891,7 @@ int TagDuel::Analyze(char* msgbuffer, unsigned int len) {
 			NetServer::ReSendToPlayer(players[2]);
 			NetServer::ReSendToPlayer(players[3]);
 			for(auto oit = observers.begin(); oit != observers.end(); ++oit)
-				NetServer::ReSendToPlayer(*oit);
+				NetServer::ReSendToPlayer(*oit); 
 			RefreshSingle(c1, l1, s1);
 			RefreshSingle(c2, l2, s2);
 			break;

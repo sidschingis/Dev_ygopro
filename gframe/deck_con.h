@@ -11,10 +11,10 @@ namespace ygo {
 class DeckBuilder: public irr::IEventReceiver {
 public:
 	virtual bool OnEvent(const irr::SEvent& event);
-	void FilterCards();
-	void ClearFilter();
-	void ClearSearch();
-	void SortList();
+	void FilterCards(bool checkDescription);
+	void FilterStart();
+
+	static bool CardNameCompare(const wchar_t *sa, const wchar_t *sb);
 
 	long long filter_effect;
 	unsigned int filter_type;
@@ -27,8 +27,7 @@ public:
 	int filter_def;
 	unsigned int filter_lvtype;
 	unsigned int filter_lv;
-	unsigned int filter_scltype;
-	unsigned int filter_scl;
+	uint32 filter_setcode;
 	int filter_lm;
 	int hovered_code;
 	int hovered_pos;

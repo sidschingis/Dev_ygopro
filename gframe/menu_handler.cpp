@@ -31,44 +31,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_JOIN_HOST: {
-			#if WINVER >= 0x0600
-				struct addrinfo hints, *servinfo;
-				memset(&hints, 0, sizeof(struct addrinfo));
-				hints.ai_family = AF_INET;			/* Allow IPv4 or IPv6 */
-				hints.ai_socktype = SOCK_STREAM;	/* Datagram socket */
-				hints.ai_flags = AI_PASSIVE;		/* For wildcard IP address */
-				hints.ai_protocol = 0;				/* Any protocol */
-				hints.ai_canonname = NULL;
-				hints.ai_addr = NULL;
-				hints.ai_next = NULL;
-				int status;
-				char hostname[100];
-				char ip[20];
-				const wchar_t* pstr = mainGame->ebJoinIP->getText();
-				BufferIO::CopyWStr(pstr, hostname, 100);
-				if ((status = getaddrinfo(hostname, NULL, &hints, &servinfo)) == -1) {
-					fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
-					//error handling
-					BufferIO::CopyWStr(pstr, ip, 16);
-				} else
-					inet_ntop(AF_INET, &(((struct sockaddr_in *)servinfo->ai_addr)->sin_addr), ip, 20);
-				freeaddrinfo(servinfo);
-			#else
-				char hostname[100];
-				char ip[20];
-				const wchar_t* pstr = mainGame->ebJoinIP->getText();
-				BufferIO::CopyWStr(pstr, hostname, 100);
-				BufferIO::CopyWStr(pstr, ip, 16);
-			#endif
-				unsigned int remote_addr = htonl(inet_addr(ip));
-				unsigned int remote_port = _wtoi(mainGame->ebJoinPort->getText());
-				BufferIO::CopyWStr(pstr, mainGame->gameConf.lastip, 20);
-				BufferIO::CopyWStr(mainGame->ebJoinPort->getText(), mainGame->gameConf.lastport, 20);
-				if(DuelClient::StartClient(remote_addr, remote_port, false)) {
-					mainGame->btnCreateHost->setEnabled(false);
-					mainGame->btnJoinHost->setEnabled(false);
-					mainGame->btnJoinCancel->setEnabled(false);
-				}
+				OnJoinHost();
 				break;
 			}
 			case BUTTON_JOIN_CANCEL: {
@@ -171,14 +134,12 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->stName->setText(L"");
 				mainGame->stInfo->setText(L"");
 				mainGame->stDataInfo->setText(L"");
-				mainGame->stSetName->setText(L"");
 				mainGame->stText->setText(L"");
 				mainGame->scrCardText->setVisible(false);
 				mainGame->wReplayControl->setVisible(true);
 				mainGame->btnReplayStart->setVisible(false);
 				mainGame->btnReplayPause->setVisible(true);
 				mainGame->btnReplayStep->setVisible(false);
-				mainGame->btnReplayUndo->setVisible(false);
 				mainGame->wPhase->setVisible(true);
 				mainGame->dField.panel = 0;
 				mainGame->dField.hovered_card = 0;
@@ -194,7 +155,10 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_CANCEL_REPLAY: {
 				mainGame->HideElement(mainGame->wReplay);
-				mainGame->ShowElement(mainGame->wMainMenu);
+				if (exit_on_return)
+					mainGame->device->closeDevice();
+				else
+					mainGame->ShowElement(mainGame->wMainMenu);
 				break;
 			}
 			case BUTTON_LOAD_SINGLEPLAY: {
@@ -220,9 +184,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->wCardImg->setVisible(true);
 				mainGame->wDeckEdit->setVisible(true);
 				mainGame->wFilter->setVisible(true);
-				mainGame->wSort->setVisible(true);
-				mainGame->btnLeaveGame->setVisible(true);
-				mainGame->btnLeaveGame->setText(dataManager.GetSysString(1306));
 				mainGame->btnSideOK->setVisible(false);
 				mainGame->deckBuilder.filterList = deckManager._lfList[0].content;
 				mainGame->cbDBLFList->setSelected(0);
@@ -231,16 +192,14 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->cbAttribute->setSelected(0);
 				mainGame->cbRace->setSelected(0);
 				mainGame->ebAttack->setText(L"");
-				mainGame->ebDefense->setText(L"");
+				mainGame->ebDefence->setText(L"");
 				mainGame->ebStar->setText(L"");
-				mainGame->ebScale->setText(L"");
 				mainGame->cbCardType2->setEnabled(false);
 				mainGame->cbAttribute->setEnabled(false);
 				mainGame->cbRace->setEnabled(false);
 				mainGame->ebAttack->setEnabled(false);
-				mainGame->ebDefense->setEnabled(false);
+				mainGame->ebDefence->setEnabled(false);
 				mainGame->ebStar->setEnabled(false);
-				mainGame->ebScale->setEnabled(false);
 				mainGame->deckBuilder.filter_effect = 0;
 				mainGame->deckBuilder.result_string[0] = L'0';
 				mainGame->deckBuilder.result_string[1] = 0;
@@ -370,12 +329,12 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 	case irr::EET_KEY_INPUT_EVENT: {
 		switch(event.KeyInput.Key) {
 		case irr::KEY_KEY_R: {
-			if(!event.KeyInput.PressedDown && !mainGame->HasFocus(EGUIET_EDIT_BOX))
+			if (!event.KeyInput.PressedDown && !mainGame->HasFocus(EGUIET_EDIT_BOX))
 				mainGame->textFont->setTransparency(true);
 			break;
 		}
 		case irr::KEY_ESCAPE: {
-			if(!mainGame->HasFocus(EGUIET_EDIT_BOX))
+			if (!mainGame->HasFocus(EGUIET_EDIT_BOX))
 				mainGame->device->minimizeWindow();
 			break;
 		}
@@ -386,6 +345,35 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 	default: break;
 	}
 	return false;
+}
+void MenuHandler::OnJoinHost(bool forced)
+{
+	char ip[20];
+	int i = 0;
+	wchar_t* pstr = (wchar_t *)mainGame->ebJoinIP->getText();
+	while(*pstr && i < 16)
+		ip[i++] = *pstr++;
+	ip[i] = 0;
+
+	struct addrinfo hints;
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_INET;    /* Allow IPv4 or IPv6 */
+	hints.ai_socktype = SOCK_STREAM; /* Datagram socket */
+	hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
+	hints.ai_protocol = 0;          /* Any protocol */
+	hints.ai_canonname = NULL;
+	hints.ai_addr = NULL;
+	hints.ai_next = NULL;
+	BufferIO::CopyWStr((wchar_t *)mainGame->ebJoinIP->getText(),ip,20);
+	unsigned int remote_addr = htonl(inet_addr(ip));
+	unsigned int remote_port = _wtoi(mainGame->ebJoinPort->getText());
+	BufferIO::CopyWStr(mainGame->ebJoinIP->getText(), mainGame->gameConf.lastip, 20);
+	BufferIO::CopyWStr(mainGame->ebJoinPort->getText(), mainGame->gameConf.lastport, 20);
+	if(DuelClient::StartClient(remote_addr, remote_port, false)) {
+		mainGame->btnCreateHost->setEnabled(false);
+		mainGame->btnJoinHost->setEnabled(false);
+		mainGame->btnJoinCancel->setEnabled(false);
+	}
 }
 
 }
