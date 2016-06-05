@@ -24,7 +24,9 @@ bool ImageManager::Initial() {
 	tHand[1] = driver->getTexture("textures/f2.jpg");
 	tHand[2] = driver->getTexture("textures/f3.jpg");
 	tBackGround = driver->getTexture("textures/bg.jpg");
-	tBackGround2 = driver->getTexture("textures/bg2.jpg"); 
+	tBackGround2 = driver->getTexture("textures/bg2.jpg");
+	tBackGround_menu = driver->getTexture("textures/bg_menu.jpg");
+	tBackGround_deck = driver->getTexture("textures/bg_deck.jpg");
 	tField = driver->getTexture("textures/field2.png");
 	tFieldTransparent = driver->getTexture("textures/field-transparent.png");
 	for (int i = 0; i < 4; ++i)
@@ -67,8 +69,7 @@ irr::video::ITexture* ImageManager::GetTexture(int code) {
 		sprintf(file, "pics/%d.jpg", code);
 		irr::video::ITexture* img = driver->getTexture(file);
 		if(img == NULL) {
-			tMap[code] = NULL;
-			return tUnknown;
+			return GetTextureThumb(code);
 		} else {
 			tMap[code] = img;
 			return img;
@@ -77,7 +78,7 @@ irr::video::ITexture* ImageManager::GetTexture(int code) {
 	if(tit->second)
 		return tit->second;
 	else
-		return tUnknown;
+		return GetTextureThumb(code);
 }
 irr::video::ITexture* ImageManager::GetTextureThumb(int code) {
 	if(code == 0)
