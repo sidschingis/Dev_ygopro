@@ -11,6 +11,7 @@ namespace ygo {
 class DeckBuilder: public irr::IEventReceiver {
 public:
 	virtual bool OnEvent(const irr::SEvent& event);
+	static bool CardNameCompare(const wchar_t *sa, const wchar_t *sb);
 	void FilterStart();
 	void FilterCards();
 	void ClearFilter();
