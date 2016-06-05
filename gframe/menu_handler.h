@@ -8,8 +8,6 @@ namespace ygo {
 class MenuHandler: public irr::IEventReceiver {
 public:
 	virtual bool OnEvent(const irr::SEvent& event);
-
-	void OnJoinHost(bool forced = false);
 	
 };
 

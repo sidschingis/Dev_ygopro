@@ -60,6 +60,7 @@ public:
 		*pstr = 0;
 		return l;
 	}
+	// UCS-2 to UTF-8
 	static int EncodeUTF8(const wchar_t * wsrc, char * str) {
 		char* pstr = str;
 		while(*wsrc != 0) {
@@ -81,6 +82,7 @@ public:
 		*str = 0;
 		return str - pstr;
 	}
+	// UTF-8 to UCS-2
 	static int DecodeUTF8(const char * src, wchar_t * wstr) {
 		const char* p = src;
 		wchar_t* wp = wstr;

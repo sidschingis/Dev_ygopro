@@ -66,17 +66,7 @@ wchar_t* DeckManager::GetLFListName(int lfhash) {
 	}
 	return (wchar_t*)dataManager.unknown_string;
 }
-int DeckManager::TypeCount(std::vector<code_pointer> cards,int type){
-	int count = 0;
-	for(size_t i = 0; i < cards.size(); ++i) {
-		code_pointer cit = cards[i];
-		if(cit->second.type & type)
-			count++;
-	}
-	return count;
-}
-
-int DeckManager::CheckLFList(Deck& deck, int lfhash, bool allow_ocg, bool allow_tcg, bool allow_pre) {
+int DeckManager::CheckLFList(Deck& deck, int lfhash, bool allow_ocg, bool allow_tcg) {
 	std::unordered_map<int, int> ccount;
 	std::unordered_map<int, int>* list = 0;
 	for(size_t i = 0; i < _lfList.size(); ++i) {
@@ -92,7 +82,7 @@ int DeckManager::CheckLFList(Deck& deck, int lfhash, bool allow_ocg, bool allow_
 		return 1;
 	for(size_t i = 0; i < deck.main.size(); ++i) {
 		code_pointer cit = deck.main[i];
-		if((!allow_ocg && ((cit->second.ot & 0x1) > 0)) || (!allow_tcg && ((cit->second.ot & 0x2) > 0)) || (!allow_pre && ((cit->second.ot & 0x4) > 0)))
+		if((!allow_ocg && (cit->second.ot == 0x1)) || (!allow_tcg && (cit->second.ot == 0x2)))
 			return cit->first;
 		if(cit->second.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_TOKEN))
 			return 1;
@@ -105,7 +95,7 @@ int DeckManager::CheckLFList(Deck& deck, int lfhash, bool allow_ocg, bool allow_
 	}
 	for(size_t i = 0; i < deck.extra.size(); ++i) {
 		code_pointer cit = deck.extra[i];
-		if((!allow_ocg && ((cit->second.ot & 0x1) > 0)) || (!allow_tcg && ((cit->second.ot & 0x2) > 0)) || (!allow_pre && ((cit->second.ot & 0x4) > 0)))
+		if((!allow_ocg && (cit->second.ot == 0x1)) || (!allow_tcg && (cit->second.ot == 0x2)))
 			return cit->first;
 		int code = cit->second.alias ? cit->second.alias : cit->first;
 		ccount[code]++;
@@ -116,7 +106,7 @@ int DeckManager::CheckLFList(Deck& deck, int lfhash, bool allow_ocg, bool allow_
 	}
 	for(size_t i = 0; i < deck.side.size(); ++i) {
 		code_pointer cit = deck.side[i];
-		if((!allow_ocg && ((cit->second.ot & 0x1) > 0)) || (!allow_tcg && ((cit->second.ot & 0x2) > 0)) || (!allow_pre && ((cit->second.ot & 0x4) > 0)))
+		if((!allow_ocg && (cit->second.ot == 0x1)) || (!allow_tcg && (cit->second.ot == 0x2)))
 			return cit->first;
 		int code = cit->second.alias ? cit->second.alias : cit->first;
 		ccount[code]++;
@@ -241,5 +231,18 @@ bool DeckManager::SaveDeck(Deck& deck, const wchar_t* name) {
 		fprintf(fp, "%d\n", deck.side[i]->first);
 	fclose(fp);
 	return true;
+}
+bool DeckManager::DeleteDeck(Deck& deck, const wchar_t* name) {
+	wchar_t file[64];
+	myswprintf(file, L"./deck/%ls.ydk", name);
+#ifdef WIN32
+	BOOL result = DeleteFileW(file);
+	return !!result;
+#else
+	char filefn[256];
+	BufferIO::EncodeUTF8(file, filefn);
+	int result = unlink(filefn);
+	return result == 0;
+#endif
 }
 }
