@@ -94,8 +94,8 @@ bool Game::Initialize() {
 	textFont = guiFont;
 	smgr = device->getSceneManager();
 	device->setWindowCaption(L"YGOPro DevPro");
-	//device->setResizable(true);
-	device->setResizable(false);
+	device->setResizable(true);
+	//device->setResizable(false);
 	//main menu
 	wchar_t strbuf[256];
 	myswprintf(strbuf, L"YGOPro DevPro (Version:%X.0%X.%X)", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
@@ -176,7 +176,7 @@ bool Game::Initialize() {
 	btnHostConfirm = env->addButton(rect<s32>(260, 355, 370, 380), wCreateHost, BUTTON_HOST_CONFIRM, dataManager.GetSysString(1211));
 	btnHostCancel = env->addButton(rect<s32>(260, 385, 370, 410), wCreateHost, BUTTON_HOST_CANCEL, dataManager.GetSysString(1212));
 	//host(single)
-	wHostPrepare = env->addWindow(rect<s32>(270, 120, 750, 440), false, dataManager.GetSysString(1250));
+	wHostPrepare = env->addWindow(rect<s32>(270, 120, 750 + 60, 440), false, dataManager.GetSysString(1250));
 	wHostPrepare->getCloseButton()->setVisible(false);
 	wHostPrepare->setVisible(false);
 	btnHostPrepDuelist = env->addButton(rect<s32>(10, 30, 110, 55), wHostPrepare, BUTTON_HP_DUELIST, dataManager.GetSysString(1251));
@@ -445,7 +445,7 @@ bool Game::Initialize() {
 	btnShowList = env->addButton(rect<s32>(1, 148, 99, 168), wCmdMenu, BUTTON_CMD_SHOWLIST, dataManager.GetSysString(1158));
 	//deck edit
 	wDeckEdit = env->addStaticText(L"", rect<s32>(309, 5, 605, 130), true, false, 0, -1, true);
-	wDeckEdit->setVisible(false); stLabel1 =
+	wDeckEdit->setVisible(false);
 	stLabel1 = env->addStaticText(dataManager.GetSysString(1300), rect<s32>(10, 9, 100, 29), false, false, wDeckEdit);
 	cbDBLFList = env->addComboBox(rect<s32>(80, 5, 220, 30), wDeckEdit, COMBOBOX_DBLFLIST);
 	cbDBLFList->setMaxSelectionRows(10);
@@ -958,12 +958,14 @@ void Game::LoadConfig() {
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 	while(ftell(fp) < fsize) {
-		/* DevPro
-		fgets(linebuf, 250, fp);
+		//* DevPro
+		fgets(linebuf, 256, fp);
 		sscanf(linebuf, "%s = %99[^\n]", strbuf, valbuf);
-		*/
+		//*/
+		/*
 		fgets(linebuf, 256, fp);
 		sscanf(linebuf, "%s = %s", strbuf, valbuf);
+		*/
 		if(!strcmp(strbuf, "antialias")) {
 			gameConf.antialias = atoi(valbuf);
 		} 
@@ -1016,13 +1018,17 @@ void Game::LoadConfig() {
 			gameConf.use_d3d = atoi(valbuf) > 0;
 		} else if(!strcmp(strbuf, "errorlog")) {
 			enable_log = atoi(valbuf);
-		} else if(!strcmp(strbuf, "textfont")) {
+		}
+		else if (!strcmp(strbuf, "textfont")) {
+			sscanf(linebuf, "%s = %s", strbuf, valbuf);
 			BufferIO::DecodeUTF8(valbuf, wstr);
 			int textfontsize;
 			sscanf(linebuf, "%s = %s %d", strbuf, valbuf, &textfontsize);
 			gameConf.textfontsize = textfontsize;
 			BufferIO::CopyWStr(wstr, gameConf.textfont, 256);
-		} else if(!strcmp(strbuf, "numfont")) {
+		}
+		else if (!strcmp(strbuf, "numfont")) {
+			sscanf(linebuf, "%s = %s", strbuf, valbuf);
 			BufferIO::DecodeUTF8(valbuf, wstr);
 			BufferIO::CopyWStr(wstr, gameConf.numfont, 256);
 		} else if(!strcmp(strbuf, "serverport")) {
@@ -1293,7 +1299,7 @@ void Game::OnResize()
 	wMainMenu->setRelativePosition(ResizeWin(370, 200, 650, 415));
 	wLanWindow->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 520));
-	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750 + 50, 440));
+	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750 + 60, 440));
 	wReplay->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wSinglePlay->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wHand->setRelativePosition(ResizeWin(500, 450, 825, 605));
@@ -1321,6 +1327,9 @@ void Game::OnResize()
 	stInfo->setRelativePosition(recti(15, 37, 296 * window_size.Width / 1024, 60));
 	stDataInfo->setRelativePosition(recti(15, 60, 296 * window_size.Width / 1024, 83));
 	stText->setRelativePosition(recti(15, 83, 296 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
+
+	//stText = env->addStaticText(L"", rect<s32>(15, 83, 287, 324), false, true, tabInfo, -1, false);
+	//scrCardText = env->addScrollBar(false, rect<s32>(267, 83, 287, 324), tabInfo, SCROLL_CARDTEXT);
 	scrCardText->setRelativePosition(recti(stInfo->getRelativePosition().getWidth() - 20, 83, stInfo->getRelativePosition().getWidth(), 324 * window_size.Height / 640));
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	btnClearLog->setRelativePosition(Resize(160, 300, 260, 325));
@@ -1342,7 +1351,7 @@ void Game::OnResize()
 	btnSaveDeck->setRelativePosition(Resize(225, 35, 290, 60));
 	btnSaveDeckAs->setRelativePosition(Resize(225, 65, 290, 90));
 	btnDBExit->setRelativePosition(Resize(10, 95, 90, 116));
-	ebDeckname->setRelativePosition(Resize(80, 65, 220, 90));
+	ebDeckname->setRelativePosition(Resize(80, 65, 220, 90)); 
 
 	wFilter->setRelativePosition(Resize(610, 8, 1020, 130));
 	scrFilter->setRelativePosition(Resize(999, 161, 1019, 629));
@@ -1358,9 +1367,10 @@ void Game::OnResize()
 	btnEffectFilter->setRelativePosition(Resize(345, 28, 390, 69));
 	btnStartFilter->setRelativePosition(Resize(260, 96, 390, 118));
 	btnClearFilter->setRelativePosition(Resize(205, 96, 255, 118));
+	ebScale->setRelativePosition(Resize(60, 80 + 125 / 6, 190, 100 + 125 / 6));
 	//cbSetCode->setRelativePosition(Resize(60, 96, 190, 118));
-	stLabel11->setRelativePosition(Resize(10, 100, 70, 122));
-
+	//stLabel11->setRelativePosition(Resize(10, 100, 70, 122));
+	//*
 	stLabel1->setRelativePosition(ResizeWin(10, 9, 100, 29));
 	stLabel2->setRelativePosition(ResizeWin(10, 39, 100, 59));
 	stLabel3->setRelativePosition(ResizeWin(10, 5, 70, 25));
@@ -1370,7 +1380,8 @@ void Game::OnResize()
 	stLabel7->setRelativePosition(ResizeWin(205, 28, 280, 48));
 	stLabel8->setRelativePosition(ResizeWin(205, 51, 280, 71));
 	stLabel9->setRelativePosition(ResizeWin(10, 74, 80, 94));
-	stLabel10->setRelativePosition(ResizeWin(205, 74, 280, 94));
+	stLabel10->setRelativePosition(ResizeWin(205, 62 + 100 / 6, 280, 82 + 100 / 6));
+	//*/
 
 	btnSideOK->setRelativePosition(Resize(510, 40, 820, 80));
 	btnDeleteDeck->setRelativePosition(Resize(10, 68, 75, 89));
