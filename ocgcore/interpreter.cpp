@@ -340,6 +340,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "SpecialSummon", scriptlib::duel_special_summon },
 	{ "SpecialSummonStep", scriptlib::duel_special_summon_step },
 	{ "SpecialSummonComplete", scriptlib::duel_special_summon_complete },
+	{ "IsCanAddCounter", scriptlib::duel_is_can_add_counter },
 	{ "RemoveCounter", scriptlib::duel_remove_counter },
 	{ "IsCanRemoveCounter", scriptlib::duel_is_can_remove_counter },
 	{ "GetCounter", scriptlib::duel_get_counter },
@@ -672,10 +673,13 @@ int32 interpreter::load_card_script(uint32 code) {
 		lua_pushvalue(current_state, -2);
 		lua_rawset(current_state, -3);
 		//load extra scripts
-		sprintf(script_name, "./script/c%d.lua", code);
+		sprintf(script_name, "./expansions/script/c%d.lua", code);
 		if (!load_script(script_name)) {
-			return OPERATION_FAIL;
-		}
+			sprintf(script_name, "./script/c%d.lua", code);
+	 		if (!load_script(script_name)) {
+	 			return OPERATION_FAIL;
+ 			}
+  		}
 	}
 	return OPERATION_SUCCESS;
 }
