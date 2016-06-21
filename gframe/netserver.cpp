@@ -217,7 +217,6 @@ void NetServer::HandleCTOSPacket(DuelPlayer* dp, char* data, unsigned int len) {
 	case CTOS_PLAYER_INFO: {
 		CTOS_PlayerInfo* pkt = (CTOS_PlayerInfo*)pdata;
 		BufferIO::CopyWStr(pkt->name, dp->name, 20);
-		BufferIO::CopyWStr(pkt->elo, dp->elo, 5);
 		break;
 	}
 	case CTOS_CREATE_GAME: {
