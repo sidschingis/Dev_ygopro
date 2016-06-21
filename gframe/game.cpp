@@ -94,8 +94,7 @@ bool Game::Initialize() {
 	textFont = guiFont;
 	smgr = device->getSceneManager();
 	device->setWindowCaption(L"YGOPro DevPro");
-	//device->setResizable(true);
-	device->setResizable(false);
+	device->setResizable(true);
 	//main menu
 	wchar_t strbuf[256];
 	myswprintf(strbuf, L"YGOPro DevPro (Version:%X.0%X.%X)", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
@@ -257,44 +256,29 @@ bool Game::Initialize() {
 	btnClearLog = env->addButton(rect<s32>(160, 300, 260, 325), tabLog, BUTTON_CLEAR_LOG, dataManager.GetSysString(1272));
 	//system
 	irr::gui::IGUITab* tabSystem = wInfos->addTab(dataManager.GetSysString(1273));
-	int yPos = 20;
-	chkAutoPos = env->addCheckBox(false, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, -1, dataManager.GetSysString(1274));
+	chkAutoPos = env->addCheckBox(false, rect<s32>(20, 20, 280, 45), tabSystem, -1, dataManager.GetSysString(1274));
 	chkAutoPos->setChecked(gameConf.chkAutoPos != 0);
-	yPos += 30;
-	chkRandomPos = env->addCheckBox(false, rect<s32>(40, yPos, 300, yPos + 25), tabSystem, -1, dataManager.GetSysString(1275));
+	chkRandomPos = env->addCheckBox(false, rect<s32>(40, 50, 300, 75), tabSystem, -1, dataManager.GetSysString(1275));
 	chkRandomPos->setChecked(gameConf.chkRandomPos != 0);
-	yPos += 30;
-	chkAutoChain = env->addCheckBox(false, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, -1, dataManager.GetSysString(1276));
+	chkAutoChain = env->addCheckBox(false, rect<s32>(20, 80, 280, 105), tabSystem, -1, dataManager.GetSysString(1276));
 	chkAutoChain->setChecked(gameConf.chkAutoChain != 0);
-	yPos += 30;
-	chkWaitChain = env->addCheckBox(false, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, -1, dataManager.GetSysString(1277));
+	chkWaitChain = env->addCheckBox(false, rect<s32>(20, 110, 280, 135), tabSystem, -1, dataManager.GetSysString(1277));
 	chkWaitChain->setChecked(gameConf.chkWaitChain != 0);
-	yPos += 30;
-	//*
-	chkHideSetname = env->addCheckBox(false, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, -1, dataManager.GetSysString(1354));
-	chkHideSetname->setChecked(gameConf.chkHideSetname != 0);
-	yPos += 30;
-	//*/
-	chkIgnore1 = env->addCheckBox(false, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, -1, dataManager.GetSysString(1290));
+	chkIgnore1 = env->addCheckBox(false, rect<s32>(20, 170, 280, 195), tabSystem, -1, dataManager.GetSysString(1290));
 	chkIgnore1->setChecked(gameConf.chkIgnore1 != 0);
-	yPos += 30;
-	chkIgnore2 = env->addCheckBox(false, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, -1, dataManager.GetSysString(1291));
+	chkIgnore2 = env->addCheckBox(false, rect<s32>(20, 200, 280, 225), tabSystem, -1, dataManager.GetSysString(1291));
 	chkIgnore2->setChecked(gameConf.chkIgnore2 != 0);
-	yPos += 30;
-	//DevPro sound
-	chkEnableSound = env->addCheckBox(gameConf.enablesound, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, CHECKBOX_ENABLE_SOUND, dataManager.GetSysString(2046));
-	yPos += 30;
-	scrSound = env->addScrollBar(true, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, SCROLL_SOUND);
-	yPos += 30;
+	chkHideSetname = env->addCheckBox(false, rect<s32>(20, 260, 280, 285), tabSystem, -1, dataManager.GetSysString(1354));
+	chkHideSetname->setChecked(gameConf.chkHideSetname != 0);
+	//sound
+	scrSound = env->addScrollBar(true, rect<s32>(20, 260, 280, 270), tabSystem, SCROLL_SOUND);
 	scrSound->setMax(100);
 	scrSound->setMin(0);
 	scrSound->setPos(gameConf.soundvolume * 100);
 	scrSound->setLargeStep(1);
 	scrSound->setSmallStep(1);
-	chkEnableMusic = env->addCheckBox(gameConf.enablemusic, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, CHECKBOX_ENABLE_MUSIC, dataManager.GetSysString(2047));
-	yPos += 30;
-	scrMusic = env->addScrollBar(true, rect<s32>(20, yPos, 280, 315), tabSystem, SCROLL_MUSIC);
-	yPos += 30;
+	chkEnableMusic = env->addCheckBox(gameConf.enablemusic, rect<s32>(20, 275, 280, 300), tabSystem, CHECKBOX_ENABLE_MUSIC, dataManager.GetSysString(2047));
+	scrMusic = env->addScrollBar(true, rect<s32>(20, 305, 280, 315), tabSystem, SCROLL_MUSIC);
 	scrMusic->setMax(100);
 	scrMusic->setMin(0);
 	scrMusic->setPos(gameConf.musicvolume * 100);
@@ -457,12 +441,11 @@ bool Game::Initialize() {
 	btnSaveDeck = env->addButton(rect<s32>(225, 35, 290, 60), wDeckEdit, BUTTON_SAVE_DECK, dataManager.GetSysString(1302));
 	ebDeckname = env->addEditBox(L"", rect<s32>(80, 65, 220, 90), true, wDeckEdit, -1);
 	ebDeckname->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
+	btnSaveDeckAs = env->addButton(rect<s32>(225, 65, 290, 90), wDeckEdit, BUTTON_SAVE_DECK_AS, dataManager.GetSysString(1303));
+	btnDeleteDeck = env->addButton(rect<s32>(225, 95, 290, 120), wDeckEdit, BUTTON_DELETE_DECK, dataManager.GetSysString(1308));
 	btnShuffleDeck = env->addButton(rect<s32>(5, 99, 55, 120), wDeckEdit, BUTTON_SHUFFLE_DECK, dataManager.GetSysString(1307));
 	btnSortDeck = env->addButton(rect<s32>(60, 99, 110, 120), wDeckEdit, BUTTON_SORT_DECK, dataManager.GetSysString(1305));
 	btnClearDeck = env->addButton(rect<s32>(115, 99, 165, 120), wDeckEdit, BUTTON_CLEAR_DECK, dataManager.GetSysString(1304));
-	btnDBExit = env->addButton(rect<s32>(170, 99, 250, 120), wDeckEdit, BUTTON_DBEXIT, dataManager.GetSysString(1306));
-	btnSaveDeckAs = env->addButton(rect<s32>(225, 65, 290, 90), wDeckEdit, BUTTON_SAVE_DECK_AS, dataManager.GetSysString(1303));
-	btnDeleteDeck = env->addButton(rect<s32>(225, 95, 290, 120), wDeckEdit, BUTTON_DELETE_DECK, dataManager.GetSysString(1308));
 	btnSideOK = env->addButton(rect<s32>(510, 40, 820, 80), 0, BUTTON_SIDE_OK, dataManager.GetSysString(1334));
 	btnSideOK->setVisible(false);
 	//filters
