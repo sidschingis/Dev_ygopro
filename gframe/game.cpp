@@ -277,6 +277,8 @@ bool Game::Initialize() {
 	stInfo->setOverrideColor(special_color);
 	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfo, -1, false);
 	stDataInfo->setOverrideColor(special_color);
+	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 296, 106), false, true, tabInfo, -1, false);
+	stSetName->setOverrideColor(SColor(255, 0, 0, 255));
 	stText = env->addStaticText(L"", rect<s32>(15, 83, 287, 324), false, true, tabInfo, -1, false);
 	scrCardText = env->addScrollBar(false, rect<s32>(267, 83, 287, 324), tabInfo, SCROLL_CARDTEXT);
 	scrCardText->setLargeStep(1);
@@ -295,6 +297,8 @@ bool Game::Initialize() {
 	chkWaitChain = env->addCheckBox(false, rect<s32>(20, 110, 280, 135), tabSystem, -1, dataManager.GetSysString(1277));
 	chkIgnore1 = env->addCheckBox(gameConf.muteopponent, rect<s32>(20, 170, 280, 195), tabSystem, -1, dataManager.GetSysString(1290));
 	chkIgnore2 = env->addCheckBox(gameConf.mutespectator, rect<s32>(20, 200, 280, 225), tabSystem, -1, dataManager.GetSysString(1291));
+	chkHideSetname = env->addCheckBox(false, rect<s32>(20, 140, 280, 165), tabSystem, -1, dataManager.GetSysString(1354));
+	chkHideSetname->setChecked(gameConf.chkHideSetname != 0);
 	chkEnableSound = env->addCheckBox(gameConf.enablesound, rect<s32>(20, 230, 280, 255), tabSystem, CHECKBOX_ENABLE_SOUND, dataManager.GetSysString(2046));
 	scrSound = env->addScrollBar(true, rect<s32>(20, 260, 280, 270), tabSystem, SCROLL_SOUND);
 	scrSound->setMax(100);
@@ -996,6 +1000,8 @@ void Game::LoadConfig() {
 			gameConf.savereplay = atoi(valbuf) > 0;
 		} else if (!strcmp(strbuf, "control_mode")) {
 			gameConf.control_mode = atoi(valbuf);
+		} else if (!strcmp(strbuf, "hide_setname")) {
+			gameConf.chkHideSetname = atoi(valbuf);
 		}
 	}
 	fclose(fp);
@@ -1023,6 +1029,7 @@ void Game::SaveConfig() {
 	fprintf(fp, "lastip = %s\n", linebuf);
 	BufferIO::EncodeUTF8(gameConf.lastport, linebuf);
 	fprintf(fp, "lastport = %s\n", linebuf); 
+	fprintf(fp, "hide_setname = %d\n", ((mainGame->chkHideSetname->isChecked()) ? 1 : 0));
 	fprintf(fp, "#control_mode = 0: Key A/S/R. control_mode = 1: MouseLeft/MouseRight/F9\n");
 	fprintf(fp, "control_mode = %d\n", gameConf.control_mode);
 	fclose(fp);
@@ -1053,6 +1060,25 @@ void Game::ShowCardInfo(int code) {
 		myswprintf(formatBuffer, L"%ls[%08d]", dataManager.GetName(cd.alias), cd.alias);
 	else myswprintf(formatBuffer, L"%ls[%08d]", dataManager.GetName(code), code);
 	stName->setText(formatBuffer);
+	int offset = 0;
+	if (!mainGame->chkHideSetname->isChecked()) {
+		unsigned long long sc = cd.setcode;
+		if (cd.alias) {
+			auto aptr = dataManager._datas.find(cd.alias);
+			if (aptr != dataManager._datas.end())
+				sc = aptr->second.setcode;
+		}
+		if (sc) {
+			offset = 23;
+			myswprintf(formatBuffer, L"%ls%ls", dataManager.GetSysString(1329), dataManager.FormatSetName(sc));
+			stSetName->setText(formatBuffer);
+		}
+		else
+			stSetName->setText(L"");
+	}
+	else {
+		stSetName->setText(L"");
+	}
 	if(cd.type & TYPE_MONSTER) {
 		myswprintf(formatBuffer, L"[%ls] %ls/%ls", dataManager.FormatType(cd.type), dataManager.FormatRace(cd.race), dataManager.FormatAttribute(cd.attribute));
 		stInfo->setText(formatBuffer);
@@ -1075,10 +1101,17 @@ void Game::ShowCardInfo(int code) {
 			wcscat(formatBuffer, scaleBuffer);
 		}
 		stDataInfo->setText(formatBuffer);
+		stDataInfo->setText(formatBuffer);
+		stSetName->setRelativePosition(rect<s32>(15, 83, 296, 106));
+		stText->setRelativePosition(rect<s32>(15, 83 + offset, 287, 324));
+		scrCardText->setRelativePosition(rect<s32>(267, 83 + offset, 287, 324));
 	} else {
 		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));
 		stInfo->setText(formatBuffer);
 		stDataInfo->setText(L"");
+		stSetName->setRelativePosition(rect<s32>(15, 60, 296, 83));
+		stText->setRelativePosition(rect<s32>(15, 60 + offset, 287, 324));
+		scrCardText->setRelativePosition(rect<s32>(267, 60 + offset, 287, 324));
 	}
 	showingtext = dataManager.GetText(code);
 	const auto& tsize = stText->getRelativePosition();

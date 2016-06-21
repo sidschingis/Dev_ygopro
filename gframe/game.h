@@ -33,6 +33,7 @@ struct Config {
 	bool randomplace;
 	bool autochain;
 	bool nodelay;
+	bool chkHideSetname;
 	bool enablesound;
 	double soundvolume;
 	bool enablemusic;
@@ -209,12 +210,14 @@ public:
 	irr::gui::IGUIStaticText* stName;
 	irr::gui::IGUIStaticText* stInfo;
 	irr::gui::IGUIStaticText* stDataInfo;
+	irr::gui::IGUIStaticText* stSetName;
 	irr::gui::IGUIStaticText* stText;
 	irr::gui::IGUIScrollBar* scrCardText;
 	irr::gui::IGUICheckBox* chkAutoPos;
 	irr::gui::IGUICheckBox* chkRandomPos;
 	irr::gui::IGUICheckBox* chkAutoChain;
-	irr::gui::IGUICheckBox* chkWaitChain;	
+	irr::gui::IGUICheckBox* chkWaitChain;
+	irr::gui::IGUICheckBox* chkHideSetname;
 	irr::gui::IGUICheckBox* chkEnableSound;
 	irr::gui::IGUICheckBox* chkEnableMusic;
 	irr::gui::IGUIListBox* lstLog;

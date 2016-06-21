@@ -102,12 +102,13 @@ bool DataManager::LoadStrings(const char* file) {
 			wchar_t* pbuf = new wchar_t[len + 1];
 			wcscpy(pbuf, strBuffer);
 			_counterStrings[value] = pbuf;
-		} else if (!strcmp(strbuf, "setcode")) {
-			sscanf(&linebuf[8], "%x %99[^\n]", &value, strbuf);
+		} else if (!strcmp(strbuf, "setname")) {
+			sscanf(&linebuf[8], "%x %240[^\t\n]", &value, strbuf);
 			int len = BufferIO::DecodeUTF8(strbuf, strBuffer);
 			wchar_t* pbuf = new wchar_t[len + 1];
 			wcscpy(pbuf, strBuffer);
 			_setcodeStrings[pbuf] = value;
+			_setnameStrings[value] = pbuf;
 		}
 	}
 	fclose(fp);
@@ -186,6 +187,12 @@ const wchar_t* DataManager::GetCounterName(int code) {
 	auto csit = _counterStrings.find(code);
 	if(csit == _counterStrings.end())
 		return unknown_string;
+	return csit->second;
+}
+const wchar_t* DataManager::GetSetName(int code) {
+	auto csit = _setnameStrings.find(code);
+	if (csit == _setnameStrings.end())
+		return NULL;
 	return csit->second;
 }
 const wchar_t* DataManager::GetNumString(int num, bool bracket) {
@@ -280,6 +287,22 @@ const wchar_t* DataManager::FormatType(int type) {
 	else
 		return unknown_string;
 	return tpBuffer;
+}
+const wchar_t* DataManager::FormatSetName(unsigned long long setcode) {
+	wchar_t* p = scBuffer;
+	for (int i = 0; i < 4; ++i) {
+		const wchar_t* setname = GetSetName((setcode >> i * 16) & 0xffff);
+		if (setname) {
+			BufferIO::CopyWStrRef(setname, p, 16);
+			*p = L'|';
+			*++p = 0;
+		}
+	}
+	if (p != scBuffer)
+		*(p - 1) = 0;
+	else
+		return unknown_string;
+	return scBuffer;
 }
 int DataManager::CardReader(int code, void* pData) {
 	if(!dataManager.GetData(code, (CardData*)pData))
