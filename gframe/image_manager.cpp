@@ -69,8 +69,7 @@ irr::video::ITexture* ImageManager::GetTexture(int code) {
 		sprintf(file, "pics/%d.jpg", code);
 		irr::video::ITexture* img = driver->getTexture(file);
 		if(img == NULL) {
-			tMap[code] = NULL;
-			return tUnknown;
+			return GetTextureThumb(code);
 		} else {
 			tMap[code] = img;
 			return img;
@@ -79,7 +78,7 @@ irr::video::ITexture* ImageManager::GetTexture(int code) {
 	if(tit->second)
 		return tit->second;
 	else
-		return tUnknown;
+		return GetTextureThumb(code);
 }
 irr::video::ITexture* ImageManager::GetTextureThumb(int code) {
 	if(code == 0)
