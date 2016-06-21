@@ -271,7 +271,7 @@ bool Game::Initialize() {
 	chkWaitChain->setChecked(gameConf.chkWaitChain != 0);
 	yPos += 30;
 	//*
-	chkHideSetname = env->addCheckBox(false, rect<s32>(20, yPos, 281, yPos + 25), tabSystem, -1, dataManager.GetSysString(1354));
+	chkHideSetname = env->addCheckBox(false, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, -1, dataManager.GetSysString(1354));
 	chkHideSetname->setChecked(gameConf.chkHideSetname != 0);
 	yPos += 30;
 	//*/
@@ -284,8 +284,8 @@ bool Game::Initialize() {
 	//DevPro sound
 	chkEnableSound = env->addCheckBox(gameConf.enablesound, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, CHECKBOX_ENABLE_SOUND, dataManager.GetSysString(2046));
 	yPos += 30;
-	scrSound = env->addScrollBar(true, rect<s32>(20, yPos, 280, yPos + 15), tabSystem, SCROLL_SOUND);
-	yPos += 20;
+	scrSound = env->addScrollBar(true, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, SCROLL_SOUND);
+	yPos += 30;
 	scrSound->setMax(100);
 	scrSound->setMin(0);
 	scrSound->setPos(gameConf.soundvolume * 100);
@@ -293,8 +293,8 @@ bool Game::Initialize() {
 	scrSound->setSmallStep(1);
 	chkEnableMusic = env->addCheckBox(gameConf.enablemusic, rect<s32>(20, yPos, 280, yPos + 25), tabSystem, CHECKBOX_ENABLE_MUSIC, dataManager.GetSysString(2047));
 	yPos += 30;
-	scrMusic = env->addScrollBar(true, rect<s32>(20, yPos, 280, yPos + 15), tabSystem, SCROLL_MUSIC);
-	yPos += 20;
+	scrMusic = env->addScrollBar(true, rect<s32>(20, yPos, 280, 315), tabSystem, SCROLL_MUSIC);
+	yPos += 30;
 	scrMusic->setMax(100);
 	scrMusic->setMin(0);
 	scrMusic->setPos(gameConf.musicvolume * 100);
@@ -460,7 +460,7 @@ bool Game::Initialize() {
 	btnShuffleDeck = env->addButton(rect<s32>(5, 99, 55, 120), wDeckEdit, BUTTON_SHUFFLE_DECK, dataManager.GetSysString(1307));
 	btnSortDeck = env->addButton(rect<s32>(60, 99, 110, 120), wDeckEdit, BUTTON_SORT_DECK, dataManager.GetSysString(1305));
 	btnClearDeck = env->addButton(rect<s32>(115, 99, 165, 120), wDeckEdit, BUTTON_CLEAR_DECK, dataManager.GetSysString(1304));
-	btnDBExit = env->addButton(rect<s32>(5, 65, 65, 90), wDeckEdit, BUTTON_LEAVE_GAME, dataManager.GetSysString(1306));
+	btnDBExit = env->addButton(rect<s32>(170, 99, 250, 120), wDeckEdit, BUTTON_DBEXIT, dataManager.GetSysString(1306));
 	btnSaveDeckAs = env->addButton(rect<s32>(225, 65, 290, 90), wDeckEdit, BUTTON_SAVE_DECK_AS, dataManager.GetSysString(1303));
 	btnDeleteDeck = env->addButton(rect<s32>(225, 95, 290, 120), wDeckEdit, BUTTON_DELETE_DECK, dataManager.GetSysString(1308));
 	btnSideOK = env->addButton(rect<s32>(510, 40, 820, 80), 0, BUTTON_SIDE_OK, dataManager.GetSysString(1334));
@@ -724,7 +724,7 @@ void Game::MainLoop() {
 #else
 	usleep(500000);
 #endif
-//	SaveConfig();
+	SaveConfig();
 //	device->drop();
 	engineMusic->drop();	
 }

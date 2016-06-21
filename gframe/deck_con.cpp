@@ -904,8 +904,7 @@ void DeckBuilder::FilterCards() {
 		}
 		if(pstr) {
 			if(pstr[0] == L'$') {
-				bool ok = CardNameCompare(text.name, pstr);
-				if (!ok)
+				if(wcsstr(text.name, &pstr[1]) == 0)
 					continue;
 			} else if(pstr[0] == L'@' && set_code) {
 				unsigned long long sc = data.setcode;
@@ -924,8 +923,7 @@ void DeckBuilder::FilterCards() {
 				}
 				if(!res) continue;
 			} else {
-				bool ok = CardNameCompare(text.name, pstr) || CardNameCompare(text.text, pstr);
-				if (!ok)
+				if(wcsstr(text.name, pstr) == 0 && wcsstr(text.text, pstr) == 0)
 					continue;
 			}
 		}
@@ -983,30 +981,5 @@ void DeckBuilder::SortList() {
 		break;
 	}
 }
-bool DeckBuilder::CardNameCompare(const wchar_t *sa, const wchar_t *sb)
-{
-	int i = 0;
-	int j = 0;
-	wchar_t ca;
-	wchar_t cb;
-	if (!sa || !sb)
-		return false;
-	while (sa[i])
-	{
-		ca = towupper(sa[i]);
-		cb = towupper(sb[j]);
-		if (ca == '-') ca = ' ';
-		if (cb == '-') cb = ' ';
-		if (ca == cb)
-		{
-			j++;
-			if (!sb[j])
-				return true;
-		}
-		else
-			j = 0;
-		i++;
-	}
-	return false;
-}
+
 }
