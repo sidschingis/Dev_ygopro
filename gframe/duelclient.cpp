@@ -2853,8 +2853,8 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			pcard->attack = aatk;
 			myswprintf(pcard->atkstring, L"%d", aatk);
 		}
-		if(adef != pcard->defense) {
-			pcard->defense = adef;
+		if(adef != pcard->defence) {
+			pcard->defence = adef;
 			myswprintf(pcard->defstring, L"%d", adef);
 		}
 		if(ld) {
@@ -2863,8 +2863,8 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 				pcard->attack = datk;
 				myswprintf(pcard->atkstring, L"%d", datk);
 			}
-			if(ddef != pcard->defense) {
-				pcard->defense = ddef;
+			if(ddef != pcard->defence) {
+				pcard->defence = ddef;
 				myswprintf(pcard->defstring, L"%d", ddef);
 			}
 		}
