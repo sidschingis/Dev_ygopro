@@ -22,6 +22,7 @@ struct HostInfo {
 	unsigned char start_hand;
 	unsigned char draw_count;
 	unsigned short time_limit;
+	bool enable_prerelease;
 };
 struct HostPacket {
 	unsigned short identifier;
@@ -42,16 +43,17 @@ struct CTOS_TPResult {
 };
 struct CTOS_PlayerInfo {
 	unsigned short name[20];
+	unsigned short elo[5];
 };
 struct CTOS_CreateGame {
 	HostInfo info;
 	unsigned short name[20];
-	unsigned short pass[20];
+	unsigned short pass[40];
 };
 struct CTOS_JoinGame {
 	unsigned short version;
 	unsigned int gameid;
-	unsigned short pass[20];
+	unsigned short pass[40];
 };
 struct CTOS_Kick {
 	unsigned char pos;
@@ -84,9 +86,15 @@ struct STOC_Chat {
 	unsigned short player;
 	unsigned short msg[256];
 };
+struct STOC_Sleeve {
+	unsigned short player;
+	unsigned short site[256];
+	unsigned short dir[256];
+};
 struct STOC_HS_PlayerEnter {
 	unsigned short name[20];
 	unsigned char pos;
+	unsigned short elo[5];
 };
 struct STOC_HS_PlayerChange {
 	//pos<<4 | state
@@ -100,6 +108,7 @@ class DuelMode;
 
 struct DuelPlayer {
 	unsigned short name[20];
+	unsigned short elo[5];
 	DuelMode* game;
 	unsigned char type;
 	unsigned char state;
@@ -175,6 +184,7 @@ public:
 #define CTOS_HS_NOTREADY	0x23
 #define CTOS_HS_KICK		0x24
 #define CTOS_HS_START		0x25
+#define CTOS_FORCE_CHAIN	0x30
 
 #define STOC_GAME_MSG		0x1
 #define STOC_ERROR_MSG		0x2
@@ -196,6 +206,7 @@ public:
 #define STOC_HS_PLAYER_ENTER	0x20
 #define STOC_HS_PLAYER_CHANGE	0x21
 #define STOC_HS_WATCH_CHANGE	0x22
+#define STOC_UPDATE_SLEEVE		0x30
 
 #define PLAYERCHANGE_OBSERVE	0x8
 #define PLAYERCHANGE_READY		0x9

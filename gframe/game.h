@@ -8,6 +8,9 @@
 #include <unordered_map>
 #include <vector>
 #include <list>
+#include <irrKlang.h>
+#pragma comment(lib, "irrKlang.lib")
+#include "CGUISkinSystem/CGUISkinSystem.h"
 
 namespace ygo {
 
@@ -23,18 +26,25 @@ struct Config {
 	wchar_t lastdeck[64];
 	wchar_t textfont[256];
 	wchar_t numfont[256];
-	wchar_t roompass[20];
-	//settings
-	int chkAutoPos;
-	int chkRandomPos;
-	int chkAutoChain;
-	int chkWaitChain;
-	int chkIgnore1;
-	int chkIgnore2;
-	int chkHideSetname;
+	wchar_t roompass[30];
+	wchar_t lastreplay[256];
+	wchar_t lastpuzzle[256];
+	bool autoplace;
+	bool randomplace;
+	bool autochain;
+	bool nodelay;
+	bool enablesound;
+	double soundvolume;
+	bool enablemusic;
+	double musicvolume;
+	int skin_index;
+	bool fullscreen;
+	bool enablesleeveloading;
+	bool muteopponent;
+	bool mutespectator;
+	bool forced;
+	bool savereplay;
 	int control_mode;
-	int draw_field_spell;
-	int separate_clear_button;
 };
 
 struct DuelInfo {
@@ -54,6 +64,7 @@ struct DuelInfo {
 	wchar_t hostname_tag[20];
 	wchar_t clientname_tag[20];
 	wchar_t strLP[2][16];
+	wchar_t strTurn[8];
 	wchar_t* vic_string;
 	unsigned char player_type;
 	unsigned char time_player;
@@ -80,8 +91,7 @@ public:
 	void MainLoop();
 	void BuildProjectionMatrix(irr::core::matrix4& mProjection, f32 left, f32 right, f32 bottom, f32 top, f32 znear, f32 zfar);
 	void InitStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, u32 cHeight, irr::gui::CGUITTFont* font, const wchar_t* text);
-	void SetStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, irr::gui::CGUITTFont* font, const wchar_t* text, u32 pos = 0);
-	void RefreshExpansionDB();
+    void SetStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, irr::gui::CGUITTFont* font, const wchar_t* text, u32 pos = 0);
 	void RefreshDeck(irr::gui::IGUIComboBox* cbDeck);
 	void RefreshReplay();
 	void RefreshSingleplay();
@@ -96,7 +106,7 @@ public:
 	void HideElement(irr::gui::IGUIElement* element, bool set_action = false);
 	void PopupElement(irr::gui::IGUIElement* element, int hideframe = 0);
 	void WaitFrameSignal(int frame);
-	void DrawThumb(code_pointer cp, position2di pos, std::unordered_map<int, int>* lflist);
+	void DrawThumb(code_pointer cp, position2di pos, std::unordered_map<int, int>* lflist, bool drag = false);
 	void DrawDeckBd();
 	void LoadConfig();
 	void SaveConfig();
@@ -104,14 +114,26 @@ public:
 	void AddChatMsg(wchar_t* msg, int player);
 	void ClearTextures();
 	void CloseDuelWindow();
+	void PlayMusic(char* song, bool loop);
+	void PlaySound(char* sound);
+	void DrawRectangle(IVideoDriver *driver, recti position);
+	void DrawShadowA(CGUITTFont *font, const stringw &text, recti position);
+	void DrawShadowB(CGUITTFont *font, const stringw &text, recti position);
 
 	int LocalPlayer(int player);
-	const wchar_t* LocalName(int local_player);
-
+	const wchar_t* LocalName(int local_player);	
+	
 	bool HasFocus(EGUI_ELEMENT_TYPE type) const {
 		irr::gui::IGUIElement* focus = env->getFocus();
 		return focus && focus->hasType(type);
 	}
+
+	void OnResize();
+	recti Resize(s32 x, s32 y, s32 x2, s32 y2);
+	recti Resize(s32 x, s32 y, s32 x2, s32 y2, s32 dx, s32 dy, s32 dx2, s32 dy2);
+	position2di Resize(s32 x, s32 y, bool reverse = false);
+	recti ResizeWin(s32 x, s32 y, s32 x2, s32 y2, bool chat = false);
+	recti ResizeElem(s32 x, s32 y, s32 x2, s32 y2);
 
 	Mutex gMutex;
 	Mutex gBuffer;
@@ -157,6 +179,10 @@ public:
 	bool is_building;
 	bool is_siding;
 
+	irr::core::dimension2d<irr::u32> window_size;
+
+	CGUISkinSystem *skinSystem;
+
 	ClientField dField;
 	DeckBuilder deckBuilder;
 	MenuHandler menuHandler;
@@ -183,17 +209,19 @@ public:
 	irr::gui::IGUIStaticText* stName;
 	irr::gui::IGUIStaticText* stInfo;
 	irr::gui::IGUIStaticText* stDataInfo;
-	irr::gui::IGUIStaticText* stSetName;
 	irr::gui::IGUIStaticText* stText;
 	irr::gui::IGUIScrollBar* scrCardText;
 	irr::gui::IGUICheckBox* chkAutoPos;
 	irr::gui::IGUICheckBox* chkRandomPos;
 	irr::gui::IGUICheckBox* chkAutoChain;
-	irr::gui::IGUICheckBox* chkWaitChain;
-	irr::gui::IGUICheckBox* chkHideSetname;
+	irr::gui::IGUICheckBox* chkWaitChain;	
+	irr::gui::IGUICheckBox* chkEnableSound;
+	irr::gui::IGUICheckBox* chkEnableMusic;
 	irr::gui::IGUIListBox* lstLog;
 	irr::gui::IGUIButton* btnClearLog;
 	irr::gui::IGUIButton* btnSaveLog;
+	irr::gui::IGUIScrollBar* scrSound;
+	irr::gui::IGUIScrollBar* scrMusic;
 	//main menu
 	irr::gui::IGUIWindow* wMainMenu;
 	irr::gui::IGUIButton* btnLanMode;
@@ -233,6 +261,7 @@ public:
 	irr::gui::IGUIWindow* wHostPrepare;
 	irr::gui::IGUIButton* btnHostPrepDuelist;
 	irr::gui::IGUIButton* btnHostPrepOB;
+	irr::gui::IGUIStaticText* stHostPrepDuelistElo[4];
 	irr::gui::IGUIStaticText* stHostPrepDuelist[4];
 	irr::gui::IGUICheckBox* chkHostPrepReady[4];
 	irr::gui::IGUIButton* btnHostPrepKick[4];
@@ -265,6 +294,12 @@ public:
 	irr::gui::IGUIWindow* wMessage;
 	irr::gui::IGUIStaticText* stMessage;
 	irr::gui::IGUIButton* btnMsgOK;
+	//card display
+	irr::gui::IGUIWindow* wCardDisplay;
+	irr::gui::CGUIImageButton* btnCardDisplay[5];
+	irr::gui::IGUIStaticText *stDisplayPos[5];
+	irr::gui::IGUIScrollBar *scrDisplayList;
+	irr::gui::IGUIButton* btnDisplayOK;
 	//auto close message
 	irr::gui::IGUIWindow* wACMessage;
 	irr::gui::IGUIStaticText* stACMessage;
@@ -291,12 +326,6 @@ public:
 	irr::gui::IGUIStaticText *stCardPos[5];
 	irr::gui::IGUIScrollBar *scrCardList;
 	irr::gui::IGUIButton* btnSelectOK;
-	//card display
-	irr::gui::IGUIWindow* wCardDisplay;
-	irr::gui::CGUIImageButton* btnCardDisplay[5];
-	irr::gui::IGUIStaticText *stDisplayPos[5];
-	irr::gui::IGUIScrollBar *scrDisplayList;
-	irr::gui::IGUIButton* btnDisplayOK;
 	//announce number
 	irr::gui::IGUIWindow* wANNumber;
 	irr::gui::IGUIComboBox* cbANNumber;
@@ -344,11 +373,25 @@ public:
 	irr::gui::IGUIButton* btnClearDeck;
 	irr::gui::IGUIButton* btnSortDeck;
 	irr::gui::IGUIButton* btnShuffleDeck;
+	irr::gui::IGUIButton* btnClearFilter;
 	irr::gui::IGUIButton* btnSaveDeck;
-	irr::gui::IGUIButton* btnDeleteDeck;
 	irr::gui::IGUIButton* btnSaveDeckAs;
+	irr::gui::IGUIButton* btnDBExit;
 	irr::gui::IGUIButton* btnSideOK;
+	irr::gui::IGUIButton* btnDeleteDeck;
 	irr::gui::IGUIEditBox* ebDeckname;
+	//deck edit labels
+	irr::gui::IGUIStaticText* stLabel1;
+	irr::gui::IGUIStaticText* stLabel2;
+	irr::gui::IGUIStaticText* stLabel3;
+	irr::gui::IGUIStaticText* stLabel4;
+	irr::gui::IGUIStaticText* stLabel5;
+	irr::gui::IGUIStaticText* stLabel6;
+	irr::gui::IGUIStaticText* stLabel7;
+	irr::gui::IGUIStaticText* stLabel8;
+	irr::gui::IGUIStaticText* stLabel9;
+	irr::gui::IGUIStaticText* stLabel10;
+	irr::gui::IGUIStaticText* stLabel11;
 	//filter
 	irr::gui::IGUIStaticText* wFilter;
 	irr::gui::IGUIScrollBar* scrFilter;
@@ -358,19 +401,15 @@ public:
 	irr::gui::IGUIComboBox* cbAttribute;
 	irr::gui::IGUIComboBox* cbLimit;
 	irr::gui::IGUIEditBox* ebStar;
-	irr::gui::IGUIEditBox* ebScale;
 	irr::gui::IGUIEditBox* ebAttack;
-	irr::gui::IGUIEditBox* ebDefense;
+	irr::gui::IGUIEditBox* ebDefence;
 	irr::gui::IGUIEditBox* ebCardName;
 	irr::gui::IGUIButton* btnEffectFilter;
 	irr::gui::IGUIButton* btnStartFilter;
-	irr::gui::IGUIButton* btnClearFilter;
 	irr::gui::IGUIWindow* wCategories;
 	irr::gui::IGUICheckBox* chkCategory[32];
 	irr::gui::IGUIButton* btnCategoryOK;
-	//sort type
-	irr::gui::IGUIStaticText* wSort;
-	irr::gui::IGUIComboBox* cbSortType;
+	irr::gui::IGUIComboBox* cbSetCode;
 	//replay save
 	irr::gui::IGUIWindow* wReplaySave;
 	irr::gui::IGUIEditBox* ebRSName;
@@ -381,12 +420,13 @@ public:
 	irr::gui::IGUIButton* btnReplayStart;
 	irr::gui::IGUIButton* btnReplayPause;
 	irr::gui::IGUIButton* btnReplayStep;
-	irr::gui::IGUIButton* btnReplayUndo;
 	irr::gui::IGUIButton* btnReplayExit;
 	irr::gui::IGUIButton* btnReplaySwap;
 	//surrender/leave
 	irr::gui::IGUIButton* btnLeaveGame;
-
+	//soundEngine
+	irrklang::ISoundEngine* engineSound;
+	irrklang::ISoundEngine* engineMusic; 
 };
 
 extern Game* mainGame;
@@ -472,6 +512,8 @@ extern Game* mainGame;
 #define BUTTON_CLEAR_LOG			270
 #define LISTBOX_LOG					271
 #define SCROLL_CARDTEXT				280
+#define SCROLL_SOUND				281
+#define SCROLL_MUSIC				282
 #define BUTTON_DISPLAY_0			290
 #define BUTTON_DISPLAY_1			291
 #define BUTTON_DISPLAY_2			292
@@ -485,27 +527,27 @@ extern Game* mainGame;
 #define BUTTON_CLEAR_DECK			303
 #define BUTTON_SAVE_DECK			304
 #define BUTTON_SAVE_DECK_AS			305
-#define BUTTON_DELETE_DECK			306
-#define BUTTON_DBEXIT				307
-#define BUTTON_SORT_DECK			308
-#define BUTTON_SIDE_OK				309
-#define BUTTON_SHUFFLE_DECK			310
-#define COMBOBOX_MAINTYPE			311
-#define BUTTON_EFFECT_FILTER		312
-#define BUTTON_START_FILTER			313
+#define BUTTON_DBEXIT				306
+#define BUTTON_SORT_DECK			307
+#define BUTTON_SIDE_OK				308
+#define BUTTON_SHUFFLE_DECK			309
+#define COMBOBOX_MAINTYPE			310
+#define BUTTON_EFFECT_FILTER		311
+#define BUTTON_START_FILTER			312
 #define SCROLL_FILTER				314
 #define EDITBOX_KEYWORD				315
-#define BUTTON_CLEAR_FILTER			316
 #define BUTTON_REPLAY_START			320
 #define BUTTON_REPLAY_PAUSE			321
 #define BUTTON_REPLAY_STEP			322
-#define BUTTON_REPLAY_UNDO			323
-#define BUTTON_REPLAY_EXIT			324
-#define BUTTON_REPLAY_SWAP			325
+#define BUTTON_REPLAY_EXIT			323
+#define BUTTON_REPLAY_SWAP			324
 #define BUTTON_REPLAY_SAVE			330
 #define BUTTON_REPLAY_CANCEL		331
 #define LISTBOX_SINGLEPLAY_LIST		350
 #define BUTTON_LOAD_SINGLEPLAY		351
 #define BUTTON_CANCEL_SINGLEPLAY	352
-#define COMBOBOX_SORTTYPE			370
+#define CHECKBOX_ENABLE_SOUND		353
+#define CHECKBOX_ENABLE_MUSIC		354
+#define BUTTON_CLEAR_FILTER			1001
+#define BUTTON_DELETE_DECK			1002
 #endif // GAME_H
