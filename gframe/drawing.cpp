@@ -420,7 +420,7 @@ void Game::DrawMisc() {
 			w = adFont->getDimension(pcard->defstring).Width;
 			adFont->draw(pcard->defstring, mainGame->Resize(m + 4, 416, m + 4 + w, 436), 0xff000000, false, false, 0);
 			adFont->draw(pcard->defstring, mainGame->Resize(m + 5, 417, m + 5 + w, 437),
-			             pcard->defense > pcard->base_defense ? 0xffffff00 : pcard->defense < pcard->base_defense ? 0xffff2090 : 0xffffffff , false, false, 0);
+			             pcard->defence > pcard->base_defence ? 0xffffff00 : pcard->defence < pcard->base_defence ? 0xffff2090 : 0xffffffff , false, false, 0);
 			adFont->draw(pcard->lvstring, mainGame->Resize(473 + i * 80, 356, 475 + i * 80, 366), 0xff000000, false, false, 0);
 			adFont->draw(pcard->lvstring, mainGame->Resize(474 + i * 80, 357, 476 + i * 80, 367),
 			             (pcard->type & TYPE_XYZ) ? 0xffff80ff : (pcard->type & TYPE_TUNER) ? 0xffffff00 : 0xffffffff, false, false, 0);
@@ -439,7 +439,7 @@ void Game::DrawMisc() {
 			w = adFont->getDimension(pcard->defstring).Width;
 			adFont->draw(pcard->defstring, mainGame->Resize(m + 4, 235, m + 4 + w, 255), 0xff000000, false, false, 0);
 			adFont->draw(pcard->defstring, mainGame->Resize(m + 5, 236, m + 5 + w, 256),
-			             pcard->defense > pcard->base_defense ? 0xffffff00 : pcard->defense < pcard->base_defense ? 0xffff2090 : 0xffffffff , false, false, 0);
+			             pcard->defence > pcard->base_defence ? 0xffffff00 : pcard->defence < pcard->base_defence ? 0xffff2090 : 0xffffffff , false, false, 0);
 			adFont->draw(pcard->lvstring, mainGame->Resize(779 - i * 71, 272, 800 - i * 71, 292), 0xff000000, false, false, 0);
 			adFont->draw(pcard->lvstring, mainGame->Resize(780 - i * 71, 273, 800 - i * 71, 293),
 			             (pcard->type & TYPE_XYZ) ? 0xffff80ff : (pcard->type & TYPE_TUNER) ? 0xffffff00 : 0xffffffff, false, false, 0);
@@ -1030,13 +1030,13 @@ void Game::DrawDeckBd() {
 			myswprintf(textBuffer, L"%ls", dataManager.GetName(ptr->first));
 			DrawShadowB(textFont, textBuffer, mainGame->Resize(859, 164 + i * 66, 955, 185 + i * 66));
 			myswprintf(textBuffer, L"%ls/%ls %c%d", dataManager.FormatAttribute(ptr->second.attribute), dataManager.FormatRace(ptr->second.race), form, ptr->second.level); DrawShadowB(textFont, textBuffer, mainGame->Resize(859, 186 + i * 66, 955, 207 + i * 66));
-			if(ptr->second.attack < 0 && ptr->second.defense < 0)
+			if(ptr->second.attack < 0 && ptr->second.defence < 0)
 				myswprintf(textBuffer, L"?/?");
 			else if(ptr->second.attack < 0)
-				myswprintf(textBuffer, L"?/%d", ptr->second.defense);
-			else if(ptr->second.defense < 0)
+				myswprintf(textBuffer, L"?/%d", ptr->second.defence);
+			else if(ptr->second.defence < 0)
 				myswprintf(textBuffer, L"%d/?", ptr->second.attack);
-			else myswprintf(textBuffer, L"%d/%d", ptr->second.attack, ptr->second.defense);
+			else myswprintf(textBuffer, L"%d/%d", ptr->second.attack, ptr->second.defence);
 			if(ptr->second.type & TYPE_PENDULUM) {
 				wchar_t scaleBuffer[16];
 				myswprintf(scaleBuffer, L" %d/%d", ptr->second.lscale, ptr->second.rscale);
