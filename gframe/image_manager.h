@@ -58,8 +58,6 @@ public:
 	irr::video::ITexture* tHand[3];
 	irr::video::ITexture* tBackGround;
 	irr::video::ITexture* tBackGround2;
-	irr::video::ITexture* tBackGround_menu;
-	irr::video::ITexture* tBackGround_deck;
 	irr::video::ITexture* tField;
 	irr::video::ITexture* tFieldTransparent;
 	irr::video::ITexture* tAvatar[4];

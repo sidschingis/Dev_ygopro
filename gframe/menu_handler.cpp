@@ -192,13 +192,13 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->cbAttribute->setSelected(0);
 				mainGame->cbRace->setSelected(0);
 				mainGame->ebAttack->setText(L"");
-				mainGame->ebDefense->setText(L"");
+				mainGame->ebDefence->setText(L"");
 				mainGame->ebStar->setText(L"");
 				mainGame->cbCardType2->setEnabled(false);
 				mainGame->cbAttribute->setEnabled(false);
 				mainGame->cbRace->setEnabled(false);
 				mainGame->ebAttack->setEnabled(false);
-				mainGame->ebDefense->setEnabled(false);
+				mainGame->ebDefence->setEnabled(false);
 				mainGame->ebStar->setEnabled(false);
 				mainGame->deckBuilder.filter_effect = 0;
 				mainGame->deckBuilder.result_string[0] = L'0';
