@@ -392,6 +392,7 @@ public:
 	irr::gui::IGUIStaticText* stLabel9;
 	irr::gui::IGUIStaticText* stLabel10;
 	irr::gui::IGUIStaticText* stLabel11;
+	irr::gui::IGUIStaticText* stLabel12;
 	//filter
 	irr::gui::IGUIStaticText* wFilter;
 	irr::gui::IGUIScrollBar* scrFilter;
@@ -401,6 +402,7 @@ public:
 	irr::gui::IGUIComboBox* cbAttribute;
 	irr::gui::IGUIComboBox* cbLimit;
 	irr::gui::IGUIEditBox* ebStar;
+	irr::gui::IGUIEditBox* ebScale;
 	irr::gui::IGUIEditBox* ebAttack;
 	irr::gui::IGUIEditBox* ebDefence;
 	irr::gui::IGUIEditBox* ebCardName;

@@ -30,6 +30,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				mainGame->ebAttack->setText(L"");
 				mainGame->ebDefence->setText(L"");
 				mainGame->ebStar->setText(L"");
+				mainGame->ebScale->setText(L"");
 				filter_effect = 0;
 				for(int i = 0; i < 32; ++i)
 					mainGame->chkCategory[i]->setChecked(false);
@@ -233,6 +234,13 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case COMBOBOX_MAINTYPE: {
+				mainGame->cbCardType2->setSelected(0);
+				mainGame->cbAttribute->setSelected(0);
+				mainGame->cbRace->setSelected(0);
+				mainGame->ebAttack->setText(L"");
+				mainGame->ebDefence->setText(L"");
+				mainGame->ebStar->setText(L"");
+				mainGame->ebScale->setText(L"");
 				switch(mainGame->cbCardType->getSelected()) {
 				case 0: {
 					mainGame->cbCardType2->setEnabled(false);
@@ -241,6 +249,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					mainGame->ebAttack->setEnabled(false);
 					mainGame->ebDefence->setEnabled(false);
 					mainGame->ebStar->setEnabled(false);
+					mainGame->ebScale->setEnabled(false);
 					break;
 				}
 				case 1: {
@@ -250,6 +259,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					mainGame->ebAttack->setEnabled(true);
 					mainGame->ebDefence->setEnabled(true);
 					mainGame->ebStar->setEnabled(true);
+					mainGame->ebScale->setEnabled(true);
 					mainGame->cbCardType2->clear();
 					mainGame->cbCardType2->addItem(dataManager.GetSysString(1080), 0);
 					mainGame->cbCardType2->addItem(dataManager.GetSysString(1054), TYPE_MONSTER + TYPE_NORMAL);
@@ -274,6 +284,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					mainGame->ebAttack->setEnabled(false);
 					mainGame->ebDefence->setEnabled(false);
 					mainGame->ebStar->setEnabled(false);
+					mainGame->ebScale->setEnabled(false);
 					mainGame->cbCardType2->clear();
 					mainGame->cbCardType2->addItem(dataManager.GetSysString(1080), 0);
 					mainGame->cbCardType2->addItem(dataManager.GetSysString(1054), TYPE_SPELL);
@@ -291,6 +302,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					mainGame->ebAttack->setEnabled(false);
 					mainGame->ebDefence->setEnabled(false);
 					mainGame->ebStar->setEnabled(false);
+					mainGame->ebScale->setEnabled(false);
 					mainGame->cbCardType2->clear();
 					mainGame->cbCardType2->addItem(dataManager.GetSysString(1080), 0);
 					mainGame->cbCardType2->addItem(dataManager.GetSysString(1054), TYPE_TRAP);
@@ -727,6 +739,39 @@ void DeckBuilder::FilterStart(){
 						}
 					} else filter_lvtype = 0;
 				}
+				pstr = mainGame->ebScale->getText();
+				if (*pstr == 0) filter_scltype = 0;
+				else {
+					if (*pstr == L'=') {
+						filter_scltype = 1;
+						filter_scl = BufferIO::GetVal(pstr + 1);
+					}
+					else if (*pstr >= L'0' && *pstr <= L'9') {
+						filter_scltype = 1;
+						filter_scl = BufferIO::GetVal(pstr);
+					}
+					else if (*pstr == L'>') {
+						if (*(pstr + 1) == L'=') {
+							filter_scltype = 2;
+							filter_scl = BufferIO::GetVal(pstr + 2);
+						}
+						else {
+							filter_scltype = 3;
+							filter_scl = BufferIO::GetVal(pstr + 1);
+						}
+					}
+					else if (*pstr == L'<') {
+						if (*(pstr + 1) == L'=') {
+							filter_scltype = 4;
+							filter_scl = BufferIO::GetVal(pstr + 2);
+						}
+						else {
+							filter_scltype = 5;
+							filter_scl = BufferIO::GetVal(pstr + 1);
+						}
+					}
+					else filter_scltype = 0;
+				}
 }
 
 void DeckBuilder::FilterCards(bool checkDescription) {
@@ -774,6 +819,12 @@ void DeckBuilder::FilterCards(bool checkDescription) {
 				if((filter_lvtype == 1 && data.level != filter_lv) || (filter_lvtype == 2 && data.level < filter_lv)
 				        || (filter_lvtype == 3 && data.level <= filter_lv) || (filter_lvtype == 4 && data.level > filter_lv)
 				        || (filter_lvtype == 5 && data.level >= filter_lv))
+					continue;
+			}
+			if (filter_scltype) {
+				if ((filter_scltype == 1 && data.lscale != filter_scl) || (filter_scltype == 2 && data.lscale < filter_scl)
+					|| (filter_scltype == 3 && data.lscale <= filter_scl) || (filter_scltype == 4 && data.lscale > filter_scl)
+					|| (filter_scltype == 5 && data.lscale >= filter_scl))
 					continue;
 			}
 			break;

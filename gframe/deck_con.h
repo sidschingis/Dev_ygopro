@@ -27,6 +27,8 @@ public:
 	int filter_def;
 	unsigned int filter_lvtype;
 	unsigned int filter_lv;
+	unsigned int filter_scltype;
+	unsigned int filter_scl;
 	uint32 filter_setcode;
 	int filter_lm;
 	int hovered_code;

@@ -17,7 +17,7 @@
 #include <dirent.h>
 #endif
 
-const unsigned short PRO_VERSION = 0x1338;
+const unsigned short PRO_VERSION = 0x1339;
 
 namespace ygo {
 
@@ -464,12 +464,12 @@ bool Game::Initialize() {
 	ebDeckname = env->addEditBox(L"", rect<s32>(80, 65, 220, 90), true, wDeckEdit, -1);
 	ebDeckname->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	btnSaveDeckAs = env->addButton(rect<s32>(225, 65, 290, 90), wDeckEdit, BUTTON_SAVE_DECK_AS, dataManager.GetSysString(1303));
-	btnClearDeck = env->addButton(rect<s32>(240, 95, 290, 116), wDeckEdit, BUTTON_CLEAR_DECK, dataManager.GetSysString(1304));
-	btnSortDeck = env->addButton(rect<s32>(185, 95, 235, 116), wDeckEdit, BUTTON_SORT_DECK, dataManager.GetSysString(1305));
-	btnShuffleDeck = env->addButton(rect<s32>(130, 95, 180, 116), wDeckEdit, BUTTON_SHUFFLE_DECK, dataManager.GetSysString(1307));
-	btnDBExit = env->addButton(rect<s32>(10, 95, 90, 116), wDeckEdit, BUTTON_DBEXIT, dataManager.GetSysString(1306));
+	btnClearDeck = env->addButton(rect<s32>(115, 99, 165, 120), wDeckEdit, BUTTON_CLEAR_DECK, dataManager.GetSysString(1304));
+	btnSortDeck = env->addButton(rect<s32>(60, 99, 110, 120), wDeckEdit, BUTTON_SORT_DECK, dataManager.GetSysString(1305));
+	btnShuffleDeck = env->addButton(rect<s32>(5, 99, 55, 120), wDeckEdit, BUTTON_SHUFFLE_DECK, dataManager.GetSysString(1307));
+	btnDBExit = env->addButton(rect<s32>(5, 68, 75, 89), wDeckEdit, BUTTON_DBEXIT, dataManager.GetSysString(1306));
 	btnSideOK = env->addButton(rect<s32>(510, 40, 820, 80), 0, BUTTON_SIDE_OK, dataManager.GetSysString(1334));
-	btnDeleteDeck = env->addButton(rect<s32>(10, 68, 75,89), wDeckEdit, BUTTON_DELETE_DECK, dataManager.GetSysString(2027));
+	btnDeleteDeck = env->addButton(rect<s32>(225, 95, 290, 120), wDeckEdit, BUTTON_DELETE_DECK, dataManager.GetSysString(2027));
 	btnSideOK->setVisible(false);
 	//filters
 	wFilter = env->addStaticText(L"", rect<s32>(610, 8, 1020, 130), true, false, 0, -1, true);
@@ -510,8 +510,12 @@ bool Game::Initialize() {
 	ebDefence = env->addEditBox(L"", rect<s32>(260, 49, 340, 69), true, wFilter);
 	ebDefence->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stLabel9 = env->addStaticText(dataManager.GetSysString(1324), rect<s32>(10, 74, 80, 94), false, false, wFilter);
-	ebStar = env->addEditBox(L"", rect<s32>(60, 72, 140, 92), true, wFilter);
+	ebStar = env->addEditBox(L"", rect<s32>(60, 72, 100, 92), true, wFilter);
 	ebStar->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
+	stLabel12 = env->addStaticText(dataManager.GetSysString(1336), rect<s32>(101, 74, 150, 94), false, false, wFilter);
+	stLabel12->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_UPPERLEFT);
+	ebScale = env->addEditBox(L"", rect<s32>(150, 72, 190, 92), true, wFilter);
+	ebScale->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stLabel10 = env->addStaticText(dataManager.GetSysString(1325), rect<s32>(205, 74, 280, 94), false, false, wFilter);
 	ebCardName = env->addEditBox(L"", rect<s32>(260, 72, 390, 92), true, wFilter, EDITBOX_KEYWORD);
 	ebCardName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
@@ -1222,12 +1226,12 @@ void Game::OnResize()
 	wDeckEdit->setRelativePosition(Resize(309, 8, 605, 130));
 	cbDBLFList->setRelativePosition(Resize(80, 5, 220, 30));
 	cbDBDecks->setRelativePosition(Resize(80, 35, 220, 60));
-	btnClearDeck->setRelativePosition(Resize(240, 95, 290, 116));
-	btnSortDeck->setRelativePosition(Resize(185, 95, 235, 116));
-	btnShuffleDeck->setRelativePosition(Resize(130, 95, 180, 116));
+	btnClearDeck->setRelativePosition(Resize(115, 99, 165, 120));
+	btnSortDeck->setRelativePosition(Resize(60, 99, 110, 120));
+	btnShuffleDeck->setRelativePosition(Resize(5, 99, 55, 120));
 	btnSaveDeck->setRelativePosition(Resize(225, 35, 290, 60));
 	btnSaveDeckAs->setRelativePosition(Resize(225, 65, 290, 90));
-	btnDBExit->setRelativePosition(Resize(10, 95, 90, 116));
+	btnDBExit->setRelativePosition(Resize(5, 68, 75, 89));
 	ebDeckname->setRelativePosition(Resize(80, 65, 220, 90));
 	
 	wFilter->setRelativePosition(Resize(610, 8, 1020, 130));
@@ -1237,7 +1241,8 @@ void Game::OnResize()
 	cbRace->setRelativePosition(Resize(60, 49, 190, 69));
 	cbAttribute->setRelativePosition(Resize(60, 26, 190, 46));
 	cbLimit->setRelativePosition(Resize(260, 3, 390, 23));
-	ebStar->setRelativePosition(Resize(60, 72, 140, 92));
+	ebStar->setRelativePosition(Resize(60, 72, 100, 92));
+	ebScale->setRelativePosition(Resize(150, 72, 190, 92));
 	ebAttack->setRelativePosition(Resize(260, 26, 340, 46));
 	ebDefence->setRelativePosition(Resize(260, 49, 340, 69));
 	ebCardName->setRelativePosition(Resize(260, 72, 390, 92));
@@ -1245,7 +1250,6 @@ void Game::OnResize()
 	btnStartFilter->setRelativePosition(Resize(260, 96, 390, 118));
 	btnClearFilter->setRelativePosition(Resize(205, 96, 255, 118));
 	cbSetCode->setRelativePosition(Resize(60, 96, 190, 118));
-	stLabel11->setRelativePosition(Resize(10, 100, 70, 122));
 	
 	stLabel1->setRelativePosition(ResizeWin(10, 9, 100, 29));
 	stLabel2->setRelativePosition(ResizeWin(10, 39, 100, 59));
@@ -1257,9 +1261,11 @@ void Game::OnResize()
 	stLabel8->setRelativePosition(ResizeWin(205, 51, 280, 71));
 	stLabel9->setRelativePosition(ResizeWin(10, 74, 80, 94));
 	stLabel10->setRelativePosition(ResizeWin(205, 74, 280, 94));
+	stLabel11->setRelativePosition(ResizeWin(10, 100, 70, 122));
+	stLabel12->setRelativePosition(ResizeWin(101, 74, 150, 94));
 
 	btnSideOK->setRelativePosition(Resize(510, 40, 820, 80));
-	btnDeleteDeck->setRelativePosition(Resize(10, 68, 75,89));
+	btnDeleteDeck->setRelativePosition(Resize(225, 95, 290, 120));
 
 	wPhase->setRelativePosition(Resize(480, 310, 855, 330));
 	btnDP->setRelativePosition(Resize(0, 0, 50, 20));
