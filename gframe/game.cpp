@@ -1102,16 +1102,16 @@ void Game::ShowCardInfo(int code) {
 		}
 		stDataInfo->setText(formatBuffer);
 		stDataInfo->setText(formatBuffer);
-		stSetName->setRelativePosition(rect<s32>(15, 83, 296, 106));
-		stText->setRelativePosition(rect<s32>(15, 83 + offset, 287, 324));
-		scrCardText->setRelativePosition(rect<s32>(267, 83 + offset, 287, 324));
+		stSetName->setRelativePosition(rect<s32>(15, 83, 296 * window_size.Width / 1024 - 30, 106));
+		stText->setRelativePosition(recti(15, 83 + offset, 296 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
+		scrCardText->setRelativePosition(rect<s32>(267, 83 + offset, 287, 324 * window_size.Height / 640));
 	} else {
 		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));
 		stInfo->setText(formatBuffer);
 		stDataInfo->setText(L"");
-		stSetName->setRelativePosition(rect<s32>(15, 60, 296, 83));
-		stText->setRelativePosition(rect<s32>(15, 60 + offset, 287, 324));
-		scrCardText->setRelativePosition(rect<s32>(267, 60 + offset, 287, 324));
+		stSetName->setRelativePosition(rect<s32>(15, 60, 296 * window_size.Height / 640, 83));
+		stText->setRelativePosition(rect<s32>(15, 60 + offset, 287 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
+		scrCardText->setRelativePosition(rect<s32>(267, 60 + offset, 287, 324 * window_size.Height / 640));
 	}
 	showingtext = dataManager.GetText(code);
 	const auto& tsize = stText->getRelativePosition();
