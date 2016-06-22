@@ -919,6 +919,7 @@ void Game::LoadConfig() {
 	gameConf.forced = false;
 	gameConf.savereplay = false;
 	gameConf.control_mode = 0;
+	gameConf.chkHideSetname = 0;
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -1001,7 +1002,7 @@ void Game::LoadConfig() {
 		} else if (!strcmp(strbuf, "control_mode")) {
 			gameConf.control_mode = atoi(valbuf);
 		} else if (!strcmp(strbuf, "hide_setname")) {
-			gameConf.chkHideSetname = atoi(valbuf);
+			gameConf.chkHideSetname = atoi(valbuf) > 0;
 		}
 	}
 	fclose(fp);
