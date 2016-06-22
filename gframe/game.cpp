@@ -1052,6 +1052,7 @@ void Game::PlaySound(char* sound){
 void Game::ShowCardInfo(int code) {
 	CardData cd;
 	wchar_t formatBuffer[256];
+	displayedcard = code;
 	if(!dataManager.GetData(code, &cd))
 		memset(&cd, 0, sizeof(CardData));
 	imgCard->setImage(imageManager.GetTexture(code));
@@ -1307,6 +1308,9 @@ void Game::OnResize()
 	btnBP->setRelativePosition(Resize(195, 0, 245, 20));
 	btnM2->setRelativePosition(Resize(260, 0, 310, 20));
 	btnEP->setRelativePosition(Resize(325, 0, 375, 20));
+
+	if(displayedcard > 0)
+		ShowCardInfo(displayedcard);
 }
 recti Game::Resize(s32 x, s32 y, s32 x2, s32 y2)
 {
