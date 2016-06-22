@@ -475,6 +475,17 @@ bool Game::Initialize() {
 	btnSideOK = env->addButton(rect<s32>(510, 40, 820, 80), 0, BUTTON_SIDE_OK, dataManager.GetSysString(1334));
 	btnDeleteDeck = env->addButton(rect<s32>(225, 95, 290, 120), wDeckEdit, BUTTON_DELETE_DECK, dataManager.GetSysString(2027));
 	btnSideOK->setVisible(false);
+	scrFilter = env->addScrollBar(false, recti(999, 161, 1019, 629), 0, SCROLL_FILTER);
+	scrFilter->setLargeStep(10);
+	scrFilter->setSmallStep(1);
+	scrFilter->setVisible(false);
+	//sort type
+	wSort = env->addStaticText(L"", rect<s32>(930, 132, 1020, 156), true, false, 0, -1, true);
+	cbSortType = env->addComboBox(rect<s32>(10, 2, 85, 22), wSort, COMBOBOX_SORTTYPE);
+	cbSortType->setMaxSelectionRows(10);
+	for (int i = 1370; i <= 1373; i++)
+		cbSortType->addItem(dataManager.GetSysString(i));
+	wSort->setVisible(false);
 	//filters
 	wFilter = env->addStaticText(L"", rect<s32>(610, 8, 1020, 130), true, false, 0, -1, true);
 	wFilter->setVisible(false);
@@ -534,23 +545,12 @@ bool Game::Initialize() {
 	btnCategoryOK = env->addButton(rect<s32>(200, 175, 300, 200), wCategories, BUTTON_CATEGORY_OK, dataManager.GetSysString(1211));
 	for(int i = 0; i < 32; ++i)
 		chkCategory[i] = env->addCheckBox(false, recti(10 + (i % 4) * 130, 10 + (i / 4) * 20, 140 + (i % 4) * 130, 30 + (i / 4) * 20), wCategories, -1, dataManager.GetSysString(1100 + i));
-	scrFilter = env->addScrollBar(false, recti(999, 161, 1019, 629), 0, SCROLL_FILTER);
-	scrFilter->setLargeStep(10);
-	scrFilter->setSmallStep(1);
-	scrFilter->setVisible(false);
 	cbSetCode = env->addComboBox(rect<s32>(60, 96, 190, 118), wFilter, -1);
 	cbSetCode->addItem(L"None", 0);
 	std::vector<wchar_t*> setcodes = dataManager.GetSetcodeList();
 	for (int i = 0; i < (int)setcodes.size(); ++i)
 		cbSetCode->addItem(setcodes[i], dataManager.GetSetcode(setcodes[i]));
 	stLabel11 = env->addStaticText(dataManager.GetSysString(1393), rect<s32>(10, 100, 70, 122), false, false, wFilter);
-	//sort type
-	wSort = env->addStaticText(L"", rect<s32>(930, 132, 1020, 156), true, false, 0, -1, true);
-	cbSortType = env->addComboBox(rect<s32>(10, 2, 85, 22), wSort, COMBOBOX_SORTTYPE);
-	cbSortType->setMaxSelectionRows(10);
-	for (int i = 1370; i <= 1373; i++)
-		cbSortType->addItem(dataManager.GetSysString(i));
-	wSort->setVisible(false);
 	//replay window
 	wReplay = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1202));
 	wReplay->getCloseButton()->setVisible(false);

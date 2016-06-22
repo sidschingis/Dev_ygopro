@@ -539,6 +539,10 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			position2di mousepos(event.MouseInput.X, event.MouseInput.Y);
 			s32 x = pos.X;
 			s32 y = pos.Y;
+			position2d<s32> mouse_pos = position2d<s32>(x, y);
+			irr::gui::IGUIElement* root = mainGame->env->getRootGUIElement();
+			if (root->getElementFromPoint(mouse_pos) != root)
+				break;
 			int pre_code = hovered_code;
 			if(x >= 314 && x <= 794 && y >= 164 && y <= 435) {
 				int lx = 10, px, py = (y - 164) / 68;
