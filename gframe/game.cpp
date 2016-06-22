@@ -544,6 +544,13 @@ bool Game::Initialize() {
 	for (int i = 0; i < (int)setcodes.size(); ++i)
 		cbSetCode->addItem(setcodes[i], dataManager.GetSetcode(setcodes[i]));
 	stLabel11 = env->addStaticText(dataManager.GetSysString(1393), rect<s32>(10, 100, 70, 122), false, false, wFilter);
+	//sort type
+	wSort = env->addStaticText(L"", rect<s32>(930, 132, 1020, 156), true, false, 0, -1, true);
+	cbSortType = env->addComboBox(rect<s32>(10, 2, 85, 22), wSort, COMBOBOX_SORTTYPE);
+	cbSortType->setMaxSelectionRows(10);
+	for (int i = 1370; i <= 1373; i++)
+		cbSortType->addItem(dataManager.GetSysString(i));
+	wSort->setVisible(false);
 	//replay window
 	wReplay = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1202));
 	wReplay->getCloseButton()->setVisible(false);
@@ -1270,7 +1277,9 @@ void Game::OnResize()
 	btnSaveDeckAs->setRelativePosition(Resize(225, 65, 290, 90));
 	btnDBExit->setRelativePosition(Resize(5, 68, 75, 89));
 	ebDeckname->setRelativePosition(Resize(80, 65, 220, 90));
-	
+
+	wSort->setRelativePosition(Resize(930,132,1020,156));
+	cbSortType->setRelativePosition(Resize(10,2,85,22));
 	wFilter->setRelativePosition(Resize(610, 8, 1020, 130));
 	scrFilter->setRelativePosition(Resize(999, 161, 1019, 629));
 	cbCardType->setRelativePosition(Resize(60, 3, 120, 23));

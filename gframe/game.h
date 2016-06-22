@@ -416,6 +416,9 @@ public:
 	irr::gui::IGUICheckBox* chkCategory[32];
 	irr::gui::IGUIButton* btnCategoryOK;
 	irr::gui::IGUIComboBox* cbSetCode;
+	//sort type
+	irr::gui::IGUIStaticText* wSort;
+	irr::gui::IGUIComboBox* cbSortType;
 	//replay save
 	irr::gui::IGUIWindow* wReplaySave;
 	irr::gui::IGUIEditBox* ebRSName;
@@ -556,6 +559,7 @@ extern Game* mainGame;
 #define BUTTON_CANCEL_SINGLEPLAY	352
 #define CHECKBOX_ENABLE_SOUND		353
 #define CHECKBOX_ENABLE_MUSIC		354
+#define COMBOBOX_SORTTYPE			370
 #define BUTTON_CLEAR_FILTER			1001
 #define BUTTON_DELETE_DECK			1002
 #endif // GAME_H

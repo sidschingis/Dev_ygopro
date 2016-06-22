@@ -1014,7 +1014,7 @@ void Game::DrawDeckBd() {
 	}
 
 	//search results
-	DrawRectangle(driver, mainGame->Resize(805, 137, 1020, 157));
+	DrawRectangle(driver, mainGame->Resize(805, 137, 915, 157));
 	DrawShadowA(textFont, dataManager.GetSysString(1333), mainGame->Resize(809, 136, 914, 156));
 	DrawShadowA(numFont, deckBuilder.result_string, mainGame->Resize(874, 136, 934, 156));
 	DrawRectangle(driver, mainGame->Resize(805, 160, 1020, 630));

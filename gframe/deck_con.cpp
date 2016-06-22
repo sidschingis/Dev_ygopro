@@ -310,9 +310,15 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					mainGame->cbCardType2->addItem(dataManager.GetSysString(1070), TYPE_TRAP + TYPE_COUNTER);
 					break;
 				}
+
 				}
 			}
 			}
+		}				
+		case COMBOBOX_SORTTYPE: {
+					SortList();
+					mainGame->env->setFocus(0);
+					break;
 		}
 		default: break;
 		}
@@ -889,7 +895,7 @@ void DeckBuilder::FilterCards(bool checkDescription) {
 		mainGame->scrFilter->setVisible(false);
 		mainGame->scrFilter->setPos(0);
 	}
-	std::sort(results.begin(), results.end(), ClientCard::deck_sort_lv);
+	SortList();
 }
 
 bool DeckBuilder::CardNameCompare(const wchar_t *sa, const wchar_t *sb)
@@ -918,6 +924,32 @@ bool DeckBuilder::CardNameCompare(const wchar_t *sa, const wchar_t *sb)
 		i++;
 	}
 	return false;
+}
+
+void DeckBuilder::SortList() {
+	switch (mainGame->cbSortType->getSelected()) {
+	case 0:
+		std::sort(results.begin(), results.end(), ClientCard::deck_sort_lv);
+		break;
+	case 1:
+		std::sort(results.begin(), results.end(), ClientCard::deck_sort_atk);
+		break;
+	case 2:
+		std::sort(results.begin(), results.end(), ClientCard::deck_sort_def);
+		break;
+	case 3:
+		std::sort(results.begin(), results.end(), ClientCard::deck_sort_name);
+		break;
+	}
+	const wchar_t* pstr = mainGame->ebCardName->getText();
+	for (size_t i = 0, pos = 0; i < results.size(); ++i) {
+		code_pointer ptr = results[i];
+		if (wcscmp(pstr, dataManager.GetName(ptr->first)) == 0) {
+			results.insert(results.begin() + pos, ptr);
+			results.erase(results.begin() + i + 1);
+			pos++;
+		}
+	}
 }
 
 }

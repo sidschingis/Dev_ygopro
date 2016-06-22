@@ -13,6 +13,7 @@ public:
 	virtual bool OnEvent(const irr::SEvent& event);
 	void FilterCards(bool checkDescription);
 	void FilterStart();
+	void SortList();
 
 	static bool CardNameCompare(const wchar_t *sa, const wchar_t *sb);
 
