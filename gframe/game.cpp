@@ -1256,7 +1256,8 @@ void Game::OnResize()
 	btnReplayStart->setRelativePosition(Resize(5, 5, 85, 25));
 	btnReplayPause->setRelativePosition(Resize(5, 30, 85, 50));
 	btnReplayStep->setRelativePosition(Resize(5, 55, 85, 75));
-	btnReplaySwap->setRelativePosition(Resize(5, 80, 85, 100));
+	btnReplayUndo->setRelativePosition(Resize(5, 80, 85, 100));
+	btnReplaySwap->setRelativePosition(Resize(5, 105, 85, 125));
 	btnReplayExit->setRelativePosition(Resize(5, 105, 85, 125));
 	
 	wDeckEdit->setRelativePosition(Resize(309, 8, 605, 130));
