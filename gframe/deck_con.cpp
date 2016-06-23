@@ -32,8 +32,11 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				mainGame->ebStar->setText(L"");
 				mainGame->ebScale->setText(L"");
 				filter_effect = 0;
+				mainGame->ebCardName->setText(L"");
 				for(int i = 0; i < 32; ++i)
 					mainGame->chkCategory[i]->setChecked(false);
+				results.clear();
+				myswprintf(result_string, L"0");
 				break;
 			}
 			case BUTTON_SORT_DECK: {
