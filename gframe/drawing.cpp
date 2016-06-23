@@ -65,7 +65,7 @@ void Game::DrawBackGround() {
 		fieldTwoCode = mainGame->dField.szone[1][5]->code;
 
 	if (fieldOneCode > 0) {	
-		ITexture *texture = imageManager.GetFieldTexture(fieldOneCode,0);
+		ITexture *texture = imageManager.GetTextureField(fieldOneCode);
 		if (texture) {
 			drawField = true;
 			matManager.mTexture.setTexture(0, texture);
@@ -73,7 +73,7 @@ void Game::DrawBackGround() {
 			driver->drawVertexPrimitiveList(matManager.vFieldSpell, 4, matManager.iRectangle, 2);
 		}
 		if(fieldTwoCode == -1) {
-			ITexture *texture2 = imageManager.GetFieldTexture(fieldOneCode,1);
+			ITexture *texture2 = imageManager.GetTextureField(fieldOneCode);
 			if (texture) {
 				matManager.mTexture.setTexture(0, texture2);
 				driver->setMaterial(matManager.mTexture);
@@ -83,7 +83,7 @@ void Game::DrawBackGround() {
 	}
 
 	if (fieldTwoCode > 0) {
-		ITexture *texture = imageManager.GetFieldTexture(fieldTwoCode,1);
+		ITexture *texture = imageManager.GetTextureField(fieldTwoCode);
 		if (texture) {
 			drawField = true;
 			matManager.mTexture.setTexture(0, texture);
@@ -91,7 +91,7 @@ void Game::DrawBackGround() {
 			driver->drawVertexPrimitiveList(matManager.vFieldSpell2, 4, matManager.iRectangle, 2);
 		}
 		if(fieldOneCode == -1) {
-			ITexture *texture2 = imageManager.GetFieldTexture(fieldTwoCode,0);
+			ITexture *texture2 = imageManager.GetTextureField(fieldTwoCode);
 			if (texture) {
 				matManager.mTexture.setTexture(0, texture2);
 				driver->setMaterial(matManager.mTexture);

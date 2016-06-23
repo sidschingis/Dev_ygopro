@@ -34,7 +34,6 @@ public:
 	irr::video::ITexture* GetTexture(int code);
 	irr::video::ITexture* GetTextureThumb(int code);
 	irr::video::ITexture* GetTextureField(int code);
-	irr::video::ITexture* GetFieldTexture(int code, int player);
 
 	std::unordered_map<int, irr::video::ITexture*> tMap;
 	std::unordered_map<int, irr::video::ITexture*> tThumb;
