@@ -291,9 +291,9 @@ const wchar_t* DataManager::FormatType(int type) {
 const wchar_t* DataManager::FormatSetName(unsigned long long setcode) {
 	wchar_t* p = scBuffer;
 	for (int i = 0; i < 4; ++i) {
-		const wchar_t* setname = GetSetName((setcode >> i * 16) & 0xffff);
+		const wchar_t* setname = GetSetName((setcode >> i * 32) & 0xffff);
 		if (setname) {
-			BufferIO::CopyWStrRef(setname, p, 16);
+			BufferIO::CopyWStrRef(setname, p, 32);
 			*p = L'|';
 			*++p = 0;
 		}
