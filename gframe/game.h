@@ -34,6 +34,7 @@ struct Config {
 	bool autochain;
 	bool nodelay;
 	bool chkHideSetname;
+	bool chkHideChainButton;
 	bool enablesound;
 	double soundvolume;
 	bool enablemusic;
@@ -176,6 +177,7 @@ public:
 	wchar_t* lpcstring;
 	bool always_chain;
 	bool ignore_chain;
+	bool chain_when_avail;
 
 	bool is_building;
 	bool is_siding;
@@ -219,6 +221,7 @@ public:
 	irr::gui::IGUICheckBox* chkAutoChain;
 	irr::gui::IGUICheckBox* chkWaitChain;
 	irr::gui::IGUICheckBox* chkHideSetname;
+	irr::gui::IGUICheckBox* chkHideChainButton;
 	irr::gui::IGUICheckBox* chkEnableSound;
 	irr::gui::IGUICheckBox* chkEnableMusic;
 	irr::gui::IGUIListBox* lstLog;
@@ -434,6 +437,10 @@ public:
 	irr::gui::IGUIButton* btnReplaySwap;
 	//surrender/leave
 	irr::gui::IGUIButton* btnLeaveGame;
+	//chain control
+	irr::gui::IGUIButton* btnChainIgnore;
+	irr::gui::IGUIButton* btnChainAlways;
+	irr::gui::IGUIButton* btnChainWhenAvail;
 	//soundEngine
 	irrklang::ISoundEngine* engineSound;
 	irrklang::ISoundEngine* engineMusic; 
@@ -519,6 +526,9 @@ extern Game* mainGame;
 #define BUTTON_M2					261
 #define BUTTON_EP					262
 #define BUTTON_LEAVE_GAME			263
+#define BUTTON_CHAIN_IGNORE			264
+#define BUTTON_CHAIN_ALWAYS			265
+#define BUTTON_CHAIN_WHENAVAIL		266
 #define BUTTON_CLEAR_LOG			270
 #define LISTBOX_LOG					271
 #define SCROLL_CARDTEXT				280
@@ -562,4 +572,5 @@ extern Game* mainGame;
 #define COMBOBOX_SORTTYPE			370
 #define BUTTON_CLEAR_FILTER			1001
 #define BUTTON_DELETE_DECK			1002
+#define CHECKBOX_ENABLE_HIDECHAIN	1003
 #endif // GAME_H

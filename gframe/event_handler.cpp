@@ -127,6 +127,33 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				}
 				break;
 			}
+			case BUTTON_CHAIN_IGNORE: {
+				if (!mainGame->ignore_chain) {
+					mainGame->ignore_chain = true;
+					mainGame->always_chain = false;
+					mainGame->chain_when_avail = false;
+				}
+				UpdateChainButtons();
+				break;
+			}
+			case BUTTON_CHAIN_ALWAYS: {
+				if (!mainGame->always_chain) {
+					mainGame->always_chain = true;
+					mainGame->ignore_chain = false;
+					mainGame->chain_when_avail = false;
+				}
+				UpdateChainButtons();
+				break;
+			}
+			case BUTTON_CHAIN_WHENAVAIL: {
+				if (!mainGame->chain_when_avail) {
+					mainGame->chain_when_avail = true;
+					mainGame->always_chain = false;
+					mainGame->ignore_chain = false;	
+				}
+				UpdateChainButtons();
+				break;
+			}
 			case BUTTON_MSG_OK: {
 				mainGame->HideElement(mainGame->wMessage);
 				mainGame->actionSignal.Set();
@@ -665,6 +692,22 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					mainGame->engineMusic->stopAllSounds();
 				break;
 			}
+			case CHECKBOX_ENABLE_HIDECHAIN: {
+				mainGame->gameConf.chkHideChainButton = mainGame->chkHideChainButton->isChecked();
+				if (!mainGame->is_building) {
+					if (!mainGame->gameConf.chkHideChainButton) {
+						mainGame->btnChainAlways->setVisible(true);
+						mainGame->btnChainIgnore->setVisible(true);
+						mainGame->btnChainWhenAvail->setVisible(true);
+					}
+					else {
+						mainGame->btnChainAlways->setVisible(false);
+						mainGame->btnChainIgnore->setVisible(false);
+						mainGame->btnChainWhenAvail->setVisible(false);
+					}
+				}
+				break;
+			}
 			case CHECK_ATTRIBUTE: {
 				int att = 0, filter = 0x1, count = 0;
 				for(int i = 0; i < 7; ++i, filter <<= 1) {
@@ -908,8 +951,12 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 			s32 y = pos.Y;
 			if(x < 300)
 				break;
-			if (mainGame->gameConf.control_mode == 1)
+			if (mainGame->gameConf.control_mode == 1) {
 				mainGame->always_chain = event.MouseInput.isLeftPressed();
+				mainGame->ignore_chain = false;
+				mainGame->chain_when_avail = !event.MouseInput.isLeftPressed();
+				UpdateChainButtons();
+			}
 			if(mainGame->wCmdMenu->isVisible() && !mainGame->wCmdMenu->getRelativePosition().isPointInside(mousepos))
 				mainGame->wCmdMenu->setVisible(false);
 			if(panel && panel->isVisible())
@@ -1261,8 +1308,12 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 		case irr::EMIE_RMOUSE_LEFT_UP: {
 			if(mainGame->dInfo.isReplay)
 				break;
-			if (mainGame->gameConf.control_mode == 1 && event.MouseInput.X > 300)
+			if (mainGame->gameConf.control_mode == 1 && event.MouseInput.X > 300) {
 				mainGame->ignore_chain = event.MouseInput.isRightPressed();
+				mainGame->always_chain = false;
+				mainGame->chain_when_avail = !event.MouseInput.isRightPressed();
+			}
+			UpdateChainButtons();
 			mainGame->wCmdMenu->setVisible(false);
 			if(mainGame->fadingList.size())
 				break;
@@ -1561,8 +1612,12 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 		case irr::EMIE_LMOUSE_PRESSED_DOWN: {
 			if (!mainGame->dInfo.isStarted)
 				break;
-			if (mainGame->gameConf.control_mode == 1 && event.MouseInput.X > 300)
+			if (mainGame->gameConf.control_mode == 1 && event.MouseInput.X > 300) {
 				mainGame->always_chain = event.MouseInput.isLeftPressed();
+				mainGame->ignore_chain = false;
+				mainGame->chain_when_avail = !event.MouseInput.isLeftPressed();
+			}
+			UpdateChainButtons();
 			// check field
 			SetForceMode(event.MouseInput.isLeftPressed());
 			break;
@@ -1570,8 +1625,12 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 		case irr::EMIE_RMOUSE_PRESSED_DOWN: {
 			if (!mainGame->dInfo.isStarted)
 				break;
-			if (mainGame->gameConf.control_mode == 1 && event.MouseInput.X > 300)
+			if (mainGame->gameConf.control_mode == 1 && event.MouseInput.X > 300) {
 				mainGame->ignore_chain = event.MouseInput.isRightPressed();
+				mainGame->always_chain = false;
+				mainGame->chain_when_avail = !event.MouseInput.isRightPressed();
+			}
+			UpdateChainButtons();
 			break;
 		}
 		default:
@@ -1582,18 +1641,24 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 	case irr::EET_KEY_INPUT_EVENT: {
 		switch(event.KeyInput.Key) {
 		case irr::KEY_KEY_A: {
-			if (mainGame->always_chain == event.KeyInput.PressedDown)
-				break;
-			if (mainGame->gameConf.control_mode == 0)
+			if (mainGame->gameConf.control_mode == 0) {
 				mainGame->always_chain = event.KeyInput.PressedDown;
+				mainGame->ignore_chain = false;
+				mainGame->chain_when_avail = !event.KeyInput.PressedDown;
+			}
+			UpdateChainButtons();
 			// check field
 			SetForceMode(event.KeyInput.PressedDown);
 
 			break;
 		}
 		case irr::KEY_KEY_S: {
-			if (mainGame->gameConf.control_mode == 0)
+			if (mainGame->gameConf.control_mode == 0) {
 				mainGame->ignore_chain = event.KeyInput.PressedDown;
+				mainGame->always_chain = false;
+				mainGame->chain_when_avail = !event.KeyInput.PressedDown;
+			}
+			UpdateChainButtons();
 			break;
 		}
 		case irr::KEY_KEY_R: {
@@ -1905,7 +1970,11 @@ void ClientField::ShowMenu(int flag, int x, int y) {
 	y = mouse.Y;
 	mainGame->wCmdMenu->setRelativePosition(irr::core::recti(x - 20, y - 20 - height, x + 80, y - 20));
 }
-
+void ClientField::UpdateChainButtons() {
+	mainGame->btnChainIgnore->setPressed(mainGame->ignore_chain);
+	mainGame->btnChainAlways->setPressed(mainGame->always_chain);
+	mainGame->btnChainWhenAvail->setPressed(mainGame->chain_when_avail);
+}
 void ClientField::SetResponseSelectedCards() const {
 	unsigned char respbuf[64];
 	respbuf[0] = selected_cards.size();

@@ -266,6 +266,16 @@ bool Game::Initialize() {
 	btnEP->setVisible(false);
 	btnShuffle = env->addButton(rect<s32>(0, 0, 50, 20), wPhase, BUTTON_CMD_SHUFFLE, dataManager.GetSysString(1307));
 	btnShuffle->setVisible(false);
+	//chain buttons
+	btnChainIgnore = env->addButton(rect<s32>(205, 100, 295, 135), 0, BUTTON_CHAIN_IGNORE, dataManager.GetSysString(1292));
+	btnChainAlways = env->addButton(rect<s32>(205, 140, 295, 175), 0, BUTTON_CHAIN_ALWAYS, dataManager.GetSysString(1293));
+	btnChainWhenAvail = env->addButton(rect<s32>(205, 180, 295, 215), 0, BUTTON_CHAIN_WHENAVAIL, dataManager.GetSysString(1294));
+	btnChainIgnore->setIsPushButton(false);
+	btnChainAlways->setIsPushButton(false);
+	btnChainWhenAvail->setIsPushButton(true);
+	btnChainIgnore->setVisible(false);
+	btnChainAlways->setVisible(false);
+	btnChainWhenAvail->setVisible(false);
 	//tab
 	wInfos = env->addTabControl(rect<s32>(1, 275, 301, 639), 0, true);
 	wInfos->setVisible(false);
@@ -299,6 +309,8 @@ bool Game::Initialize() {
 	chkIgnore2 = env->addCheckBox(gameConf.mutespectator, rect<s32>(20, 200, 280, 225), tabSystem, -1, dataManager.GetSysString(1291));
 	chkHideSetname = env->addCheckBox(false, rect<s32>(20, 140, 280, 165), tabSystem, -1, dataManager.GetSysString(1354));
 	chkHideSetname->setChecked(gameConf.chkHideSetname != 0);
+	chkHideChainButton = env->addCheckBox(false, rect<s32>(150, 80, 410, 105), tabSystem, CHECKBOX_ENABLE_HIDECHAIN, dataManager.GetSysString(1355));
+	chkHideChainButton->setChecked(gameConf.chkHideChainButton != 0);
 	chkEnableSound = env->addCheckBox(gameConf.enablesound, rect<s32>(20, 230, 280, 255), tabSystem, CHECKBOX_ENABLE_SOUND, dataManager.GetSysString(2046));
 	scrSound = env->addScrollBar(true, rect<s32>(20, 260, 280, 270), tabSystem, SCROLL_SOUND);
 	scrSound->setMax(100);
@@ -599,7 +611,7 @@ bool Game::Initialize() {
 	wChat->setDrawTitlebar(false);
 	wChat->setVisible(false);
 	ebChatInput = env->addEditBox(L"", rect<s32>(3, 2, 710, 22), true, wChat, EDITBOX_CHAT);
-	//
+	//leave/surrender/exit
 	btnLeaveGame = env->addButton(rect<s32>(205, 5, 295, 80), 0, BUTTON_LEAVE_GAME, L"");
 	btnLeaveGame->setVisible(false);
 	device->setEventReceiver(&menuHandler);
@@ -928,6 +940,7 @@ void Game::LoadConfig() {
 	gameConf.savereplay = false;
 	gameConf.control_mode = 0;
 	gameConf.chkHideSetname = 0;
+	gameConf.chkHideChainButton = 0;
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -1011,6 +1024,8 @@ void Game::LoadConfig() {
 			gameConf.control_mode = atoi(valbuf);
 		} else if (!strcmp(strbuf, "hide_setname")) {
 			gameConf.chkHideSetname = atoi(valbuf) > 0;
+		} else if (!strcmp(strbuf, "hide_chain_button")) {
+			gameConf.chkHideChainButton = atoi(valbuf) > 0;
 		}
 	}
 	fclose(fp);
@@ -1207,6 +1222,9 @@ void Game::CloseDuelWindow() {
 	stHintMsg->setVisible(false);
 	btnSideOK->setVisible(false);
 	btnLeaveGame->setVisible(false);
+	btnChainIgnore->setVisible(false);
+	btnChainAlways->setVisible(false);
+	btnChainWhenAvail->setVisible(false);
 	wChat->setVisible(false);
 	lstLog->clear();
 	logParam.clear();
@@ -1320,6 +1338,9 @@ void Game::OnResize()
 	btnBP->setRelativePosition(Resize(195, 0, 245, 20));
 	btnM2->setRelativePosition(Resize(260, 0, 310, 20));
 	btnEP->setRelativePosition(Resize(325, 0, 375, 20));
+	btnChainAlways->setRelativePosition(Resize(205,140,295,175));
+	btnChainIgnore->setRelativePosition(Resize(205,100,295,135));
+	btnChainWhenAvail->setRelativePosition(Resize(205,180,295,215));
 
 	if(displayedcard > 0)
 		ShowCardInfo(displayedcard);
