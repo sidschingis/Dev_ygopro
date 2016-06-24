@@ -91,6 +91,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				mainGame->wACMessage->setVisible(false);
 				imageManager.ClearTexture();
 				mainGame->scrFilter->setVisible(false);
+				mainGame->wSort->setVisible(false);
 				if(mainGame->cbDBDecks->getSelected() != -1) {
 					BufferIO::CopyWStr(mainGame->cbDBDecks->getItem(mainGame->cbDBDecks->getSelected()), mainGame->gameConf.lastdeck, 64);
 				}
