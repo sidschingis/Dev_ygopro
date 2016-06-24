@@ -276,6 +276,7 @@ bool Game::Initialize() {
 	btnChainIgnore->setVisible(false);
 	btnChainAlways->setVisible(false);
 	btnChainWhenAvail->setVisible(false);
+	chain_when_avail = true;
 	//tab
 	wInfos = env->addTabControl(rect<s32>(1, 275, 301, 639), 0, true);
 	wInfos->setVisible(false);
