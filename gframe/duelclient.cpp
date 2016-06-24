@@ -1315,7 +1315,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 					panelmode = true;
 			}
 		}
-		if (!forced && (mainGame->ignore_chain || ((count == 0 || specount == 0) && !mainGame->always_chain)) && (count == 0 || !mainGame->chain_when_avail)) {
+		if (!forced && (mainGame->ignore_chain || ((count == 0 || specount == 0) && !mainGame->always_chain))) {
 			SetResponseI(-1);
 			mainGame->dField.ClearChainSelect();
 			if (mainGame->chkWaitChain->isChecked() && !mainGame->ignore_chain) {
@@ -1324,7 +1324,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			DuelClient::SendResponse();
 			return true;
 		}
-		if (mainGame->chkAutoChain->isChecked() && forced && !(mainGame->always_chain || mainGame->chain_when_avail)) {
+		if (mainGame->chkAutoChain->isChecked() && forced) {
 			SetResponseI(0);
 			mainGame->dField.ClearChainSelect();
 			DuelClient::SendResponse();
