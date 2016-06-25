@@ -48,6 +48,7 @@ bool Game::Initialize() {
 	statcolor = 0xffffffff;
 	bonuscolor = 0xffffff00;
 	negativecolor = 0xffff2090;
+	setcolor = 0xff0000ff;
 
 	if (gameConf.skin_index >= 0)
 	{
@@ -65,6 +66,7 @@ bool Game::Initialize() {
 				statcolor = ExtractColor(L"StatColor", skinSystem, statcolor);
 				bonuscolor = ExtractColor(L"BonusColor", skinSystem, bonuscolor);
 				negativecolor = ExtractColor(L"NegativeColor", skinSystem, negativecolor);
+				setcolor = ExtractColor(L"SetColor", skinSystem, setcolor);
 			}
 		}
 	}
@@ -291,8 +293,8 @@ bool Game::Initialize() {
 	stInfo->setOverrideColor(special_color);
 	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfo, -1, false);
 	stDataInfo->setOverrideColor(special_color);
-	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 296, 106), false, true, tabInfo, -1, false);
-	stSetName->setOverrideColor(SColor(255, 0, 0, 255));
+	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 316, 106), false, true, tabInfo, -1, false);
+	stSetName->setOverrideColor(setcolor);
 	stText = env->addStaticText(L"", rect<s32>(15, 83, 287, 324), false, true, tabInfo, -1, false);
 	scrCardText = env->addScrollBar(false, rect<s32>(267, 83, 287, 324), tabInfo, SCROLL_CARDTEXT);
 	scrCardText->setLargeStep(1);
@@ -1132,14 +1134,14 @@ void Game::ShowCardInfo(int code) {
 		}
 		stDataInfo->setText(formatBuffer);
 		stDataInfo->setText(formatBuffer);
-		stSetName->setRelativePosition(rect<s32>(15, 83, 296 * window_size.Width / 1024 - 30, 106));
+		stSetName->setRelativePosition(rect<s32>(15, 83, 316 * window_size.Width / 1024 - 30, 116));
 		stText->setRelativePosition(recti(15, 83 + offset, 296 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
 		scrCardText->setRelativePosition(rect<s32>(267, 83 + offset, 287, 324 * window_size.Height / 640));
 	} else {
 		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));
 		stInfo->setText(formatBuffer);
 		stDataInfo->setText(L"");
-		stSetName->setRelativePosition(rect<s32>(15, 60, 296 * window_size.Height / 640, 83));
+		stSetName->setRelativePosition(rect<s32>(15, 60, 316 * window_size.Height / 640, 83));
 		stText->setRelativePosition(rect<s32>(15, 60 + offset, 287 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
 		scrCardText->setRelativePosition(rect<s32>(267, 60 + offset, 287, 324 * window_size.Height / 640));
 	}

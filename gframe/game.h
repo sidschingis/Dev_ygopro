@@ -181,6 +181,7 @@ public:
 	int statcolor;
 	int bonuscolor;
 	int negativecolor;
+	int setcolor;
 	wchar_t* lpcstring;
 	bool always_chain;
 	bool ignore_chain;
