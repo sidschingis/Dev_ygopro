@@ -405,7 +405,7 @@ void Game::DrawMisc() {
 	driver->draw2DRectangle(mainGame->Resize(632, 10, 688, 30), 0x00000000, 0x00000000, 0xffffffff, 0xffffffff);
 	driver->draw2DRectangle(mainGame->Resize(632, 30, 688, 50), 0xffffffff, 0xffffffff, 0x00000000, 0x00000000);
 	lpcFont->draw(dataManager.GetNumString(dInfo.turn), mainGame->Resize(635, 5, 685, 40), 0x80000000, true, false, 0);
-	lpcFont->draw(dataManager.GetNumString(dInfo.turn), mainGame->Resize(635, 5, 687, 40), 0x8000ffff, true, false, 0);
+	lpcFont->draw(dataManager.GetNumString(dInfo.turn), mainGame->Resize(635, 5, 687, 40), mainGame->turncolor, true, false, 0);
 	ClientCard* pcard;
 	for(int i = 0; i < 5; ++i) {
 		pcard = dField.mzone[0][i];

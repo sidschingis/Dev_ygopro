@@ -136,6 +136,7 @@ public:
 	position2di Resize(s32 x, s32 y, bool reverse = false);
 	recti ResizeWin(s32 x, s32 y, s32 x2, s32 y2, bool chat = false);
 	recti ResizeElem(s32 x, s32 y, s32 x2, s32 y2);
+	int ExtractColor(const stringw name, CGUISkinSystem *skinSystem, unsigned int normalColor);
 
 	Mutex gMutex;
 	Mutex gBuffer;
@@ -174,6 +175,7 @@ public:
 	int lpd;
 	int lpplayer;
 	int lpccolor;
+	int turncolor;
 	wchar_t* lpcstring;
 	bool always_chain;
 	bool ignore_chain;

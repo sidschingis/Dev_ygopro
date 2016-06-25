@@ -42,6 +42,8 @@ bool Game::Initialize() {
 
 	// Apply skin
 	unsigned int special_color = 0xFF0000FF;
+	turncolor = 0x8000ffff;
+
 	if (gameConf.skin_index >= 0)
 	{
 		skinSystem = new CGUISkinSystem("skins", device);
@@ -51,17 +53,8 @@ bool Game::Initialize() {
 			int index = skins.size() - gameConf.skin_index - 1; // reverse index
 			if (skinSystem->applySkin(skins[index].c_str()))
 			{
-				// Convert and apply special color
-				stringw spccolor = skinSystem->getProperty(L"SpecialColor");
-				if (!spccolor.empty())
-				{
-					unsigned int x;
-					std::wstringstream ss;
-					ss << std::hex << spccolor.c_str();
-					ss >> x;
-					if (!ss.fail())
-						special_color = x;
-				}
+				special_color = ExtractColor(L"SpecialColor", skinSystem, special_color);
+				turncolor = ExtractColor(L"TurnColor", skinSystem, turncolor);
 			}
 		}
 	}
@@ -1402,6 +1395,21 @@ recti Game::ResizeElem(s32 x, s32 y, s32 x2, s32 y2)
 	x2 = sx + x;
 	y2 = sy + y;
 	return recti(x, y, x2, y2);
+}
+int Game::ExtractColor(const stringw name,CGUISkinSystem *skinSystem, unsigned int normalColor)
+{
+	// Convert and apply special color
+	stringw spccolor = skinSystem->getProperty(name);
+	if (!spccolor.empty())
+	{
+		unsigned int x;
+		std::wstringstream ss;
+		ss << std::hex << spccolor.c_str();
+		ss >> x;
+		if (!ss.fail())
+			return x;
+	}
+	return normalColor;
 }
 
 }

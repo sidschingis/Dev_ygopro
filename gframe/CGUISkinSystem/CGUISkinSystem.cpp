@@ -176,6 +176,7 @@ gui::CImageGUISkin* CGUISkinSystem::loadSkinFromFile(const c8 *skinname) {
 	loadProperty((core::stringw)L"Date",skin);
 	loadProperty((core::stringw)L"Desc",skin);
 	loadProperty((core::stringw)L"SpecialColor",skin);
+	loadProperty((core::stringw)L"TurnColor", skin);
 	skin->loadConfig(skinConfig);
 	
 	tmp = registry->getValueAsCStr(L"texture",L"Skin/Properties/Font");
