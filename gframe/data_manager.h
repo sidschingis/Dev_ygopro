@@ -32,6 +32,7 @@ public:
 	const std::vector<wchar_t*> GetSetcodeList();
 	const wchar_t* GetSetName(int code);
 	const unsigned int GetSetcode(wchar_t* name);
+	static bool sort_name(wchar_t* p1, wchar_t* p2);
 
 	std::unordered_map<unsigned int, CardDataC> _datas;
 	std::unordered_map<unsigned int, CardString> _strings;
