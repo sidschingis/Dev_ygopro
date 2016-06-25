@@ -309,5 +309,8 @@ int DataManager::CardReader(int code, void* pData) {
 		memset(pData, 0, sizeof(CardData));
 	return 0;
 }
+bool DataManager::sort_name(wchar_t* p1, wchar_t* p2) {
+	return wcscmp(p1, p2) < 0;
+}
 
 }
