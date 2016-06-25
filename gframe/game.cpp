@@ -43,6 +43,11 @@ bool Game::Initialize() {
 	// Apply skin
 	unsigned int special_color = 0xFF0000FF;
 	turncolor = 0x8000ffff;
+	playerlpcolor = 0xffffff00;
+	extracolor = 0xffffff00;
+	statcolor = 0xffffffff;
+	bonuscolor = 0xffffff00;
+	negativecolor = 0xffff2090;
 
 	if (gameConf.skin_index >= 0)
 	{
@@ -55,6 +60,11 @@ bool Game::Initialize() {
 			{
 				special_color = ExtractColor(L"SpecialColor", skinSystem, special_color);
 				turncolor = ExtractColor(L"TurnColor", skinSystem, turncolor);
+				playerlpcolor = ExtractColor(L"LPColor", skinSystem, playerlpcolor);
+				extracolor = ExtractColor(L"ExtraColor", skinSystem, extracolor);
+				statcolor = ExtractColor(L"StatColor", skinSystem, statcolor);
+				bonuscolor = ExtractColor(L"BonusColor", skinSystem, bonuscolor);
+				negativecolor = ExtractColor(L"NegativeColor", skinSystem, negativecolor);
 			}
 		}
 	}

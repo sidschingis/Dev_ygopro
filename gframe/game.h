@@ -176,6 +176,11 @@ public:
 	int lpplayer;
 	int lpccolor;
 	int turncolor;
+	int playerlpcolor;
+	int extracolor;
+	int statcolor;
+	int bonuscolor;
+	int negativecolor;
 	wchar_t* lpcstring;
 	bool always_chain;
 	bool ignore_chain;
