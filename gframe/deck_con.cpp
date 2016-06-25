@@ -23,6 +23,8 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_CLEAR_FILTER:{
+				mainGame->cbCardType->setSelected(0);
+				mainGame->cbCardType2->setSelected(0);
 				mainGame->cbAttribute->setSelected(0);
 				mainGame->cbRace->setSelected(0);
 				mainGame->cbLimit->setSelected(0);
@@ -37,6 +39,13 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					mainGame->chkCategory[i]->setChecked(false);
 				results.clear();
 				myswprintf(result_string, L"0");
+				mainGame->cbCardType2->setEnabled(false);
+				mainGame->cbRace->setEnabled(false);
+				mainGame->cbAttribute->setEnabled(false);
+				mainGame->ebAttack->setEnabled(false);
+				mainGame->ebDefence->setEnabled(false);
+				mainGame->ebStar->setEnabled(false);
+				mainGame->ebScale->setEnabled(false);
 				break;
 			}
 			case BUTTON_SORT_DECK: {
