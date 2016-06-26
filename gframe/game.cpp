@@ -1187,7 +1187,7 @@ void Game::ShowCardInfo(int code) {
 		//stText->setRelativePosition(rect<s32>(15, 83 + offset, 287, 324));
 		//scrCardText->setRelativePosition(rect<s32>(267, 83 + offset, 287, 324)); 
 		//DevPro
-		stText->setRelativePosition(recti(15, 83, 296 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
+		stText->setRelativePosition(recti(15, 106, 296 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
 		scrCardText->setRelativePosition(recti(stInfo->getRelativePosition().getWidth() - 20, 83, stInfo->getRelativePosition().getWidth(), 324 * window_size.Height / 640));
 
 	} else {
@@ -1198,7 +1198,7 @@ void Game::ShowCardInfo(int code) {
 		//stText->setRelativePosition(rect<s32>(15, 60 + offset, 287, 324));
 		//scrCardText->setRelativePosition(rect<s32>(267, 60 + offset, 287, 324));
 		//DevPro
-		stText->setRelativePosition(recti(15, 60, 296 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
+		stText->setRelativePosition(recti(15, 83, 296 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
 		scrCardText->setRelativePosition(recti(stInfo->getRelativePosition().getWidth() - 20, 60, stInfo->getRelativePosition().getWidth(), 324 * window_size.Height / 640));
 	}
 	showingtext = dataManager.GetText(code);
