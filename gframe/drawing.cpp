@@ -898,22 +898,38 @@ void Game::DrawThumb(code_pointer cp, position2di pos, std::unordered_map<int, i
 	if (drag) {
 		recti dragloc = recti(pos.X, pos.Y, pos.X + width * mainGame->window_size.Width / 1024, pos.Y + height * mainGame->window_size.Height / 640);
 		driver->draw2DImage(img, dragloc, rect<s32>(0, 0, size.Width, size.Height));
+		if (lflist->count(lcode)) {
+			switch ((*lflist)[lcode]) {
+			case 0:
+				driver->draw2DImage(imageManager.tLim, mainGame->Resize(pos.X, pos.Y, pos.X + 20 * mainGame->window_size.Width / 1024, 
+					pos.Y + 20 * mainGame->window_size.Height / 640), recti(0, 0, 64, 64), 0, 0, true);
+				break;
+			case 1:
+				driver->draw2DImage(imageManager.tLim, mainGame->Resize(pos.X, pos.Y, pos.X + 20 * mainGame->window_size.Width / 1024, 
+					pos.Y + 20 * mainGame->window_size.Height / 640), recti(64, 0, 128, 64), 0, 0, true);
+				break;
+			case 2:
+				driver->draw2DImage(imageManager.tLim, mainGame->Resize(pos.X, pos.Y, pos.X + 20 * mainGame->window_size.Width / 1024,
+					pos.Y + 20 * mainGame->window_size.Height / 640), recti(0, 64, 64, 128), 0, 0, true);
+				break;
+			}
+		}
 	} else {
 		driver->draw2DImage(img, mainGame->Resize(pos.X, pos.Y, pos.X + width, pos.Y + height), rect<s32>(0, 0, size.Width, size.Height));
-	}
-
-	if(lflist->count(lcode)) {
-		switch((*lflist)[lcode]) {
-		case 0:
-			driver->draw2DImage(imageManager.tLim, mainGame->Resize(pos.X, pos.Y, pos.X + 20, pos.Y + 20), recti(0, 0, 64, 64), 0, 0, true);
-			break;
-		case 1:
-			driver->draw2DImage(imageManager.tLim, mainGame->Resize(pos.X, pos.Y, pos.X + 20, pos.Y + 20), recti(64, 0, 128, 64), 0, 0, true);
-			break;
-		case 2:
-			driver->draw2DImage(imageManager.tLim, mainGame->Resize(pos.X, pos.Y, pos.X + 20, pos.Y + 20), recti(0, 64, 64, 128), 0, 0, true);
-			break;
+	
+		if(lflist->count(lcode)) {
+			switch((*lflist)[lcode]) {
+			case 0:
+				driver->draw2DImage(imageManager.tLim, mainGame->Resize(pos.X, pos.Y, pos.X + 20, pos.Y + 20), recti(0, 0, 64, 64), 0, 0, true);
+				break;
+			case 1:
+				driver->draw2DImage(imageManager.tLim, mainGame->Resize(pos.X, pos.Y, pos.X + 20, pos.Y + 20), recti(64, 0, 128, 64), 0, 0, true);
+				break;
+			case 2:
+				driver->draw2DImage(imageManager.tLim, mainGame->Resize(pos.X, pos.Y, pos.X + 20, pos.Y + 20), recti(0, 64, 64, 128), 0, 0, true);
+				break;
 		}
+	}
 	}
 }
 void Game::DrawRectangle(IVideoDriver *driver, recti position)
