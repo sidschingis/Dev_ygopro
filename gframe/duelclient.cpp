@@ -288,9 +288,13 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->wPhase->setVisible(false);
 		mainGame->wDeckEdit->setVisible(false);
 		mainGame->wFilter->setVisible(false);
+		mainGame->wSort->setVisible(false);
 		mainGame->btnSideOK->setVisible(true);
 		if(mainGame->dInfo.player_type < 7)
 			mainGame->btnLeaveGame->setVisible(false);
+		mainGame->btnChainIgnore->setVisible(false);
+		mainGame->btnChainAlways->setVisible(false);
+		mainGame->btnChainWhenAvail->setVisible(false);
 		mainGame->deckBuilder.result_string[0] = L'0';
 		mainGame->deckBuilder.result_string[1] = 0;
 		mainGame->deckBuilder.results.clear();
@@ -543,6 +547,11 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 	}
 	case STOC_DUEL_END: {
 		mainGame->gMutex.Lock();
+		if (mainGame->dInfo.player_type < 7)
+			mainGame->btnLeaveGame->setVisible(false);
+		mainGame->btnChainIgnore->setVisible(false);
+		mainGame->btnChainAlways->setVisible(false);
+		mainGame->btnChainWhenAvail->setVisible(false);
 		mainGame->stMessage->setText(dataManager.GetSysString(1500));
 		mainGame->PopupElement(mainGame->wMessage);
 		mainGame->gMutex.Unlock();
@@ -560,16 +569,26 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->ShowElement(mainGame->wLanWindow);
 		mainGame->gMutex.Unlock();
 		event_base_loopbreak(client_base);
-		if(exit_on_return)
+		if (exit_on_return)
 			mainGame->device->closeDevice();
 		break;
 	}
 	case STOC_REPLAY: {
 		mainGame->gMutex.Lock();
 		mainGame->wPhase->setVisible(false);
-		if(mainGame->dInfo.player_type < 7)
+		if (mainGame->dInfo.player_type < 7)
 			mainGame->btnLeaveGame->setVisible(false);
-		mainGame->ebRSName->setText(L"");
+		mainGame->btnChainIgnore->setVisible(false);
+		mainGame->btnChainAlways->setVisible(false);
+		mainGame->btnChainWhenAvail->setVisible(false);
+		time_t nowtime = time(NULL);
+		struct tm *localedtime = localtime(&nowtime);
+		char timebuf[40];
+		strftime(timebuf, 40, "%Y-%m-%d %H-%M-%S", localedtime);
+		size_t size = strlen(timebuf) + 1;
+		wchar_t timetext[80];
+		mbstowcs(timetext, timebuf, size);
+		mainGame->ebRSName->setText(timetext);
 		mainGame->PopupElement(mainGame->wReplaySave);
 		mainGame->gMutex.Unlock();
 		mainGame->replaySignal.Reset();
@@ -581,7 +600,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			prep += sizeof(ReplayHeader);
 			memcpy(new_replay.comp_data, prep, len - sizeof(ReplayHeader) - 1);
 			new_replay.comp_size = len - sizeof(ReplayHeader) - 1;
-			if(mainGame->actionParam)
+			if (mainGame->actionParam)
 				new_replay.SaveReplay(mainGame->ebRSName->getText());
 			else new_replay.SaveReplay(L"_LastReplay");
 		}
@@ -1296,7 +1315,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 					panelmode = true;
 			}
 		}
-		if(!forced && (mainGame->ignore_chain || ((count == 0 || specount == 0) && !mainGame->always_chain))) {
+		if (!forced && (mainGame->ignore_chain || ((count == 0 || specount == 0) && !mainGame->always_chain))) {
 			SetResponseI(-1);
 			mainGame->dField.ClearChainSelect();
 			if (mainGame->chkWaitChain->isChecked() && !mainGame->ignore_chain) {
@@ -1305,7 +1324,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			DuelClient::SendResponse();
 			return true;
 		}
-		if(mainGame->chkAutoChain->isChecked() && forced) {
+		if (mainGame->chkAutoChain->isChecked() && forced) {
 			SetResponseI(0);
 			mainGame->dField.ClearChainSelect();
 			DuelClient::SendResponse();
@@ -1919,6 +1938,19 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		if(!mainGame->dInfo.isTag && mainGame->dInfo.turn == 1 && !mainGame->dInfo.isReplay && mainGame->dInfo.player_type < 7) {
 			mainGame->btnLeaveGame->setText(dataManager.GetSysString(1351));
 			mainGame->btnLeaveGame->setVisible(true);
+		}
+		if (!mainGame->dInfo.isReplay && mainGame->dInfo.player_type < 7) {
+			if (!mainGame->chkHideChainButton->isChecked()) {
+				mainGame->btnChainIgnore->setVisible(true);
+				mainGame->btnChainAlways->setVisible(true);
+				mainGame->btnChainWhenAvail->setVisible(true);
+				mainGame->dField.UpdateChainButtons();
+			}
+			else {
+				mainGame->btnChainIgnore->setVisible(false);
+				mainGame->btnChainAlways->setVisible(false);
+				mainGame->btnChainWhenAvail->setVisible(false);
+			}
 		}
 		if(mainGame->dInfo.isTag && mainGame->dInfo.turn != 1) {
 			if(player == 0)
@@ -2853,8 +2885,8 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			pcard->attack = aatk;
 			myswprintf(pcard->atkstring, L"%d", aatk);
 		}
-		if(adef != pcard->defense) {
-			pcard->defense = adef;
+		if(adef != pcard->defence) {
+			pcard->defence = adef;
 			myswprintf(pcard->defstring, L"%d", adef);
 		}
 		if(ld) {
@@ -2863,8 +2895,8 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 				pcard->attack = datk;
 				myswprintf(pcard->atkstring, L"%d", datk);
 			}
-			if(ddef != pcard->defense) {
-				pcard->defense = ddef;
+			if(ddef != pcard->defence) {
+				pcard->defence = ddef;
 				myswprintf(pcard->defstring, L"%d", ddef);
 			}
 		}

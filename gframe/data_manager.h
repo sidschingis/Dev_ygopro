@@ -23,22 +23,25 @@ public:
 	const wchar_t* GetSysString(int code);
 	const wchar_t* GetVictoryString(int code);
 	const wchar_t* GetCounterName(int code);
-	const wchar_t* GetSetName(int code);
-	unsigned int GetSetCode(const wchar_t* setname);
 	const wchar_t* GetNumString(int num, bool bracket = false);
 	const wchar_t* FormatLocation(int location, int sequence);
 	const wchar_t* FormatAttribute(int attribute);
 	const wchar_t* FormatRace(int race);
 	const wchar_t* FormatType(int type);
 	const wchar_t* FormatSetName(unsigned long long setcode);
+	const std::vector<wchar_t*> GetSetcodeList();
+	const wchar_t* GetSetName(int code);
+	const unsigned int GetSetcode(wchar_t* name);
+	static bool sort_name(wchar_t* p1, wchar_t* p2);
 
 	std::unordered_map<unsigned int, CardDataC> _datas;
 	std::unordered_map<unsigned int, CardString> _strings;
 	std::unordered_map<unsigned int, wchar_t*> _counterStrings;
 	std::unordered_map<unsigned int, wchar_t*> _victoryStrings;
+	std::unordered_map<wchar_t*, unsigned int> _setcodeStrings;
 	std::unordered_map<unsigned int, wchar_t*> _setnameStrings;
 
-	wchar_t* _sysStrings[2048];
+	wchar_t* _sysStrings[4096];
 	wchar_t numStrings[256][4];
 	wchar_t numBuffer[6];
 	wchar_t attBuffer[128];

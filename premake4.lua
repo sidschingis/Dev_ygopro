@@ -1,5 +1,5 @@
 solution "ygo"
-    location "buildVS2010"
+    location "build"
     language "C++"
     objdir "obj"
 
@@ -15,8 +15,9 @@ solution "ygo"
 
     configuration "macosx"
         defines { "LUA_USE_MACOSX" }
-        includedirs { "/opt/local/include" }
-        libdirs { "/opt/local/lib" }
+		includedirs { "/usr/local/include", "/usr/local/include/freetype2", "/usr/local/include/irrlicht" }  
+		libdirs { "/usr/local/lib" }
+		linkoptions { "-framework OpenGL" }
 
     configuration "linux"
         defines { "LUA_USE_LINUX" }
@@ -31,10 +32,10 @@ solution "ygo"
     configuration {"not vs*", "windows"}
         buildoptions { "-static-libgcc" }
 
-    configuration "Debug2010"
+    configuration "Debug"
         flags "Symbols"
         defines "_DEBUG"
-        targetdir "bin/2010/Debug"
+        targetdir "bin/debug"
 
     configuration { "Release", "not vs*" }
         flags "Symbols"
@@ -46,14 +47,14 @@ solution "ygo"
 
     configuration "Release"
         flags { "OptimizeSpeed" }
-        targetdir "bin/2010/Release"
+        targetdir "bin/release"
 
     include "ocgcore"
-    include "gframe"
+    include "gframe"   
+	include "lua"
+	include "sqlite3"
     if os.is("windows") then
     include "event"
     include "freetype"
     include "irrlicht"
-    include "lua"
-    include "sqlite3"
     end

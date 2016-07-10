@@ -24,9 +24,7 @@ bool ImageManager::Initial() {
 	tHand[1] = driver->getTexture("textures/f2.jpg");
 	tHand[2] = driver->getTexture("textures/f3.jpg");
 	tBackGround = driver->getTexture("textures/bg.jpg");
-	tBackGround2 = driver->getTexture("textures/bg2.jpg");
-	tBackGround_menu = driver->getTexture("textures/bg_menu.jpg");
-	tBackGround_deck = driver->getTexture("textures/bg_deck.jpg");
+	tBackGround2 = driver->getTexture("textures/bg2.jpg"); 
 	tField = driver->getTexture("textures/field2.png");
 	tFieldTransparent = driver->getTexture("textures/field-transparent.png");
 	for (int i = 0; i < 4; ++i)
@@ -132,29 +130,6 @@ irr::video::ITexture* ImageManager::GetTextureField(int code) {
 		return tit->second;
 	else
 		return NULL;
-}
-
-irr::video::ITexture* ImageManager::GetFieldTexture(int code, int player) {
-	if(code == 0)
-		return NULL;
-	ScopedLock lk(mutex);
-	int fieldcode = code + player;
-	auto tit = tSpellFields.find(fieldcode);
-	if(tit == tSpellFields.end()) {
-		irr::video::ITexture* rt = 0;
-		rt = driver->addRenderTargetTexture(core::dimension2d<u32>(512,512));
-		driver->setRenderTarget(rt, false, false, video::SColor(0,0,0,255));
-		ITexture *texture = imageManager.GetTextureField(code);
-		if(texture)
-			driver->draw2DImage(texture, irr::core::rect<s32>(0,0,512,512),player == 0 ? irr::core::rect<s32>(0,256,512,512) : irr::core::rect<s32>(0,0,512,256));
-		driver->setRenderTarget(0, false, false, 0);
-		tSpellFields[fieldcode] = rt;
-		return rt;
-	}
-
-	if(tit->second)
-		return tit->second;
-	return NULL;
 }
 
 void ImageManager::LoadSleeve(int player, wchar_t* site, wchar_t* dir)

@@ -286,9 +286,13 @@ bool CGUIEditBox::processKey(const SEvent& event)
 				const s32 realmbgn = MarkBegin < MarkEnd ? MarkBegin : MarkEnd;
 				const s32 realmend = MarkBegin < MarkEnd ? MarkEnd : MarkBegin;
 
+#ifdef _WIN32
+				Operator->copyToClipboard((c8*)Text.subString(realmbgn, realmend - realmbgn).c_str());
+#else
 				core::stringc s;
 				s = Text.subString(realmbgn, realmend - realmbgn).c_str();
 				Operator->copyToClipboard(s.c_str());
+#endif
 			}
 			break;
 		case KEY_KEY_X:
@@ -299,9 +303,13 @@ bool CGUIEditBox::processKey(const SEvent& event)
 				const s32 realmend = MarkBegin < MarkEnd ? MarkEnd : MarkBegin;
 
 				// copy
+#ifdef _WIN32
+				Operator->copyToClipboard((c8*)Text.subString(realmbgn, realmend - realmbgn).c_str());
+#else
 				core::stringc sc;
 				sc = Text.subString(realmbgn, realmend - realmbgn).c_str();
 				Operator->copyToClipboard(sc.c_str());
+#endif
 
 				if (isEnabled())
 				{
@@ -329,7 +337,12 @@ bool CGUIEditBox::processKey(const SEvent& event)
 				const s32 realmend = MarkBegin < MarkEnd ? MarkEnd : MarkBegin;
 
 				// add new character
+#ifdef _WIN32
+				// using unicode in windows
+				const wchar_t* p = (wchar_t*)Operator->getTextFromClipboard();
+#else
 				const c8* p = Operator->getTextFromClipboard();
+#endif
 				if (p)
 				{
 					if (MarkBegin == MarkEnd)

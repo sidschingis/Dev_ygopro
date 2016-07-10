@@ -17,7 +17,7 @@ struct CardData {
 	unsigned int attribute;
 	unsigned int race;
 	int attack;
-	int defense;
+	int defence;
 	unsigned int lscale;
 	unsigned int rscale;
 };
@@ -30,7 +30,7 @@ struct CardDataC {
 	unsigned int attribute;
 	unsigned int race;
 	int attack;
-	int defense;
+	int defence;
 	unsigned int lscale;
 	unsigned int rscale;
 	unsigned int ot;
@@ -73,9 +73,9 @@ public:
 	u32 attribute;
 	u32 race;
 	s32 attack;
-	s32 defense;
+	s32 defence;
 	s32 base_attack;
-	s32 base_defense;
+	s32 base_defence;
 	u32 lscale;
 	u32 rscale;
 	u32 reason;
