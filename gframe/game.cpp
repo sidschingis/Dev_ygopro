@@ -136,17 +136,11 @@ bool Game::Initialize() {
 	smgr = device->getSceneManager();
 	device->setWindowCaption(L"YGOPro DevPro");
 	device->setResizable(true);
-	//main menu
 	wchar_t strbuf[256];
-	myswprintf(strbuf, L"YGOPro DevPro (Version:%X.0%X.%X)", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
-	wMainMenu = env->addWindow(rect<s32>(370, 200, 650, 415), false, strbuf);
-	wMainMenu->getCloseButton()->setVisible(false);
-	btnLanMode = env->addButton(rect<s32>(10, 30, 270, 60), wMainMenu, BUTTON_LAN_MODE, dataManager.GetSysString(1200));
-	btnServerMode = env->addButton(rect<s32>(10, 65, 270, 95), wMainMenu, BUTTON_SINGLE_MODE, dataManager.GetSysString(1201));
-	btnReplayMode = env->addButton(rect<s32>(10, 100, 270, 130), wMainMenu, BUTTON_REPLAY_MODE, dataManager.GetSysString(1202));
-//	btnTestMode = env->addButton(rect<s32>(10, 135, 270, 165), wMainMenu, BUTTON_TEST_MODE, dataManager.GetSysString(1203));
-	btnDeckEdit = env->addButton(rect<s32>(10, 135, 270, 165), wMainMenu, BUTTON_DECK_EDIT, dataManager.GetSysString(1204));
-	btnModeExit = env->addButton(rect<s32>(10, 170, 270, 200), wMainMenu, BUTTON_MODE_EXIT, dataManager.GetSysString(1210));
+	//main menu
+	wMenu.Load(env);
+	//online mode
+	wOnline.Load(env);
 	//lan mode
 	wLanWindow = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1200));
 	wLanWindow->getCloseButton()->setVisible(false);
@@ -623,7 +617,7 @@ bool Game::Initialize() {
 	btnLeaveGame->setVisible(false);
 	device->setEventReceiver(&menuHandler);
 	env->getSkin()->setFont(guiFont);
-	env->setFocus(wMainMenu);
+	env->setFocus(wMenu.GetWindow());
 	for (u32 i = 0; i < EGDC_COUNT; ++i) {
 		SColor col = env->getSkin()->getColor((EGUI_DEFAULT_COLOR)i);
 		col.setAlpha(224);
@@ -1248,7 +1242,7 @@ const wchar_t* Game::LocalName(int local_player) {
 }
 void Game::OnResize()
 {
-	wMainMenu->setRelativePosition(ResizeWin(370, 200, 650, 415));
+	wMenu.OnResize();
 	wLanWindow->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 520));
 	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750+50, 440));

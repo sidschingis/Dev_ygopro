@@ -37,16 +37,16 @@ int main(int argc, char* argv[]) {
 			event.EventType = irr::EET_GUI_EVENT;
 			event.GUIEvent.EventType = irr::gui::EGET_BUTTON_CLICKED;
 			if(!strcmp(argv[i], "-j")) {
-				ygo::mainGame->wMainMenu->setVisible(false);
+				ygo::mainGame->wMenu.Hide();
 				ygo::mainGame->menuHandler.OnJoinHost();
 			} else if(!strcmp(argv[i], "-f")) {
-				ygo::mainGame->wMainMenu->setVisible(false);
+				ygo::mainGame->wMenu.Hide();
 				ygo::mainGame->menuHandler.OnJoinHost(true);
 			} else if(!strcmp(argv[i], "-d")) {
-				event.GUIEvent.Caller = ygo::mainGame->btnDeckEdit;
+				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetGUIElement("-d");
 				ygo::mainGame->device->postEventFromUser(event);
 			} else if(!strcmp(argv[i], "-r")) {
-				event.GUIEvent.Caller = ygo::mainGame->btnReplayMode;
+				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetGUIElement("-r");
 				ygo::mainGame->device->postEventFromUser(event);
 				ygo::mainGame->lstReplayList->setSelected(ygo::mainGame->gameConf.lastreplay);
 				if(ygo::mainGame->lstReplayList->getSelected() != -1){
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
 					ygo::mainGame->device->postEventFromUser(event);
 				}
 			} else if(!strcmp(argv[i], "-s")) {
-				event.GUIEvent.Caller = ygo::mainGame->btnServerMode;
+				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetGUIElement("-s");
 				ygo::mainGame->device->postEventFromUser(event);
 				ygo::mainGame->lstSinglePlayList->setSelected(ygo::mainGame->gameConf.lastpuzzle);
 				if(ygo::mainGame->lstSinglePlayList->getSelected() != -1){

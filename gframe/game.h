@@ -5,6 +5,8 @@
 #include "client_field.h"
 #include "deck_con.h"
 #include "menu_handler.h"
+#include "MainMenuGUI.h"
+#include "OnlineGUI.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -237,14 +239,6 @@ public:
 	irr::gui::IGUIButton* btnSaveLog;
 	irr::gui::IGUIScrollBar* scrSound;
 	irr::gui::IGUIScrollBar* scrMusic;
-	//main menu
-	irr::gui::IGUIWindow* wMainMenu;
-	irr::gui::IGUIButton* btnLanMode;
-	irr::gui::IGUIButton* btnServerMode;
-	irr::gui::IGUIButton* btnReplayMode;
-	irr::gui::IGUIButton* btnTestMode;
-	irr::gui::IGUIButton* btnDeckEdit;
-	irr::gui::IGUIButton* btnModeExit;
 	//lan
 	irr::gui::IGUIWindow* wLanWindow;
 	irr::gui::IGUIEditBox* ebNickName;
@@ -451,7 +445,10 @@ public:
 	irr::gui::IGUIButton* btnChainWhenAvail;
 	//soundEngine
 	irrklang::ISoundEngine* engineSound;
-	irrklang::ISoundEngine* engineMusic; 
+	irrklang::ISoundEngine* engineMusic;
+
+	MainMenuGUI wMenu;
+	OnlineGUI wOnline;
 };
 
 extern Game* mainGame;

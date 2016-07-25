@@ -26,7 +26,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->btnCreateHost->setEnabled(true);
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
-				mainGame->HideElement(mainGame->wMainMenu);
+				mainGame->wMenu.Hide();
 				mainGame->ShowElement(mainGame->wLanWindow);
 				break;
 			}
@@ -36,7 +36,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_JOIN_CANCEL: {
 				mainGame->HideElement(mainGame->wLanWindow);
-				mainGame->ShowElement(mainGame->wMainMenu);
+				mainGame->wMenu.Show();
 				break;
 			}
 			case BUTTON_LAN_REFRESH: {
@@ -110,14 +110,14 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_REPLAY_MODE: {
-				mainGame->HideElement(mainGame->wMainMenu);
+				mainGame->wMenu.Hide();
 				mainGame->ShowElement(mainGame->wReplay);
 				mainGame->ebRepStartTurn->setText(L"1");
 				mainGame->RefreshReplay();
 				break;
 			}
 			case BUTTON_SINGLE_MODE: {
-				mainGame->HideElement(mainGame->wMainMenu);
+				mainGame->wMenu.Hide();
 				mainGame->ShowElement(mainGame->wSinglePlay);
 				mainGame->RefreshSingleplay();
 				break;
@@ -159,7 +159,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				if (exit_on_return)
 					mainGame->device->closeDevice();
 				else
-					mainGame->ShowElement(mainGame->wMainMenu);
+					mainGame->wMenu.Show();
 				break;
 			}
 			case BUTTON_LOAD_SINGLEPLAY: {
@@ -171,14 +171,14 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_CANCEL_SINGLEPLAY: {
 				mainGame->HideElement(mainGame->wSinglePlay);
-				mainGame->ShowElement(mainGame->wMainMenu);
+				mainGame->wMenu.Show();
 				break;
 			}
 			case BUTTON_DECK_EDIT: {
 				mainGame->RefreshDeck(mainGame->cbDBDecks);
 				if(mainGame->cbDBDecks->getSelected() != -1)
 					deckManager.LoadDeck(mainGame->cbDBDecks->getItem(mainGame->cbDBDecks->getSelected()));
-				mainGame->HideElement(mainGame->wMainMenu);
+				mainGame->wMenu.Hide();
 				mainGame->is_building = true;
 				mainGame->is_siding = false;
 				mainGame->wInfos->setVisible(true);
