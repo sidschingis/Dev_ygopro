@@ -1,12 +1,15 @@
+#ifndef LOGIN_H
+#define LOGIN_H
+
 #include "config.h"
 
 namespace ygo {
 
-	class LoginGUI
+	class GUILogin
 	{
 	public:
-		LoginGUI() {};
-		void Load(irr::gui::IGUIEnvironment* env);
+		GUILogin() {};
+		void Load();
 		void Hide() { wLoginMenu->setVisible(false); };
 		void Show() { wLoginMenu->setVisible(true); };
 	private:
@@ -14,3 +17,4 @@ namespace ygo {
 	};
 }
 
+#endif // !LOGIN_H

@@ -1,12 +1,15 @@
+#ifndef ONLINE_H
+#define ONLINE_H
+
 #include "config.h"
 
 namespace ygo {
 
-	class OnlineGUI
+	class GUIOnline
 	{
 	public:
-		OnlineGUI() {};
-		void Load(irr::gui::IGUIEnvironment* env);
+		GUIOnline() {};
+		void Load();
 		void Hide() { wOnlineMenu->setVisible(false); };
 		void Show() { wOnlineMenu->setVisible(true); };
 	private:
@@ -14,3 +17,4 @@ namespace ygo {
 	};
 }
 
+#endif // !ONLINE_H

@@ -5,8 +5,8 @@
 #include "client_field.h"
 #include "deck_con.h"
 #include "menu_handler.h"
-#include "MainMenuGUI.h"
-#include "OnlineGUI.h"
+#include "GUIMainMenu.h"
+#include "GUIOnline.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -447,8 +447,8 @@ public:
 	irrklang::ISoundEngine* engineSound;
 	irrklang::ISoundEngine* engineMusic;
 
-	MainMenuGUI wMenu;
-	OnlineGUI wOnline;
+	GUIMainMenu wMenu;
+	GUIOnline wOnline;
 };
 
 extern Game* mainGame;

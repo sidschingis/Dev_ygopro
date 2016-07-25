@@ -138,9 +138,9 @@ bool Game::Initialize() {
 	device->setResizable(true);
 	wchar_t strbuf[256];
 	//main menu
-	wMenu.Load(env);
+	wMenu.Load();
 	//online mode
-	wOnline.Load(env);
+	wOnline.Load();
 	//lan mode
 	wLanWindow = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1200));
 	wLanWindow->getCloseButton()->setVisible(false);
