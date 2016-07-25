@@ -9,10 +9,10 @@ namespace ygo {
 	public:
 		GUIMainMenu() {};
 		void Load();
-		void Hide() { wMenu->setVisible(false); };
-		void Show() { wMenu->setVisible(true); };
+		virtual void Hide() { wMenu->setVisible(false); };
+		virtual void Show() { wMenu->setVisible(true); };
 		void OnResize();
-		irr::gui::IGUIElement* GetGUIElement(const char* args);
+		irr::gui::IGUIElement* GetBtnElement(unsigned int);
 		irr::gui::IGUIWindow* GetWindow() { return wMenu; };		
 	private:
 		irr::gui::IGUIWindow* wMenu;

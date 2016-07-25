@@ -4,8 +4,7 @@
 
 namespace ygo {
 
-	void GUIMainMenu::Load()
-	{
+	void GUIMainMenu::Load() {
 		wchar_t strbuf[256];
 		myswprintf(strbuf, L"YGOPro DevPro (Version:%X.0%X.%X)", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
 		wMenu = mainGame->env->addWindow(rect<s32>(370, 200, 650, 415), false, strbuf);
@@ -19,19 +18,14 @@ namespace ygo {
 		
 	}
 
-	irr::gui::IGUIElement* GUIMainMenu::GetGUIElement(const char* args)
-	{
-		if (!strcmp(args, "-r"))
-			return _buttons[BUTTON_REPLAY_MODE];
-		else if (!strcmp(args, "-d"))
-			return _buttons[BUTTON_DECK_EDIT];
-		else if(!strcmp(args, "-s"))
-			return _buttons[BUTTON_SINGLE_MODE];
-		return NULL;
+	irr::gui::IGUIElement* GUIMainMenu::GetBtnElement(unsigned int item) {
+		auto cdit = _buttons.find(item);
+		if (cdit == _buttons.end())
+			return NULL;
+		return _buttons[item];
 	}
 
-	void GUIMainMenu::OnResize()
-	{
+	void GUIMainMenu::OnResize() {
 		wMenu->setRelativePosition(mainGame->ResizeWin(370, 200, 650, 415));
 	}
 }

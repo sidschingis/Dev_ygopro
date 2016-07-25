@@ -43,10 +43,10 @@ int main(int argc, char* argv[]) {
 				ygo::mainGame->wMenu.Hide();
 				ygo::mainGame->menuHandler.OnJoinHost(true);
 			} else if(!strcmp(argv[i], "-d")) {
-				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetGUIElement("-d");
+				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetBtnElement(BUTTON_DECK_EDIT);
 				ygo::mainGame->device->postEventFromUser(event);
 			} else if(!strcmp(argv[i], "-r")) {
-				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetGUIElement("-r");
+				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetBtnElement(BUTTON_REPLAY_MODE);
 				ygo::mainGame->device->postEventFromUser(event);
 				ygo::mainGame->lstReplayList->setSelected(ygo::mainGame->gameConf.lastreplay);
 				if(ygo::mainGame->lstReplayList->getSelected() != -1){
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
 					ygo::mainGame->device->postEventFromUser(event);
 				}
 			} else if(!strcmp(argv[i], "-s")) {
-				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetGUIElement("-s");
+				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetBtnElement(BUTTON_SINGLE_MODE);
 				ygo::mainGame->device->postEventFromUser(event);
 				ygo::mainGame->lstSinglePlayList->setSelected(ygo::mainGame->gameConf.lastpuzzle);
 				if(ygo::mainGame->lstSinglePlayList->getSelected() != -1){
