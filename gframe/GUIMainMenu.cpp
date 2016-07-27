@@ -29,6 +29,7 @@ namespace ygo {
 		wMenu->setRelativePosition(mainGame->ResizeWin(370, 200, 650, 415));
 	}
 	void GUIMainMenu::Show() {
+		mainGame->PopupElement(wMenu);
 		mainGame->device->setEventReceiver(&mainGame->wMenu);
 	}
 
