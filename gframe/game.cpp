@@ -615,7 +615,7 @@ bool Game::Initialize() {
 	//leave/surrender/exit
 	btnLeaveGame = env->addButton(rect<s32>(205, 5, 295, 80), 0, BUTTON_LEAVE_GAME, L"");
 	btnLeaveGame->setVisible(false);
-	device->setEventReceiver(&menuHandler);
+	device->setEventReceiver(&wMenu);
 	env->getSkin()->setFont(guiFont);
 	env->setFocus(wMenu.GetWindow());
 	for (u32 i = 0; i < EGDC_COUNT; ++i) {

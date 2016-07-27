@@ -2,12 +2,13 @@
 #define MAIN_MENU_H
 
 #include "config.h"
+#include "data_manager.h"
 
 namespace ygo {
 
-	class GUIMainMenu {
+	class GUIMainMenu : public irr::IEventReceiver {
 	public:
-		GUIMainMenu() {};
+		virtual bool OnEvent(const irr::SEvent& event);
 		void Load();
 		virtual void Hide() { wMenu->setVisible(false); };
 		virtual void Show() { wMenu->setVisible(true); };

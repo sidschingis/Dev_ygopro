@@ -18,18 +18,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 		switch(event.GUIEvent.EventType) {
 		case irr::gui::EGET_BUTTON_CLICKED: {
 			switch(id) {
-			case BUTTON_MODE_EXIT: {
-				mainGame->device->closeDevice();
-				break;
-			}
-			case BUTTON_LAN_MODE: {
-				mainGame->btnCreateHost->setEnabled(true);
-				mainGame->btnJoinHost->setEnabled(true);
-				mainGame->btnJoinCancel->setEnabled(true);
-				mainGame->wMenu.Hide();
-				mainGame->ShowElement(mainGame->wLanWindow);
-				break;
-			}
 			case BUTTON_JOIN_HOST: {
 				OnJoinHost();
 				break;
@@ -37,6 +25,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			case BUTTON_JOIN_CANCEL: {
 				mainGame->HideElement(mainGame->wLanWindow);
 				mainGame->wMenu.Show();
+				mainGame->device->setEventReceiver(&mainGame->wMenu);
 				break;
 			}
 			case BUTTON_LAN_REFRESH: {
@@ -109,19 +98,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					mainGame->device->closeDevice();
 				break;
 			}
-			case BUTTON_REPLAY_MODE: {
-				mainGame->wMenu.Hide();
-				mainGame->ShowElement(mainGame->wReplay);
-				mainGame->ebRepStartTurn->setText(L"1");
-				mainGame->RefreshReplay();
-				break;
-			}
-			case BUTTON_SINGLE_MODE: {
-				mainGame->wMenu.Hide();
-				mainGame->ShowElement(mainGame->wSinglePlay);
-				mainGame->RefreshSingleplay();
-				break;
-			}
 			case BUTTON_LOAD_REPLAY: {
 				if(mainGame->lstReplayList->getSelected() == -1)
 					break;
@@ -158,8 +134,10 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->HideElement(mainGame->wReplay);
 				if (exit_on_return)
 					mainGame->device->closeDevice();
-				else
+				else {
 					mainGame->wMenu.Show();
+					mainGame->device->setEventReceiver(&mainGame->wMenu);
+				}
 				break;
 			}
 			case BUTTON_LOAD_SINGLEPLAY: {
@@ -172,46 +150,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			case BUTTON_CANCEL_SINGLEPLAY: {
 				mainGame->HideElement(mainGame->wSinglePlay);
 				mainGame->wMenu.Show();
-				break;
-			}
-			case BUTTON_DECK_EDIT: {
-				mainGame->RefreshDeck(mainGame->cbDBDecks);
-				if(mainGame->cbDBDecks->getSelected() != -1)
-					deckManager.LoadDeck(mainGame->cbDBDecks->getItem(mainGame->cbDBDecks->getSelected()));
-				mainGame->wMenu.Hide();
-				mainGame->is_building = true;
-				mainGame->is_siding = false;
-				mainGame->wInfos->setVisible(true);
-				mainGame->wCardImg->setVisible(true);
-				mainGame->wDeckEdit->setVisible(true);
-				mainGame->wFilter->setVisible(true);
-				mainGame->wSort->setVisible(true);
-				mainGame->btnSideOK->setVisible(false);
-				mainGame->deckBuilder.filterList = deckManager._lfList[0].content;
-				mainGame->cbDBLFList->setSelected(0);
-				mainGame->cbCardType->setSelected(0);
-				mainGame->cbCardType2->setSelected(0);
-				mainGame->cbAttribute->setSelected(0);
-				mainGame->cbRace->setSelected(0);
-				mainGame->ebAttack->setText(L"");
-				mainGame->ebDefence->setText(L"");
-				mainGame->ebStar->setText(L"");
-				mainGame->ebScale->setText(L"");
-				mainGame->cbCardType2->setEnabled(false);
-				mainGame->cbAttribute->setEnabled(false);
-				mainGame->cbRace->setEnabled(false);
-				mainGame->ebAttack->setEnabled(false);
-				mainGame->ebDefence->setEnabled(false);
-				mainGame->ebStar->setEnabled(false);
-				mainGame->ebScale->setEnabled(false);
-				mainGame->deckBuilder.filter_effect = 0;
-				mainGame->deckBuilder.result_string[0] = L'0';
-				mainGame->deckBuilder.result_string[1] = 0;
-				mainGame->deckBuilder.results.clear();
-				mainGame->deckBuilder.is_draging = false;
-				mainGame->device->setEventReceiver(&mainGame->deckBuilder);
-				for(int i = 0; i < 32; ++i)
-					mainGame->chkCategory[i]->setChecked(false);
+				mainGame->device->setEventReceiver(&mainGame->wMenu);
 				break;
 			}
 			}
