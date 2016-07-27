@@ -28,6 +28,9 @@ namespace ygo {
 	void GUIMainMenu::OnResize() {
 		wMenu->setRelativePosition(mainGame->ResizeWin(370, 200, 650, 415));
 	}
+	void GUIMainMenu::Show() {
+		mainGame->device->setEventReceiver(&mainGame->wMenu);
+	}
 
 	bool GUIMainMenu::OnEvent(const irr::SEvent& event) {
 		//handle events here

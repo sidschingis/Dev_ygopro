@@ -95,8 +95,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				mainGame->wFilter->setVisible(false);
 				mainGame->wCardImg->setVisible(false);
 				mainGame->wInfos->setVisible(false);
-				mainGame->PopupElement(mainGame->wMenu.GetWindow());
-				mainGame->device->setEventReceiver(&mainGame->wMenu);
+				mainGame->wMenu.Show();
 				mainGame->wACMessage->setVisible(false);
 				imageManager.ClearTexture();
 				mainGame->scrFilter->setVisible(false);

@@ -25,7 +25,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			case BUTTON_JOIN_CANCEL: {
 				mainGame->HideElement(mainGame->wLanWindow);
 				mainGame->wMenu.Show();
-				mainGame->device->setEventReceiver(&mainGame->wMenu);
 				break;
 			}
 			case BUTTON_LAN_REFRESH: {
@@ -134,10 +133,8 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->HideElement(mainGame->wReplay);
 				if (exit_on_return)
 					mainGame->device->closeDevice();
-				else {
+				else
 					mainGame->wMenu.Show();
-					mainGame->device->setEventReceiver(&mainGame->wMenu);
-				}
 				break;
 			}
 			case BUTTON_LOAD_SINGLEPLAY: {
@@ -150,7 +147,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			case BUTTON_CANCEL_SINGLEPLAY: {
 				mainGame->HideElement(mainGame->wSinglePlay);
 				mainGame->wMenu.Show();
-				mainGame->device->setEventReceiver(&mainGame->wMenu);
 				break;
 			}
 			}
