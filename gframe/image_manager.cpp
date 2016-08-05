@@ -6,30 +6,44 @@ namespace ygo {
 ImageManager imageManager;
 
 bool ImageManager::Initial() {
-	tCover[0] = driver->getTexture("textures/cover.jpg");
-	tCover[1] = driver->getTexture("textures/cover2.jpg");
-	tUnknown = driver->getTexture("textures/unknown.jpg");
-	tAct = driver->getTexture("textures/act.png");
-	tAttack = driver->getTexture("textures/attack.png");
-	tChain = driver->getTexture("textures/chain.png");
-	tNegated = driver->getTexture("textures/negated.png");
-	tNumber = driver->getTexture("textures/number.png");
-	tLPBar = driver->getTexture("textures/lp.png");
-	tLPFrame = driver->getTexture("textures/lpf.png");
-	tMask = driver->getTexture("textures/mask.png");
-	tEquip = driver->getTexture("textures/equip.png");
-	tTarget = driver->getTexture("textures/target.png");
-	tLim = driver->getTexture("textures/lim.png");
-	tHand[0] = driver->getTexture("textures/f1.jpg");
-	tHand[1] = driver->getTexture("textures/f2.jpg");
-	tHand[2] = driver->getTexture("textures/f3.jpg");
-	tBackGround = driver->getTexture("textures/bg.jpg");
-	tBackGround2 = driver->getTexture("textures/bg2.jpg"); 
-	tField = driver->getTexture("textures/field2.png");
-	tFieldTransparent = driver->getTexture("textures/field-transparent.png");
+	tCover[0] = LoadTexture("textures/cover");
+	tCover[1] = LoadTexture("textures/cover2");
+	tUnknown = LoadTexture("textures/unknown");
+	tAct = LoadTexture("textures/act");
+	tAttack = LoadTexture("textures/attack");
+	tChain = LoadTexture("textures/chain");
+	tNegated = LoadTexture("textures/negated");
+	tNumber = LoadTexture("textures/number");
+	tLPBar = LoadTexture("textures/lp");
+	tLPFrame = LoadTexture("textures/lpf");
+	tMask = LoadTexture("textures/mask");
+	tEquip = LoadTexture("textures/equip");
+	tTarget = LoadTexture("textures/target");
+	tLim = LoadTexture("textures/lim.png");
+	tHand[0] = LoadTexture("textures/f1");
+	tHand[1] = LoadTexture("textures/f2");
+	tHand[2] = LoadTexture("textures/f3");
+	tBackGround = LoadTexture("textures/bg");
+	tBackGround2 = LoadTexture("textures/bg2"); 
+	tField = LoadTexture("textures/field2");
+	tFieldTransparent = LoadTexture("textures/field-transparent");
 	for (int i = 0; i < 4; ++i)
 		tAvatar[i] = NULL;
 	return true;
+}
+irr::video::ITexture* ImageManager::LoadTexture(const char* image) {
+	ITexture* texture;
+	char file[256];
+	strncpy(file, image, sizeof(file));
+	strncat(file,".png", sizeof(file));
+	texture = driver->getTexture(file);
+	if (texture == NULL)
+	{
+		strncpy(file, image, sizeof(file));
+		strncat(file, ".jpg", sizeof(file));
+		texture = driver->getTexture(file);
+	}
+	return texture == NULL ? tUnknown : texture;
 }
 void ImageManager::SetDevice(irr::IrrlichtDevice* dev) {
 	device = dev;
@@ -64,8 +78,8 @@ irr::video::ITexture* ImageManager::GetTexture(int code) {
 	auto tit = tMap.find(code);
 	if(tit == tMap.end()) {
 		char file[256];
-		sprintf(file, "pics/%d.jpg", code);
-		irr::video::ITexture* img = driver->getTexture(file);
+		sprintf(file, "pics/%d", code);
+		irr::video::ITexture* img = LoadTexture(file);
 		if(img == NULL) {
 			tMap[code] = NULL;
 			return tUnknown;
@@ -86,8 +100,8 @@ irr::video::ITexture* ImageManager::GetTextureThumb(int code) {
 	auto tit = tThumb.find(code);
 	if(tit == tThumb.end()) {
 		char file[256];
-		sprintf(file, "pics/thumbnail/%d.jpg", code);
-		irr::video::ITexture* img = driver->getTexture(file);
+		sprintf(file, "pics/thumbnail/%d", code);
+		irr::video::ITexture* img = LoadTexture(file);
 		if(img == NULL) {
 			tThumb[code] = NULL;
 			return GetTexture(code);
@@ -108,19 +122,11 @@ irr::video::ITexture* ImageManager::GetTextureField(int code) {
 	auto tit = tFields.find(code);
 	if(tit == tFields.end()) {
 		char file[256];
-		sprintf(file, "pics/field/%d.png", code);
-		irr::video::ITexture* img = driver->getTexture(file);
+		sprintf(file, "pics/field/%d", code);
+		irr::video::ITexture* img = LoadTexture(file);
 		if(img == NULL) {
-			printf(file, "pics/field/%d.jpg", code);
-			img = driver->getTexture(file);
-			if (img == NULL) {
-				tFields[code] = NULL;
-				return NULL;
-			}
-			else {
-				tFields[code] = img;
-				return img;
-			}
+			tFields[code] = NULL;
+			return NULL;
 		} else {
 			tFields[code] = img;
 			return img;
