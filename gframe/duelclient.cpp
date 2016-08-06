@@ -286,23 +286,20 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->is_building = true;
 		mainGame->is_siding = true;
 		mainGame->wPhase->setVisible(false);
-		mainGame->wDeckEdit->setVisible(false);
-		mainGame->wFilter->setVisible(false);
-		mainGame->wSort->setVisible(false);
-		mainGame->btnSideOK->setVisible(true);
+		mainGame->wEdit.ShowSiding();
 		if(mainGame->dInfo.player_type < 7)
 			mainGame->btnLeaveGame->setVisible(false);
 		mainGame->btnChainIgnore->setVisible(false);
 		mainGame->btnChainAlways->setVisible(false);
 		mainGame->btnChainWhenAvail->setVisible(false);
-		mainGame->deckBuilder.result_string[0] = L'0';
-		mainGame->deckBuilder.result_string[1] = 0;
-		mainGame->deckBuilder.results.clear();
-		mainGame->deckBuilder.is_draging = false;
-		mainGame->deckBuilder.pre_mainc = deckManager.current_deck.main.size();
-		mainGame->deckBuilder.pre_extrac = deckManager.current_deck.extra.size();
-		mainGame->deckBuilder.pre_sidec = deckManager.current_deck.side.size();
-		mainGame->device->setEventReceiver(&mainGame->deckBuilder);
+		mainGame->wEdit.result_string[0] = L'0';
+		mainGame->wEdit.result_string[1] = 0;
+		mainGame->wEdit.results.clear();
+		mainGame->wEdit.is_draging = false;
+		mainGame->wEdit.pre_mainc = deckManager.current_deck.main.size();
+		mainGame->wEdit.pre_extrac = deckManager.current_deck.extra.size();
+		mainGame->wEdit.pre_sidec = deckManager.current_deck.side.size();
+		mainGame->device->setEventReceiver(&mainGame->wEdit);
 		mainGame->gMutex.Unlock();
 		break;
 	}
@@ -375,12 +372,12 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->dInfo.time_limit = pkt->info.time_limit;
 		mainGame->dInfo.time_left[0] = 0;
 		mainGame->dInfo.time_left[1] = 0;
-		mainGame->deckBuilder.filterList = 0;
+		mainGame->wEdit.filterList = 0;
 		for(auto lit = deckManager._lfList.begin(); lit != deckManager._lfList.end(); ++lit)
 			if(lit->hash == pkt->info.lflist)
-				mainGame->deckBuilder.filterList = lit->content;
-		if(mainGame->deckBuilder.filterList == 0)
-			mainGame->deckBuilder.filterList = deckManager._lfList[0].content;
+				mainGame->wEdit.filterList = lit->content;
+		if(mainGame->wEdit.filterList == 0)
+			mainGame->wEdit.filterList = deckManager._lfList[0].content;
 		mainGame->stHostPrepDuelist[0]->setText(L"");
 		mainGame->stHostPrepDuelist[1]->setText(L"");
 		mainGame->stHostPrepDuelist[2]->setText(L"");
@@ -497,7 +494,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->wCardImg->setVisible(true);
 		mainGame->wInfos->setVisible(true);
 		mainGame->wPhase->setVisible(true);
-		mainGame->btnSideOK->setVisible(false);
+		mainGame->wEdit.Hide();
 		mainGame->btnDP->setVisible(false);
 		mainGame->btnSP->setVisible(false);
 		mainGame->btnM1->setVisible(false);

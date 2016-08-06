@@ -19,7 +19,7 @@ bool ImageManager::Initial() {
 	tMask = LoadTexture("textures/mask");
 	tEquip = LoadTexture("textures/equip");
 	tTarget = LoadTexture("textures/target");
-	tLim = LoadTexture("textures/lim.png");
+	tLim = LoadTexture("textures/lim");
 	tHand[0] = LoadTexture("textures/f1");
 	tHand[1] = LoadTexture("textures/f2");
 	tHand[2] = LoadTexture("textures/f3");

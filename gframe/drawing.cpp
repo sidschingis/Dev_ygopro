@@ -978,8 +978,8 @@ void Game::DrawDeckBd() {
 		dx = 436.0f / (lx - 1);
 	}
 	for(size_t i = 0; i < deckManager.current_deck.main.size(); ++i) {
-		DrawThumb(deckManager.current_deck.main[i], position2di(314 + (i % lx) * dx, 164 + (i / lx) * 68), deckBuilder.filterList);
-		if(deckBuilder.hovered_pos == 1 && deckBuilder.hovered_seq == (int)i)
+		DrawThumb(deckManager.current_deck.main[i], position2di(314 + (i % lx) * dx, 164 + (i / lx) * 68), wEdit.filterList);
+		if(wEdit.hovered_pos == 1 && wEdit.hovered_seq == (int)i)
 			driver->draw2DRectangleOutline(mainGame->Resize(313 + (i % lx) * dx, 163 + (i / lx) * 68, 359 + (i % lx) * dx, 228 + (i / lx) * 68));
 	}
 
@@ -1001,8 +1001,8 @@ void Game::DrawDeckBd() {
 		dx = 436.0f / 9;
 	else dx = 436.0f / (deckManager.current_deck.extra.size() - 1);
 	for(size_t i = 0; i < deckManager.current_deck.extra.size(); ++i) {
-		DrawThumb(deckManager.current_deck.extra[i], position2di(314 + i * dx, 466), deckBuilder.filterList);
-		if(deckBuilder.hovered_pos == 2 && deckBuilder.hovered_seq == (int)i)
+		DrawThumb(deckManager.current_deck.extra[i], position2di(314 + i * dx, 466), wEdit.filterList);
+		if(wEdit.hovered_pos == 2 && wEdit.hovered_seq == (int)i)
 			driver->draw2DRectangleOutline(mainGame->Resize(313 + i * dx, 465, 359 + i * dx, 531));
 	}
 
@@ -1024,22 +1024,22 @@ void Game::DrawDeckBd() {
 		dx = 436.0f / 9;
 	else dx = 436.0f / (deckManager.current_deck.side.size() - 1);
 	for(size_t i = 0; i < deckManager.current_deck.side.size(); ++i) {
-		DrawThumb(deckManager.current_deck.side[i], position2di(314 + i * dx, 564), deckBuilder.filterList);
-		if(deckBuilder.hovered_pos == 3 && deckBuilder.hovered_seq == (int)i)
+		DrawThumb(deckManager.current_deck.side[i], position2di(314 + i * dx, 564), wEdit.filterList);
+		if(wEdit.hovered_pos == 3 && wEdit.hovered_seq == (int)i)
 			driver->draw2DRectangleOutline(mainGame->Resize(313 + i * dx, 563, 359 + i * dx, 629));
 	}
 
 	//search results
 	DrawRectangle(driver, mainGame->Resize(805, 137, 915, 157));
 	DrawShadowA(textFont, dataManager.GetSysString(1333), mainGame->Resize(809, 136, 914, 156));
-	DrawShadowA(numFont, deckBuilder.result_string, mainGame->Resize(874, 136, 934, 156));
+	DrawShadowA(numFont, wEdit.result_string, mainGame->Resize(874, 136, 934, 156));
 	DrawRectangle(driver, mainGame->Resize(805, 160, 1020, 630));
 
-	for(size_t i = 0; i < 7 && i + mainGame->scrFilter->getPos() < deckBuilder.results.size(); ++i) {
-		code_pointer ptr = deckBuilder.results[i + mainGame->scrFilter->getPos()];
-		if(deckBuilder.hovered_pos == 4 && deckBuilder.hovered_seq == (int)i)
+	for(size_t i = 0; i < 7 && i + mainGame->wEdit.GetScrollBar()->getPos() < wEdit.results.size(); ++i) {
+		code_pointer ptr = wEdit.results[i + mainGame->wEdit.GetScrollBar()->getPos()];
+		if(wEdit.hovered_pos == 4 && wEdit.hovered_seq == (int)i)
 			driver->draw2DRectangle(0x80000000, mainGame->Resize(806, 164 + i * 66, 1019, 230 + i * 66));
-		DrawThumb(ptr, position2di(810, 165 + i * 66), deckBuilder.filterList);
+		DrawThumb(ptr, position2di(810, 165 + i * 66), wEdit.filterList);
 		if(ptr->second.type & TYPE_MONSTER) {
 			int form = 0x2605;
 			if (ptr->second.type & TYPE_XYZ) ++form;
@@ -1080,8 +1080,8 @@ void Game::DrawDeckBd() {
 			DrawShadowB(textFont, textBuffer, mainGame->Resize(859, 208 + i * 66, 955, 229 + i * 66));
 		}
 	}
-	if(deckBuilder.is_draging) {
-		DrawThumb(deckBuilder.draging_pointer, position2di(deckBuilder.dragx - 22, deckBuilder.dragy - 32), deckBuilder.filterList, true);
+	if(wEdit.is_draging) {
+		DrawThumb(wEdit.draging_pointer, position2di(wEdit.dragx - 22, wEdit.dragy - 32), wEdit.filterList, true);
 	}
 }
 }

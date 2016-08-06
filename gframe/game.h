@@ -7,6 +7,7 @@
 #include "menu_handler.h"
 #include "GUIMainMenu.h"
 #include "GUIOnline.h"
+#include"GUIDeckEdit.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -198,7 +199,6 @@ public:
 	CGUISkinSystem *skinSystem;
 
 	ClientField dField;
-	DeckBuilder deckBuilder;
 	MenuHandler menuHandler;
 	irr::IrrlichtDevice* device;
 	irr::video::IVideoDriver* driver;
@@ -375,55 +375,6 @@ public:
 	irr::gui::IGUIButton* btnBP;
 	irr::gui::IGUIButton* btnM2;
 	irr::gui::IGUIButton* btnEP;
-	//deck edit
-	irr::gui::IGUIStaticText* wDeckEdit;
-	irr::gui::IGUIComboBox* cbDBLFList;
-	irr::gui::IGUIComboBox* cbDBDecks;
-	irr::gui::IGUIButton* btnClearDeck;
-	irr::gui::IGUIButton* btnSortDeck;
-	irr::gui::IGUIButton* btnShuffleDeck;
-	irr::gui::IGUIButton* btnClearFilter;
-	irr::gui::IGUIButton* btnSaveDeck;
-	irr::gui::IGUIButton* btnSaveDeckAs;
-	irr::gui::IGUIButton* btnDBExit;
-	irr::gui::IGUIButton* btnSideOK;
-	irr::gui::IGUIButton* btnDeleteDeck;
-	irr::gui::IGUIEditBox* ebDeckname;
-	//deck edit labels
-	irr::gui::IGUIStaticText* stLabel1;
-	irr::gui::IGUIStaticText* stLabel2;
-	irr::gui::IGUIStaticText* stLabel3;
-	irr::gui::IGUIStaticText* stLabel4;
-	irr::gui::IGUIStaticText* stLabel5;
-	irr::gui::IGUIStaticText* stLabel6;
-	irr::gui::IGUIStaticText* stLabel7;
-	irr::gui::IGUIStaticText* stLabel8;
-	irr::gui::IGUIStaticText* stLabel9;
-	irr::gui::IGUIStaticText* stLabel10;
-	irr::gui::IGUIStaticText* stLabel11;
-	irr::gui::IGUIStaticText* stLabel12;
-	//filter
-	irr::gui::IGUIStaticText* wFilter;
-	irr::gui::IGUIScrollBar* scrFilter;
-	irr::gui::IGUIComboBox* cbCardType;
-	irr::gui::IGUIComboBox* cbCardType2;
-	irr::gui::IGUIComboBox* cbRace;
-	irr::gui::IGUIComboBox* cbAttribute;
-	irr::gui::IGUIComboBox* cbLimit;
-	irr::gui::IGUIEditBox* ebStar;
-	irr::gui::IGUIEditBox* ebScale;
-	irr::gui::IGUIEditBox* ebAttack;
-	irr::gui::IGUIEditBox* ebDefence;
-	irr::gui::IGUIEditBox* ebCardName;
-	irr::gui::IGUIButton* btnEffectFilter;
-	irr::gui::IGUIButton* btnStartFilter;
-	irr::gui::IGUIWindow* wCategories;
-	irr::gui::IGUICheckBox* chkCategory[32];
-	irr::gui::IGUIButton* btnCategoryOK;
-	irr::gui::IGUIComboBox* cbSetCode;
-	//sort type
-	irr::gui::IGUIStaticText* wSort;
-	irr::gui::IGUIComboBox* cbSortType;
 	//replay save
 	irr::gui::IGUIWindow* wReplaySave;
 	irr::gui::IGUIEditBox* ebRSName;
@@ -448,6 +399,7 @@ public:
 	irrklang::ISoundEngine* engineMusic;
 
 	GUIMainMenu wMenu;
+	GUIDeckEdit wEdit;
 	GUIOnline wOnline;
 };
 
@@ -547,8 +499,6 @@ extern Game* mainGame;
 #define SCROLL_CARD_DISPLAY			295
 #define BUTTON_CARD_DISP_OK			296
 #define BUTTON_CATEGORY_OK			300
-#define COMBOBOX_DBLFLIST			301
-#define COMBOBOX_DBDECKS			302
 #define BUTTON_CLEAR_DECK			303
 #define BUTTON_SAVE_DECK			304
 #define BUTTON_SAVE_DECK_AS			305
@@ -556,11 +506,8 @@ extern Game* mainGame;
 #define BUTTON_SORT_DECK			307
 #define BUTTON_SIDE_OK				308
 #define BUTTON_SHUFFLE_DECK			309
-#define COMBOBOX_MAINTYPE			310
 #define BUTTON_EFFECT_FILTER		311
 #define BUTTON_START_FILTER			312
-#define SCROLL_FILTER				314
-#define EDITBOX_KEYWORD				315
 #define BUTTON_REPLAY_START			320
 #define BUTTON_REPLAY_PAUSE			321
 #define BUTTON_REPLAY_STEP			322
