@@ -38,10 +38,10 @@ int main(int argc, char* argv[]) {
 			event.GUIEvent.EventType = irr::gui::EGET_BUTTON_CLICKED;
 			if(!strcmp(argv[i], "-j")) {
 				ygo::mainGame->wMenu.Hide();
-				ygo::mainGame->menuHandler.OnJoinHost();
+				ygo::mainGame->wLan.OnJoinHost();
 			} else if(!strcmp(argv[i], "-f")) {
 				ygo::mainGame->wMenu.Hide();
-				ygo::mainGame->menuHandler.OnJoinHost(true);
+				ygo::mainGame->wLan.OnJoinHost();
 			} else if(!strcmp(argv[i], "-d")) {
 				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetBtnElement(BUTTON_DECK_EDIT);
 				ygo::mainGame->device->postEventFromUser(event);

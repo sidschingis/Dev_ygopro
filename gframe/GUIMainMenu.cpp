@@ -41,12 +41,8 @@ namespace ygo {
 			case irr::gui::EGET_BUTTON_CLICKED: {
 				switch (id) {
 					case BUTTON_LAN_MODE: {
-						mainGame->btnCreateHost->setEnabled(true);
-						mainGame->btnJoinHost->setEnabled(true);
-						mainGame->btnJoinCancel->setEnabled(true);
 						mainGame->wMenu.Hide();
-						mainGame->ShowElement(mainGame->wLanWindow);
-						mainGame->device->setEventReceiver(&mainGame->menuHandler);//use this for now
+						mainGame->wLan.Show();
 						break;
 						}
 					case BUTTON_REPLAY_MODE: {

@@ -114,11 +114,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					if (exit_on_return)
 						mainGame->device->closeDevice();
 					else {
-						mainGame->device->setEventReceiver(&mainGame->menuHandler);
-						mainGame->btnCreateHost->setEnabled(true);
-						mainGame->btnJoinHost->setEnabled(true);
-						mainGame->btnJoinCancel->setEnabled(true);
-						mainGame->ShowElement(mainGame->wLanWindow);
+						mainGame->wLan.Show();
 					}
 				} else {
 					DuelClient::SendPacketToServer(CTOS_SURRENDER);

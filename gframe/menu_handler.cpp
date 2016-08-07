@@ -18,31 +18,17 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 		switch(event.GUIEvent.EventType) {
 		case irr::gui::EGET_BUTTON_CLICKED: {
 			switch(id) {
-			case BUTTON_JOIN_HOST: {
-				OnJoinHost();
-				break;
-			}
-			case BUTTON_JOIN_CANCEL: {
-				mainGame->HideElement(mainGame->wLanWindow);
-				mainGame->wMenu.Show();
-				break;
-			}
-			case BUTTON_LAN_REFRESH: {
-				DuelClient::BeginRefreshHost();
-				break;
-			}
-			case BUTTON_CREATE_HOST: {
-				mainGame->btnHostConfirm->setEnabled(true);
-				mainGame->btnHostCancel->setEnabled(true);
-				mainGame->HideElement(mainGame->wLanWindow);
-				mainGame->ShowElement(mainGame->wCreateHost);
-				break;
-			}
 			case BUTTON_HOST_CONFIRM: {
 				BufferIO::CopyWStr(mainGame->ebServerName->getText(), mainGame->gameConf.gamename, 20);
-				if(!NetServer::StartServer(mainGame->gameConf.serverport))
-					break;
-				if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
+				//if(!NetServer::StartServer(mainGame->gameConf.serverport))
+				//	break;
+				//if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
+				//	NetServer::StopServer();
+				//	break;
+				//}
+				char ip[20];
+				BufferIO::CopyWStr(L"127.0.0.1", ip, 20);
+				if(!DuelClient::StartClient(0x7f000001, 7911,true)) {
 					NetServer::StopServer();
 					break;
 				}
@@ -51,11 +37,8 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_HOST_CANCEL: {
-				mainGame->btnCreateHost->setEnabled(true);
-				mainGame->btnJoinHost->setEnabled(true);
-				mainGame->btnJoinCancel->setEnabled(true);
 				mainGame->HideElement(mainGame->wCreateHost);
-				mainGame->ShowElement(mainGame->wLanWindow);
+				mainGame->wLan.Show();
 				break;
 			}
 			case BUTTON_HP_DUELIST: {
@@ -87,11 +70,8 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_HP_CANCEL: {
 				DuelClient::StopClient();
-				mainGame->btnCreateHost->setEnabled(true);
-				mainGame->btnJoinHost->setEnabled(true);
-				mainGame->btnJoinCancel->setEnabled(true);
 				mainGame->HideElement(mainGame->wHostPrepare);
-				mainGame->ShowElement(mainGame->wLanWindow);
+				mainGame->wLan.Show();
 				mainGame->wChat->setVisible(false);
 				if(exit_on_return)
 					mainGame->device->closeDevice();
@@ -155,16 +135,16 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 		case irr::gui::EGET_LISTBOX_CHANGED: {
 			switch(id) {
 			case LISTBOX_LAN_HOST: {
-				int sel = mainGame->lstHostList->getSelected();
+				int sel = mainGame->wLan.GetSelectedHost();
 				if(sel == -1)
 					break;
 				int addr = DuelClient::hosts[sel].ipaddr;
 				int port = DuelClient::hosts[sel].port;
 				wchar_t buf[20];
 				myswprintf(buf, L"%d.%d.%d.%d", addr & 0xff, (addr >> 8) & 0xff, (addr >> 16) & 0xff, (addr >> 24) & 0xff);
-				mainGame->ebJoinIP->setText(buf);
+				mainGame->wLan.SetText(EDITBOX_JOINIP, buf);
 				myswprintf(buf, L"%d", port);
-				mainGame->ebJoinPort->setText(buf);
+				mainGame->wLan.SetText(EDITBOX_JOINPORT, buf);
 				break;
 			}
 			case LISTBOX_REPLAY_LIST: {
@@ -284,35 +264,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 	default: break;
 	}
 	return false;
-}
-void MenuHandler::OnJoinHost(bool forced)
-{
-	char ip[20];
-	int i = 0;
-	wchar_t* pstr = (wchar_t *)mainGame->ebJoinIP->getText();
-	while(*pstr && i < 16)
-		ip[i++] = *pstr++;
-	ip[i] = 0;
-
-	struct addrinfo hints;
-	memset(&hints, 0, sizeof(struct addrinfo));
-	hints.ai_family = AF_INET;    /* Allow IPv4 or IPv6 */
-	hints.ai_socktype = SOCK_STREAM; /* Datagram socket */
-	hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
-	hints.ai_protocol = 0;          /* Any protocol */
-	hints.ai_canonname = NULL;
-	hints.ai_addr = NULL;
-	hints.ai_next = NULL;
-	BufferIO::CopyWStr((wchar_t *)mainGame->ebJoinIP->getText(),ip,20);
-	unsigned int remote_addr = htonl(inet_addr(ip));
-	unsigned int remote_port = _wtoi(mainGame->ebJoinPort->getText());
-	BufferIO::CopyWStr(mainGame->ebJoinIP->getText(), mainGame->gameConf.lastip, 20);
-	BufferIO::CopyWStr(mainGame->ebJoinPort->getText(), mainGame->gameConf.lastport, 20);
-	if(DuelClient::StartClient(remote_addr, remote_port, false)) {
-		mainGame->btnCreateHost->setEnabled(false);
-		mainGame->btnJoinHost->setEnabled(false);
-		mainGame->btnJoinCancel->setEnabled(false);
-	}
 }
 
 }

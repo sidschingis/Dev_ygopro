@@ -38,7 +38,23 @@ void DeckManager::LoadLFList() {
 			if(linebuf[p] == 0)
 				continue;
 			linebuf[p++] = 0;
-			sa = p;
+			sa = p;			
+			if (!strcmp(linebuf,"XYZ"))
+			{
+				while (linebuf[p] == ' ' || linebuf[p] == '\t') p++;
+				while (linebuf[p] != ' ' && linebuf[p] != '\t' && linebuf[p] != 0) p++;
+				linebuf[p] = 0;
+				count = atoi(&linebuf[sa]);
+				if (cur == NULL) continue;
+				for (code_pointer ptr = dataManager._datas.begin(); ptr != dataManager._datas.end(); ++ptr) {
+					if (ptr->second.type & TYPE_XYZ) {
+						code = ptr->second.code;
+						(*cur->content)[code] = count;
+						cur->hash = cur->hash ^ ((code << 18) | (code >> 14)) ^ ((code << (27 + count)) | (code >> (5 - count)));
+					}
+				}
+				continue;
+			}
 			code = atoi(linebuf);
 			if(code == 0)
 				continue;

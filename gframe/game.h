@@ -3,10 +3,10 @@
 
 #include "config.h"
 #include "client_field.h"
-#include "deck_con.h"
 #include "menu_handler.h"
 #include "GUIMainMenu.h"
 #include "GUIOnline.h"
+#include "GUILanWindow.h"
 #include"GUIDeckEdit.h"
 #include <unordered_map>
 #include <vector>
@@ -239,17 +239,6 @@ public:
 	irr::gui::IGUIButton* btnSaveLog;
 	irr::gui::IGUIScrollBar* scrSound;
 	irr::gui::IGUIScrollBar* scrMusic;
-	//lan
-	irr::gui::IGUIWindow* wLanWindow;
-	irr::gui::IGUIEditBox* ebNickName;
-	irr::gui::IGUIListBox* lstHostList;
-	irr::gui::IGUIButton* btnLanRefresh;
-	irr::gui::IGUIEditBox* ebJoinIP;
-	irr::gui::IGUIEditBox* ebJoinPort;
-	irr::gui::IGUIEditBox* ebJoinPass;
-	irr::gui::IGUIButton* btnJoinHost;
-	irr::gui::IGUIButton* btnJoinCancel;
-	irr::gui::IGUIButton* btnCreateHost;
 	//create host
 	irr::gui::IGUIWindow* wCreateHost;
 	irr::gui::IGUIComboBox* cbLFlist;
@@ -401,6 +390,7 @@ public:
 	GUIMainMenu wMenu;
 	GUIDeckEdit wEdit;
 	GUIOnline wOnline;
+	GUILanWindow wLan;
 };
 
 extern Game* mainGame;

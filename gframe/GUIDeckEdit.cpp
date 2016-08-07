@@ -26,6 +26,8 @@ namespace ygo {
 		_staticText[STATICTEXT_SET] = mainGame->env->addStaticText(dataManager.GetSysString(1393), rect<s32>(10, 100, 70, 122), false, false, wFilter, STATICTEXT_SET);
 		
 		_ComboBox[COMBOBOX_DBLFLIST] = mainGame->env->addComboBox(rect<s32>(80, 5, 220, 30), wDeckEdit, COMBOBOX_DBLFLIST);
+		for (unsigned int i = 0; i < deckManager._lfList.size(); ++i)
+			_ComboBox[COMBOBOX_DBLFLIST]->addItem(deckManager._lfList[i].listName, deckManager._lfList[i].hash);
 		
 		_ComboBox[COMBOBOX_DBDECKS] = mainGame->env->addComboBox(rect<s32>(80, 35, 220, 60), wDeckEdit, COMBOBOX_DBDECKS);
 		for (unsigned int i = 0; i < deckManager._lfList.size(); ++i)
@@ -200,9 +202,6 @@ namespace ygo {
 		mainGame->is_siding = false;
 		mainGame->wInfos->setVisible(true);
 		mainGame->wCardImg->setVisible(true);
-		wDeckEdit->setVisible(true);
-		wFilter->setVisible(true);
-		wSort->setVisible(true);
 		_buttons[BUTTON_SIDE_OK]->setVisible(false);
 		filterList = deckManager._lfList[0].content;
 		_ComboBox[COMBOBOX_DBLFLIST]->setSelected(0);
@@ -229,9 +228,14 @@ namespace ygo {
 		mainGame->device->setEventReceiver(&mainGame->wEdit);
 		for (int i = 0; i < 32; ++i)
 			chkCategory[i]->setChecked(false);
+		mainGame->PopupElement(wDeckEdit);
+		mainGame->PopupElement(wFilter);
+		mainGame->PopupElement(wSort);
 	}
 
 	void GUIDeckEdit::ShowSiding() {
+		mainGame->is_building = false;
+		mainGame->is_siding = true;
 		wDeckEdit->setVisible(false);
 		wFilter->setVisible(false);
 		wSort->setVisible(false);
@@ -241,6 +245,7 @@ namespace ygo {
 	void GUIDeckEdit::Hide() {
 		_buttons[BUTTON_SIDE_OK]->setVisible(false);
 		mainGame->is_building = false;
+		mainGame->is_siding = false;
 		wDeckEdit->setVisible(false);
 		wCategories->setVisible(false);
 		wFilter->setVisible(false);
