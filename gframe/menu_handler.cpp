@@ -18,29 +18,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 		switch(event.GUIEvent.EventType) {
 		case irr::gui::EGET_BUTTON_CLICKED: {
 			switch(id) {
-			case BUTTON_HOST_CONFIRM: {
-				BufferIO::CopyWStr(mainGame->ebServerName->getText(), mainGame->gameConf.gamename, 20);
-				//if(!NetServer::StartServer(mainGame->gameConf.serverport))
-				//	break;
-				//if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
-				//	NetServer::StopServer();
-				//	break;
-				//}
-				char ip[20];
-				BufferIO::CopyWStr(L"127.0.0.1", ip, 20);
-				if(!DuelClient::StartClient(0x7f000001, 7911,true)) {
-					NetServer::StopServer();
-					break;
-				}
-				mainGame->btnHostConfirm->setEnabled(false);
-				mainGame->btnHostCancel->setEnabled(false);
-				break;
-			}
-			case BUTTON_HOST_CANCEL: {
-				mainGame->HideElement(mainGame->wCreateHost);
-				mainGame->wLan.Show();
-				break;
-			}
 			case BUTTON_HP_DUELIST: {
 				DuelClient::SendPacketToServer(CTOS_HS_TODUELIST);
 				break;

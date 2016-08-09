@@ -106,18 +106,18 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 		SendPacketToServer(CTOS_PLAYER_INFO, cspi);
 		if(create_game) {
 			CTOS_CreateGame cscg;
-			BufferIO::CopyWStr(mainGame->ebServerName->getText(), cscg.name, 20);
-			BufferIO::CopyWStr(mainGame->ebServerPass->getText(), cscg.pass, 40);
-			cscg.info.rule = mainGame->cbRule->getSelected();
-			cscg.info.mode = mainGame->cbMatchMode->getSelected();
-			cscg.info.start_hand = _wtoi(mainGame->ebStartHand->getText());
-			cscg.info.start_lp = _wtoi(mainGame->ebStartLP->getText());
-			cscg.info.draw_count = _wtoi(mainGame->ebDrawCount->getText());
-			cscg.info.time_limit = _wtoi(mainGame->ebTimeLimit->getText());
-			cscg.info.lflist = mainGame->cbLFlist->getItemData(mainGame->cbLFlist->getSelected());
-			cscg.info.enable_priority = mainGame->chkEnablePriority->isChecked();
-			cscg.info.no_check_deck = mainGame->chkNoCheckDeck->isChecked();
-			cscg.info.no_shuffle_deck = mainGame->chkNoShuffleDeck->isChecked();
+			BufferIO::CopyWStr(mainGame->wHost.GetText(EDITBOX_SERVERNAME), cscg.name, 20);
+			BufferIO::CopyWStr(mainGame->wHost.GetText(EDITBOX_SERVERPASS), cscg.pass, 40);
+			cscg.info.rule = mainGame->wHost.GetComboBoxIndex(COMBOBOX_RULE);
+			cscg.info.mode = mainGame->wHost.GetComboBoxIndex(COMBOBOX_MATCHMODE);
+			cscg.info.start_hand = _wtoi(mainGame->wHost.GetText(EDITBOX_STARTHAND));
+			cscg.info.start_lp = _wtoi(mainGame->wHost.GetText(EDITBOX_STARTLP));
+			cscg.info.draw_count = _wtoi(mainGame->wHost.GetText(EDITBOX_DRAWCOUNT));
+			cscg.info.time_limit = _wtoi(mainGame->wHost.GetText(EDITBOX_TIMELIMIT));
+			cscg.info.lflist = mainGame->wHost.GetLFData();
+			cscg.info.enable_priority = mainGame->wHost.IsChecked(CHECKBOX_PRIORITY);
+			cscg.info.no_check_deck = mainGame->wHost.IsChecked(CHECKBOX_NOCHECKDECK);
+			cscg.info.no_shuffle_deck = mainGame->wHost.IsChecked(CHECKBOX_NOSHUFFLE);
 			SendPacketToServer(CTOS_CREATE_GAME, cscg);
 		} else {
 			CTOS_JoinGame csjg;
@@ -371,8 +371,8 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->SetStaticText(mainGame->stHostPrepRule, 180, mainGame->guiFont, (wchar_t*)str.c_str());
 		mainGame->RefreshDeck(mainGame->cbDeckSelect);
 		mainGame->cbDeckSelect->setEnabled(true);
-		if (mainGame->wCreateHost->isVisible())
-			mainGame->HideElement(mainGame->wCreateHost);
+		if (mainGame->wHost.IsVisible())
+			mainGame->wHost.Hide();
 		else if (mainGame->wLan.isVisible())
 			mainGame->wLan.Hide();
 		mainGame->ShowElement(mainGame->wHostPrepare);

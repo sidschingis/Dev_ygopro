@@ -7,7 +7,8 @@
 #include "GUIMainMenu.h"
 #include "GUIOnline.h"
 #include "GUILanWindow.h"
-#include"GUIDeckEdit.h"
+#include "GUIDeckEdit.h"
+#include "GUICreateHost.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -240,21 +241,6 @@ public:
 	irr::gui::IGUIScrollBar* scrSound;
 	irr::gui::IGUIScrollBar* scrMusic;
 	//create host
-	irr::gui::IGUIWindow* wCreateHost;
-	irr::gui::IGUIComboBox* cbLFlist;
-	irr::gui::IGUIComboBox* cbMatchMode;
-	irr::gui::IGUIComboBox* cbRule;
-	irr::gui::IGUIEditBox* ebTimeLimit;
-	irr::gui::IGUIEditBox* ebStartLP;
-	irr::gui::IGUIEditBox* ebStartHand;
-	irr::gui::IGUIEditBox* ebDrawCount;
-	irr::gui::IGUIEditBox* ebServerName;
-	irr::gui::IGUIEditBox* ebServerPass;
-	irr::gui::IGUICheckBox* chkEnablePriority;
-	irr::gui::IGUICheckBox* chkNoCheckDeck;
-	irr::gui::IGUICheckBox* chkNoShuffleDeck;
-	irr::gui::IGUIButton* btnHostConfirm;
-	irr::gui::IGUIButton* btnHostCancel;
 	//host panel
 	irr::gui::IGUIWindow* wHostPrepare;
 	irr::gui::IGUIButton* btnHostPrepDuelist;
@@ -391,6 +377,7 @@ public:
 	GUIDeckEdit wEdit;
 	GUIOnline wOnline;
 	GUILanWindow wLan;
+	GUICreateHost wHost;
 };
 
 extern Game* mainGame;

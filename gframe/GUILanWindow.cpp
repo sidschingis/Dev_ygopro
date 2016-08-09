@@ -95,10 +95,8 @@ namespace ygo {
 					break;
 				}
 				case BUTTON_CREATE_HOST: {
-					mainGame->btnHostConfirm->setEnabled(true);
-					mainGame->btnHostCancel->setEnabled(true);
 					mainGame->wLan.Hide();
-					mainGame->ShowElement(mainGame->wCreateHost);
+					mainGame->wHost.Show();
 					break;
 				}
 				break;

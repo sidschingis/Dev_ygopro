@@ -6,7 +6,6 @@
 namespace ygo {
 
 	void GUIDeckEdit::Load() {
-		wchar_t strbuf[256];
 		wDeckEdit = mainGame->env->addStaticText(L"", rect<s32>(309, 8, 605, 130), true, false, 0, -1, true);
 		wSort = mainGame->env->addStaticText(L"", rect<s32>(930, 132, 1020, 156), true, false, 0, -1, true);
 		wFilter = mainGame->env->addStaticText(L"", rect<s32>(610, 8, 1020, 130), true, false, 0, -1, true);
