@@ -47,10 +47,9 @@ namespace ygo {
 						}
 					case BUTTON_REPLAY_MODE: {
 						mainGame->wMenu.Hide();
-						mainGame->ShowElement(mainGame->wReplay);
-						mainGame->ebRepStartTurn->setText(L"1");
+						mainGame->wReplayList.Show();
+						mainGame->wReplayList.SetText(EDITBOX_STARTTURN, L"1");
 						mainGame->RefreshReplay();
-						mainGame->device->setEventReceiver(&mainGame->menuHandler);//use this for now
 						break;
 						}
 					case BUTTON_SINGLE_MODE: {

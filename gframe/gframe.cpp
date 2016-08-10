@@ -48,9 +48,9 @@ int main(int argc, char* argv[]) {
 			} else if(!strcmp(argv[i], "-r")) {
 				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetBtnElement(BUTTON_REPLAY_MODE);
 				ygo::mainGame->device->postEventFromUser(event);
-				ygo::mainGame->lstReplayList->setSelected(ygo::mainGame->gameConf.lastreplay);
-				if(ygo::mainGame->lstReplayList->getSelected() != -1){
-					event.GUIEvent.Caller = ygo::mainGame->btnLoadReplay;
+				ygo::mainGame->wReplayList.SetSelected(ygo::mainGame->gameConf.lastreplay);
+				if(ygo::mainGame->wReplayList.GetSelected() != -1){
+					event.GUIEvent.Caller = ygo::mainGame->wReplayList.GetBtnElement(BUTTON_LOAD_REPLAY);
 					ygo::mainGame->device->postEventFromUser(event);
 				}
 			} else if(!strcmp(argv[i], "-s")) {

@@ -9,6 +9,7 @@
 #include "GUILanWindow.h"
 #include "GUIDeckEdit.h"
 #include "GUICreateHost.h"
+#include "GUIReplayList.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -255,12 +256,6 @@ public:
 	irr::gui::IGUIButton* btnHostPrepStart;
 	irr::gui::IGUIButton* btnHostPrepCancel;
 	//replay
-	irr::gui::IGUIWindow* wReplay;
-	irr::gui::IGUIListBox* lstReplayList;
-	irr::gui::IGUIStaticText* stReplayInfo;
-	irr::gui::IGUIButton* btnLoadReplay;
-	irr::gui::IGUIButton* btnReplayCancel;
-	irr::gui::IGUIEditBox* ebRepStartTurn;
 	//single play
 	irr::gui::IGUIWindow* wSinglePlay;
 	irr::gui::IGUIListBox* lstSinglePlayList;
@@ -378,6 +373,7 @@ public:
 	GUIOnline wOnline;
 	GUILanWindow wLan;
 	GUICreateHost wHost;
+	GUIReplayList wReplayList;
 };
 
 extern Game* mainGame;

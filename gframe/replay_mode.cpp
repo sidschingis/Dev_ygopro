@@ -181,8 +181,7 @@ int ReplayMode::ReplayThread(void* param) {
 		mainGame->closeSignal.Set();
 		mainGame->closeDoneSignal.Wait();
 		mainGame->gMutex.Lock();
-		mainGame->ShowElement(mainGame->wReplay);
-		mainGame->device->setEventReceiver(&mainGame->menuHandler);
+		mainGame->wReplayList.Show();
 		mainGame->gMutex.Unlock();
 	}
 	return 0;

@@ -54,46 +54,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					mainGame->device->closeDevice();
 				break;
 			}
-			case BUTTON_LOAD_REPLAY: {
-				if(mainGame->lstReplayList->getSelected() == -1)
-					break;
-				if(!ReplayMode::cur_replay.OpenReplay(mainGame->lstReplayList->getListItem(mainGame->lstReplayList->getSelected())))
-					break;
-				mainGame->imgCard->setImage(imageManager.tCover[0]);
-				mainGame->wCardImg->setVisible(true);
-				mainGame->wInfos->setVisible(true);
-				mainGame->wReplay->setVisible(true);
-				mainGame->stName->setText(L"");
-				mainGame->stInfo->setText(L"");
-				mainGame->stDataInfo->setText(L"");
-				mainGame->stText->setText(L"");
-				mainGame->scrCardText->setVisible(false);
-				mainGame->wReplayControl->setVisible(true);
-				mainGame->btnReplayStart->setVisible(false);
-				mainGame->btnReplayPause->setVisible(true);
-				mainGame->btnReplayStep->setVisible(false);
-				mainGame->btnReplayUndo->setVisible(false);
-				mainGame->wPhase->setVisible(true);
-				mainGame->dField.panel = 0;
-				mainGame->dField.hovered_card = 0;
-				mainGame->dField.clicked_card = 0;
-				mainGame->dField.Clear();
-				mainGame->HideElement(mainGame->wReplay);
-				mainGame->device->setEventReceiver(&mainGame->dField);
-				unsigned int start_turn = _wtoi(mainGame->ebRepStartTurn->getText());
-				if(start_turn == 1)
-					start_turn = 0;
-				ReplayMode::StartReplay(start_turn);
-				break;
-			}
-			case BUTTON_CANCEL_REPLAY: {
-				mainGame->HideElement(mainGame->wReplay);
-				if (exit_on_return)
-					mainGame->device->closeDevice();
-				else
-					mainGame->wMenu.Show();
-				break;
-			}
 			case BUTTON_LOAD_SINGLEPLAY: {
 				if(mainGame->lstSinglePlayList->getSelected() == -1)
 					break;
@@ -122,34 +82,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->wLan.SetText(EDITBOX_JOINIP, buf);
 				myswprintf(buf, L"%d", port);
 				mainGame->wLan.SetText(EDITBOX_JOINPORT, buf);
-				break;
-			}
-			case LISTBOX_REPLAY_LIST: {
-				int sel = mainGame->lstReplayList->getSelected();
-				if(sel == -1)
-					break;
-				if(!ReplayMode::cur_replay.OpenReplay(mainGame->lstReplayList->getListItem(sel)))
-					break;
-				wchar_t infobuf[256];
-				std::wstring repinfo;
-				time_t curtime = ReplayMode::cur_replay.pheader.seed;
-				tm* st = localtime(&curtime);
-				myswprintf(infobuf, L"%d/%d/%d %02d:%02d:%02d\n", st->tm_year + 1900, st->tm_mon + 1, st->tm_mday, st->tm_hour, st->tm_min, st->tm_sec);
-				repinfo.append(infobuf);
-				wchar_t namebuf[4][20];
-				BufferIO::CopyWStr((unsigned short*)&ReplayMode::cur_replay.replay_data[0], namebuf[0], 20);
-				BufferIO::CopyWStr((unsigned short*)&ReplayMode::cur_replay.replay_data[40], namebuf[1], 20);
-				if(ReplayMode::cur_replay.pheader.flag & REPLAY_TAG) {
-					BufferIO::CopyWStr((unsigned short*)&ReplayMode::cur_replay.replay_data[80], namebuf[2], 20);
-					BufferIO::CopyWStr((unsigned short*)&ReplayMode::cur_replay.replay_data[120], namebuf[3], 20);
-				}
-				if(ReplayMode::cur_replay.pheader.flag & REPLAY_TAG)
-					myswprintf(infobuf, L"%ls\n%ls\n===VS===\n%ls\n%ls\n", namebuf[0], namebuf[1], namebuf[2], namebuf[3]);
-				else
-					myswprintf(infobuf, L"%ls\n===VS===\n%ls\n", namebuf[0], namebuf[1]);
-				repinfo.append(infobuf);
-				mainGame->ebRepStartTurn->setText(L"1");
-				mainGame->SetStaticText(mainGame->stReplayInfo, 180, mainGame->guiFont, (wchar_t*)repinfo.c_str());
 				break;
 			}
 			}

@@ -406,18 +406,7 @@ bool Game::Initialize() {
 	//deck edit
 	wEdit.Load();
 	//replay window
-	wReplay = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1202));
-	wReplay->getCloseButton()->setVisible(false);
-	wReplay->setVisible(false);
-	lstReplayList = env->addListBox(rect<s32>(10, 30, 350, 400), wReplay, LISTBOX_REPLAY_LIST, true);
-	lstReplayList->setItemHeight(18);
-	btnLoadReplay = env->addButton(rect<s32>(460, 355, 570, 380), wReplay, BUTTON_LOAD_REPLAY, dataManager.GetSysString(1348));
-	btnReplayCancel = env->addButton(rect<s32>(460, 385, 570, 410), wReplay, BUTTON_CANCEL_REPLAY, dataManager.GetSysString(1347));
-	env->addStaticText(dataManager.GetSysString(1349), rect<s32>(360, 30, 570, 50), false, true, wReplay);
-	stReplayInfo = env->addStaticText(L"", rect<s32>(360, 60, 570, 350), false, true, wReplay);
-	env->addStaticText(dataManager.GetSysString(1353), rect<s32>(360, 275, 570, 295), false, true, wReplay);
-	ebRepStartTurn = env->addEditBox(L"", rect<s32>(360, 300, 460, 320), true, wReplay, -1);
-	ebRepStartTurn->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
+	wReplayList.Load();
 	//single play window
 	wSinglePlay = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1201));
 	wSinglePlay->getCloseButton()->setVisible(false);
@@ -687,7 +676,7 @@ void Game::RefreshDeck(irr::gui::IGUIComboBox* cbDeck) {
 	}
 }
 void Game::RefreshReplay() {
-	lstReplayList->clear();
+	wReplayList.ClearReplayList();
 #ifdef _WIN32
 	WIN32_FIND_DATAW fdataw;
 	HANDLE fh = FindFirstFileW(L"./replay/*.yrp", &fdataw);
@@ -695,7 +684,7 @@ void Game::RefreshReplay() {
 		return;
 	do {
 		if(!(fdataw.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && Replay::CheckReplay(fdataw.cFileName)) {
-			lstReplayList->addItem(fdataw.cFileName);
+			wReplayList.AddListItem(fdataw.cFileName);
 		}
 	} while(FindNextFileW(fh, &fdataw));
 	FindClose(fh);
@@ -1060,7 +1049,7 @@ void Game::OnResize()
 	wLan.OnResize();
 	wHost.OnResize();
 	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750+50, 440));
-	wReplay->setRelativePosition(ResizeWin(220, 100, 800, 520));
+	wReplayList.OnResize();
 	wSinglePlay->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wHand->setRelativePosition(ResizeWin(500, 450, 825, 605));
 	wFTSelect->setRelativePosition(ResizeWin(550, 240, 780, 340));
