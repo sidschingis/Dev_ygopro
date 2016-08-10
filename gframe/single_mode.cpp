@@ -27,7 +27,7 @@ void SingleMode::SetResponse(unsigned char* resp) {
 	set_responseb(pduel, resp);
 }
 int SingleMode::SinglePlayThread(void* param) {
-	const wchar_t* name = mainGame->lstSinglePlayList->getListItem(mainGame->lstSinglePlayList->getSelected());
+	const wchar_t* name = mainGame->wSingleList.GetListData();
 	wchar_t fname[256];
 	myswprintf(fname, L"./single/%ls", name);
 	char fname2[256];
@@ -53,7 +53,7 @@ int SingleMode::SinglePlayThread(void* param) {
 		return 0;
 	}
 	mainGame->gMutex.Lock();
-	mainGame->HideElement(mainGame->wSinglePlay);
+	mainGame->wSingleList.Hide();
 	mainGame->wCardImg->setVisible(true);
 	mainGame->wInfos->setVisible(true);
 	mainGame->btnLeaveGame->setVisible(true);
@@ -98,8 +98,7 @@ int SingleMode::SinglePlayThread(void* param) {
 		mainGame->closeSignal.Set();
 		mainGame->closeDoneSignal.Wait();
 		mainGame->gMutex.Lock();
-		mainGame->ShowElement(mainGame->wSinglePlay);
-		mainGame->device->setEventReceiver(&mainGame->menuHandler);
+		mainGame->wSingleList.Show();
 		mainGame->gMutex.Unlock();
 	}
 	return 0;

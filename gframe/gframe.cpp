@@ -56,9 +56,9 @@ int main(int argc, char* argv[]) {
 			} else if(!strcmp(argv[i], "-s")) {
 				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetBtnElement(BUTTON_SINGLE_MODE);
 				ygo::mainGame->device->postEventFromUser(event);
-				ygo::mainGame->lstSinglePlayList->setSelected(ygo::mainGame->gameConf.lastpuzzle);
-				if(ygo::mainGame->lstSinglePlayList->getSelected() != -1){
-					event.GUIEvent.Caller = ygo::mainGame->btnLoadSinglePlay;
+				ygo::mainGame->wSingleList.SetSelected(ygo::mainGame->gameConf.lastpuzzle);
+				if(ygo::mainGame->wSingleList.GetSelected() != -1){
+					event.GUIEvent.Caller = ygo::mainGame->wSingleList.GetBtnElement(BUTTON_LOAD_SINGLEPLAY);
 					ygo::mainGame->device->postEventFromUser(event);
 				}
 			}

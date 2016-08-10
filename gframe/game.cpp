@@ -408,15 +408,7 @@ bool Game::Initialize() {
 	//replay window
 	wReplayList.Load();
 	//single play window
-	wSinglePlay = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1201));
-	wSinglePlay->getCloseButton()->setVisible(false);
-	wSinglePlay->setVisible(false);
-	lstSinglePlayList = env->addListBox(rect<s32>(10, 30, 350, 400), wSinglePlay, LISTBOX_SINGLEPLAY_LIST, true);
-	lstSinglePlayList->setItemHeight(18);
-	btnLoadSinglePlay = env->addButton(rect<s32>(460, 355, 570, 380), wSinglePlay, BUTTON_LOAD_SINGLEPLAY, dataManager.GetSysString(1211));
-	btnSinglePlayCancel = env->addButton(rect<s32>(460, 385, 570, 410), wSinglePlay, BUTTON_CANCEL_SINGLEPLAY, dataManager.GetSysString(1210));
-	env->addStaticText(dataManager.GetSysString(1352), rect<s32>(360, 30, 570, 50), false, true, wSinglePlay);
-	stSinglePlayInfo = env->addStaticText(L"", rect<s32>(360, 60, 570, 350), false, true, wSinglePlay);
+	wSingleList.Load();
 	//replay save
 	wReplaySave = env->addWindow(rect<s32>(510, 200, 820, 320), false, dataManager.GetSysString(1340));
 	wReplaySave->getCloseButton()->setVisible(false);
@@ -567,7 +559,7 @@ void Game::MainLoop() {
 #else
 	usleep(500000);
 #endif
-	//SaveConfig();
+
 //	device->drop();
 	engineMusic->drop(); 
 }
@@ -706,7 +698,7 @@ void Game::RefreshReplay() {
 #endif
 }
 void Game::RefreshSingleplay() {
-	lstSinglePlayList->clear();
+	wSingleList.ClearList();
 #ifdef _WIN32
 	WIN32_FIND_DATAW fdataw;
 	HANDLE fh = FindFirstFileW(L"./single/*.lua", &fdataw);
@@ -714,7 +706,7 @@ void Game::RefreshSingleplay() {
 		return;
 	do {
 		if(!(fdataw.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			lstSinglePlayList->addItem(fdataw.cFileName);
+			wSingleList.AddListItem(fdataw.cFileName);
 	} while(FindNextFileW(fh, &fdataw));
 	FindClose(fh);
 #else
@@ -1050,7 +1042,7 @@ void Game::OnResize()
 	wHost.OnResize();
 	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750+50, 440));
 	wReplayList.OnResize();
-	wSinglePlay->setRelativePosition(ResizeWin(220, 100, 800, 520));
+	wSingleList.OnResize();
 	wHand->setRelativePosition(ResizeWin(500, 450, 825, 605));
 	wFTSelect->setRelativePosition(ResizeWin(550, 240, 780, 340));
 	wMessage->setRelativePosition(ResizeWin(490, 200, 840, 340));

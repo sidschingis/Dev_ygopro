@@ -10,6 +10,7 @@
 #include "GUIDeckEdit.h"
 #include "GUICreateHost.h"
 #include "GUIReplayList.h"
+#include "GUISingleList.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -257,11 +258,6 @@ public:
 	irr::gui::IGUIButton* btnHostPrepCancel;
 	//replay
 	//single play
-	irr::gui::IGUIWindow* wSinglePlay;
-	irr::gui::IGUIListBox* lstSinglePlayList;
-	irr::gui::IGUIStaticText* stSinglePlayInfo;
-	irr::gui::IGUIButton* btnLoadSinglePlay;
-	irr::gui::IGUIButton* btnSinglePlayCancel;
 	//hand
 	irr::gui::IGUIWindow* wHand;
 	irr::gui::IGUIButton* btnHand[3];
@@ -374,6 +370,7 @@ public:
 	GUILanWindow wLan;
 	GUICreateHost wHost;
 	GUIReplayList wReplayList;
+	GUISingleList wSingleList;
 };
 
 extern Game* mainGame;

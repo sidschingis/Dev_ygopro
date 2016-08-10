@@ -54,18 +54,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					mainGame->device->closeDevice();
 				break;
 			}
-			case BUTTON_LOAD_SINGLEPLAY: {
-				if(mainGame->lstSinglePlayList->getSelected() == -1)
-					break;
-				mainGame->singleSignal.SetNoWait(false);
-				SingleMode::StartPlay();
-				break;
-			}
-			case BUTTON_CANCEL_SINGLEPLAY: {
-				mainGame->HideElement(mainGame->wSinglePlay);
-				mainGame->wMenu.Show();
-				break;
-			}
 			}
 			break;
 		}
