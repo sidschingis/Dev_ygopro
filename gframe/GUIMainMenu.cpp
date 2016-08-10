@@ -54,9 +54,8 @@ namespace ygo {
 						}
 					case BUTTON_SINGLE_MODE: {
 						mainGame->wMenu.Hide();
-						mainGame->ShowElement(mainGame->wSinglePlay);
+						mainGame->wSingleList.Show();
 						mainGame->RefreshSingleplay();
-						mainGame->device->setEventReceiver(&mainGame->menuHandler);//use this for now
 						break;
 						}
 					case BUTTON_DECK_EDIT: {
