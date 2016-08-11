@@ -16,47 +16,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 		irr::gui::IGUIElement* caller = event.GUIEvent.Caller;
 		s32 id = caller->getID();
 		switch(event.GUIEvent.EventType) {
-		case irr::gui::EGET_BUTTON_CLICKED: {
-			switch(id) {
-			case BUTTON_HP_DUELIST: {
-				DuelClient::SendPacketToServer(CTOS_HS_TODUELIST);
-				break;
-			}
-			case BUTTON_HP_OBSERVER: {
-				DuelClient::SendPacketToServer(CTOS_HS_TOOBSERVER);
-				break;
-			}
-			case BUTTON_HP_KICK: {
-				int id = 0;
-				while(id < 4) {
-					if(mainGame->btnHostPrepKick[id] == caller)
-						break;
-					id++;
-				}
-				CTOS_Kick csk;
-				csk.pos = id;
-				DuelClient::SendPacketToServer(CTOS_HS_KICK, csk);
-				break;
-			}
-			case BUTTON_HP_START: {
-				if(!mainGame->chkHostPrepReady[0]->isChecked()
-				        || !mainGame->chkHostPrepReady[1]->isChecked())
-					break;
-				DuelClient::SendPacketToServer(CTOS_HS_START);
-				break;
-			}
-			case BUTTON_HP_CANCEL: {
-				DuelClient::StopClient();
-				mainGame->HideElement(mainGame->wHostPrepare);
-				mainGame->wLan.Show();
-				mainGame->wChat->setVisible(false);
-				if(exit_on_return)
-					mainGame->device->closeDevice();
-				break;
-			}
-			}
-			break;
-		}
 		case irr::gui::EGET_LISTBOX_CHANGED: {
 			switch(id) {
 			case LISTBOX_LAN_HOST: {
@@ -70,42 +29,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->wLan.SetText(EDITBOX_JOINIP, buf);
 				myswprintf(buf, L"%d", port);
 				mainGame->wLan.SetText(EDITBOX_JOINPORT, buf);
-				break;
-			}
-			}
-			break;
-		}
-		case irr::gui::EGET_CHECKBOX_CHANGED: {
-			switch(id) {
-			case CHECKBOX_HP_READY: {
-				if(!caller->isEnabled())
-					break;
-				mainGame->env->setFocus(mainGame->wHostPrepare);
-				if(static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
-					if(mainGame->cbDeckSelect->getSelected() == -1 ||
-					        !deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()))) {
-						static_cast<irr::gui::IGUICheckBox*>(caller)->setChecked(false);
-						break;
-					}
-					BufferIO::CopyWStr(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()),
-					                   mainGame->gameConf.lastdeck, 64);
-					char deckbuf[1024];
-					char* pdeck = deckbuf;
-					BufferIO::WriteInt32(pdeck, deckManager.current_deck.main.size() + deckManager.current_deck.extra.size());
-					BufferIO::WriteInt32(pdeck, deckManager.current_deck.side.size());
-					for(size_t i = 0; i < deckManager.current_deck.main.size(); ++i)
-						BufferIO::WriteInt32(pdeck, deckManager.current_deck.main[i]->first);
-					for(size_t i = 0; i < deckManager.current_deck.extra.size(); ++i)
-						BufferIO::WriteInt32(pdeck, deckManager.current_deck.extra[i]->first);
-					for(size_t i = 0; i < deckManager.current_deck.side.size(); ++i)
-						BufferIO::WriteInt32(pdeck, deckManager.current_deck.side[i]->first);
-					DuelClient::SendBufferToServer(CTOS_UPDATE_DECK, deckbuf, pdeck - deckbuf);
-					DuelClient::SendPacketToServer(CTOS_HS_READY);
-					mainGame->cbDeckSelect->setEnabled(false);
-				} else {
-					DuelClient::SendPacketToServer(CTOS_HS_NOTREADY);
-					mainGame->cbDeckSelect->setEnabled(true);
-				}
 				break;
 			}
 			}

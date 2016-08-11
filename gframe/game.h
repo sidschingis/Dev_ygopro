@@ -11,6 +11,7 @@
 #include "GUICreateHost.h"
 #include "GUIReplayList.h"
 #include "GUISingleList.h"
+#include "GUIHostRoom.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -244,18 +245,6 @@ public:
 	irr::gui::IGUIScrollBar* scrMusic;
 	//create host
 	//host panel
-	irr::gui::IGUIWindow* wHostPrepare;
-	irr::gui::IGUIButton* btnHostPrepDuelist;
-	irr::gui::IGUIButton* btnHostPrepOB;
-	irr::gui::IGUIStaticText* stHostPrepDuelistElo[4];
-	irr::gui::IGUIStaticText* stHostPrepDuelist[4];
-	irr::gui::IGUICheckBox* chkHostPrepReady[4];
-	irr::gui::IGUIButton* btnHostPrepKick[4];
-	irr::gui::IGUIComboBox* cbDeckSelect;
-	irr::gui::IGUIStaticText* stHostPrepRule;
-	irr::gui::IGUIStaticText* stHostPrepOB;
-	irr::gui::IGUIButton* btnHostPrepStart;
-	irr::gui::IGUIButton* btnHostPrepCancel;
 	//replay
 	//single play
 	//hand
@@ -371,6 +360,7 @@ public:
 	GUICreateHost wHost;
 	GUIReplayList wReplayList;
 	GUISingleList wSingleList;
+	GUIHostRoom wHostRoom;
 };
 
 extern Game* mainGame;

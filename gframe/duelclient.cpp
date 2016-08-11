@@ -140,7 +140,7 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 				if(!mainGame->dInfo.isStarted && !mainGame->is_building) {
 					mainGame->wLan.Show();
 					mainGame->gMutex.Lock();
-					mainGame->HideElement(mainGame->wHostPrepare);
+					mainGame->wHostRoom.Hide();
 					mainGame->wChat->setVisible(false);
 					if(events & BEV_EVENT_EOF)
 						mainGame->env->addMessageBox(L"", dataManager.GetSysString(1401));
@@ -218,7 +218,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 				myswprintf(msgbuf, dataManager.GetSysString(1407), dataManager.GetName(pkt->code));
 				mainGame->env->addMessageBox(L"", msgbuf);
 			}
-			mainGame->cbDeckSelect->setEnabled(true);
+			mainGame->wHostRoom.EnableDeckSelect(true);
 			mainGame->gMutex.Unlock();
 			break;
 		}
@@ -335,25 +335,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			str.append(msgbuf);
 		}
 		mainGame->gMutex.Lock();
-		if(pkt->info.mode == 2) {
-			mainGame->dInfo.isTag = true;
-			mainGame->chkHostPrepReady[2]->setVisible(true);
-			mainGame->chkHostPrepReady[3]->setVisible(true);
-			mainGame->stHostPrepDuelist[2]->setVisible(true);
-			mainGame->stHostPrepDuelist[3]->setVisible(true);
-			mainGame->stHostPrepDuelistElo[2]->setVisible(true);
-			mainGame->stHostPrepDuelistElo[3]->setVisible(true);
-		} else {
-			mainGame->dInfo.isTag = false;
-			mainGame->chkHostPrepReady[2]->setVisible(false);
-			mainGame->chkHostPrepReady[3]->setVisible(false);
-			mainGame->stHostPrepDuelist[2]->setVisible(false);
-			mainGame->stHostPrepDuelist[3]->setVisible(false);
-			mainGame->stHostPrepDuelistElo[2]->setVisible(false);
-			mainGame->stHostPrepDuelistElo[3]->setVisible(false);
-		}
-		for(int i = 0; i < 4; ++i)
-			mainGame->chkHostPrepReady[i]->setChecked(false);
+		mainGame->wHostRoom.RoomSetUp(pkt->info.mode == 2, str);
 		mainGame->dInfo.time_limit = pkt->info.time_limit;
 		mainGame->dInfo.time_left[0] = 0;
 		mainGame->dInfo.time_left[1] = 0;
@@ -363,106 +345,23 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 				mainGame->wEdit.filterList = lit->content;
 		if(mainGame->wEdit.filterList == 0)
 			mainGame->wEdit.filterList = deckManager._lfList[0].content;
-		mainGame->stHostPrepDuelist[0]->setText(L"");
-		mainGame->stHostPrepDuelist[1]->setText(L"");
-		mainGame->stHostPrepDuelist[2]->setText(L"");
-		mainGame->stHostPrepDuelist[3]->setText(L"");
-		mainGame->stHostPrepOB->setText(L"");
-		mainGame->SetStaticText(mainGame->stHostPrepRule, 180, mainGame->guiFont, (wchar_t*)str.c_str());
-		mainGame->RefreshDeck(mainGame->cbDeckSelect);
-		mainGame->cbDeckSelect->setEnabled(true);
 		if (mainGame->wHost.IsVisible())
 			mainGame->wHost.Hide();
 		else if (mainGame->wLan.isVisible())
 			mainGame->wLan.Hide();
-		mainGame->ShowElement(mainGame->wHostPrepare);
+		mainGame->wHostRoom.Show();
 		mainGame->wChat->setVisible(true);
 		mainGame->gMutex.Unlock();
 		connect_state |= 0x4;
-		//forced mode for DevPro ranked duels
-		if (mainGame->gameConf.forced){
-			if (mainGame->cbDeckSelect->getSelected() == -1 ||
-				!deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()))) {
-
-				return;
-			}
-			BufferIO::CopyWStr(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()),
-				mainGame->gameConf.lastdeck, 20);
-			char deckbuf[1024];
-			char* pdeck = deckbuf;
-			BufferIO::WriteInt32(pdeck, deckManager.current_deck.main.size() + deckManager.current_deck.extra.size());
-			BufferIO::WriteInt32(pdeck, deckManager.current_deck.side.size());
-			for (size_t i = 0; i < deckManager.current_deck.main.size(); ++i)
-				BufferIO::WriteInt32(pdeck, deckManager.current_deck.main[i]->first);
-			for (size_t i = 0; i < deckManager.current_deck.extra.size(); ++i)
-				BufferIO::WriteInt32(pdeck, deckManager.current_deck.extra[i]->first);
-			for (size_t i = 0; i < deckManager.current_deck.side.size(); ++i)
-				BufferIO::WriteInt32(pdeck, deckManager.current_deck.side[i]->first);
-			DuelClient::SendBufferToServer(CTOS_UPDATE_DECK, deckbuf, pdeck - deckbuf);
-			DuelClient::SendPacketToServer(CTOS_HS_READY);
-			mainGame->cbDeckSelect->setEnabled(false);
-			int selftype = (mainGame->chkHostPrepReady[0]->isEnabled()) ? 0 : 1;
-			mainGame->chkHostPrepReady[selftype]->setChecked(true);
-		}
 		break;
 	}
 	case STOC_TYPE_CHANGE: {
 		STOC_TypeChange* pkt = (STOC_TypeChange*)pdata;
-		if(!mainGame->dInfo.isTag) {
-			selftype = pkt->type & 0xf;
-			is_host = ((pkt->type >> 4) & 0xf) != 0;
-			mainGame->btnHostPrepKick[2]->setVisible(false);
-			mainGame->btnHostPrepKick[3]->setVisible(false);
-			if(is_host) {
-				mainGame->btnHostPrepStart->setVisible(true);
-				mainGame->btnHostPrepKick[0]->setVisible(true);
-				mainGame->btnHostPrepKick[1]->setVisible(true);
-			} else {
-				mainGame->btnHostPrepStart->setVisible(false);
-				mainGame->btnHostPrepKick[0]->setVisible(false);
-				mainGame->btnHostPrepKick[1]->setVisible(false);
-			}
-			mainGame->chkHostPrepReady[0]->setEnabled(false);
-			mainGame->chkHostPrepReady[0]->setChecked(false);
-			mainGame->chkHostPrepReady[1]->setEnabled(false);
-			mainGame->chkHostPrepReady[1]->setChecked(false);
-			if(selftype < 2) {
-				mainGame->chkHostPrepReady[selftype]->setEnabled(true);
-				mainGame->btnHostPrepDuelist->setEnabled(false);
-				mainGame->btnHostPrepOB->setEnabled(true);
-			} else {
-				mainGame->btnHostPrepDuelist->setEnabled(true);
-				mainGame->btnHostPrepOB->setEnabled(false);
-			}
-		} else {
-			if(selftype < 4) {
-				mainGame->chkHostPrepReady[selftype]->setEnabled(false);
-				mainGame->chkHostPrepReady[selftype]->setChecked(false);
-			}
-			selftype = pkt->type & 0xf;
-			is_host = ((pkt->type >> 4) & 0xf) != 0;
-			mainGame->btnHostPrepDuelist->setEnabled(true);
-			if(is_host) {
-				mainGame->btnHostPrepStart->setVisible(true);
-				for(int i = 0; i < 4; ++i)
-					mainGame->btnHostPrepKick[i]->setVisible(true);
-			} else {
-				mainGame->btnHostPrepStart->setVisible(false);
-				for(int i = 0; i < 4; ++i)
-					mainGame->btnHostPrepKick[i]->setVisible(false);
-			}
-			if(selftype < 4) {
-				mainGame->chkHostPrepReady[selftype]->setEnabled(true);
-				mainGame->btnHostPrepOB->setEnabled(true);
-			} else {
-				mainGame->btnHostPrepOB->setEnabled(false);
-			}
-		}
-		mainGame->dInfo.player_type = selftype;
+		mainGame->wHostRoom.TypeChange(pkt->type);
 		break;
 	}
 	case STOC_DUEL_START: {
-		mainGame->HideElement(mainGame->wHostPrepare);
+		mainGame->wHostRoom.Hide();
 		mainGame->WaitFrameSignal(11);
 		mainGame->gMutex.Lock();
 		mainGame->dField.Clear();
@@ -497,11 +396,11 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 				mainGame->btnLeaveGame->setVisible(true);
 			}
 			if(selftype != 1) {
-				BufferIO::CopyWStr(mainGame->stHostPrepDuelist[0]->getText(), mainGame->dInfo.hostname, 20);
-				BufferIO::CopyWStr(mainGame->stHostPrepDuelist[1]->getText(), mainGame->dInfo.clientname, 20);
+				BufferIO::CopyWStr(mainGame->wHostRoom.GetPlayerName(0), mainGame->dInfo.hostname, 20);
+				BufferIO::CopyWStr(mainGame->wHostRoom.GetPlayerName(1), mainGame->dInfo.clientname, 20);
 			} else {
-				BufferIO::CopyWStr(mainGame->stHostPrepDuelist[1]->getText(), mainGame->dInfo.hostname, 20);
-				BufferIO::CopyWStr(mainGame->stHostPrepDuelist[0]->getText(), mainGame->dInfo.clientname, 20);
+				BufferIO::CopyWStr(mainGame->wHostRoom.GetPlayerName(1), mainGame->dInfo.hostname, 20);
+				BufferIO::CopyWStr(mainGame->wHostRoom.GetPlayerName(0), mainGame->dInfo.clientname, 20);
 			}
 		} else {
 			if(selftype > 3) {
@@ -510,15 +409,15 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 				mainGame->btnLeaveGame->setVisible(true);
 			}
 			if(selftype > 1 && selftype < 4) {
-				BufferIO::CopyWStr(mainGame->stHostPrepDuelist[2]->getText(), mainGame->dInfo.hostname, 20);
-				BufferIO::CopyWStr(mainGame->stHostPrepDuelist[3]->getText(), mainGame->dInfo.hostname_tag, 20);
-				BufferIO::CopyWStr(mainGame->stHostPrepDuelist[0]->getText(), mainGame->dInfo.clientname, 20);
-				BufferIO::CopyWStr(mainGame->stHostPrepDuelist[1]->getText(), mainGame->dInfo.clientname_tag, 20);
+				BufferIO::CopyWStr(mainGame->wHostRoom.GetPlayerName(2), mainGame->dInfo.hostname, 20);
+				BufferIO::CopyWStr(mainGame->wHostRoom.GetPlayerName(3), mainGame->dInfo.hostname_tag, 20);
+				BufferIO::CopyWStr(mainGame->wHostRoom.GetPlayerName(0), mainGame->dInfo.clientname, 20);
+				BufferIO::CopyWStr(mainGame->wHostRoom.GetPlayerName(1), mainGame->dInfo.clientname_tag, 20);
 			} else {
-				BufferIO::CopyWStr(mainGame->stHostPrepDuelist[0]->getText(), mainGame->dInfo.hostname, 20);
-				BufferIO::CopyWStr(mainGame->stHostPrepDuelist[1]->getText(), mainGame->dInfo.hostname_tag, 20);
-				BufferIO::CopyWStr(mainGame->stHostPrepDuelist[2]->getText(), mainGame->dInfo.clientname, 20);
-				BufferIO::CopyWStr(mainGame->stHostPrepDuelist[3]->getText(), mainGame->dInfo.clientname_tag, 20);
+				BufferIO::CopyWStr(mainGame->wHostRoom.GetPlayerName(0), mainGame->dInfo.hostname, 20);
+				BufferIO::CopyWStr(mainGame->wHostRoom.GetPlayerName(1), mainGame->dInfo.hostname_tag, 20);
+				BufferIO::CopyWStr(mainGame->wHostRoom.GetPlayerName(2), mainGame->dInfo.clientname, 20);
+				BufferIO::CopyWStr(mainGame->wHostRoom.GetPlayerName(3), mainGame->dInfo.clientname_tag, 20);
 			}
 			mainGame->dInfo.tag_player[0] = false;
 			mainGame->dInfo.tag_player[1] = false;
@@ -659,8 +558,8 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 				BufferIO::CopyWStr(pkt->name, mainGame->dInfo.clientname, 20);
 		}
 		mainGame->gMutex.Lock();
-		mainGame->stHostPrepDuelist[pkt->pos]->setText(name);
-		mainGame->stHostPrepDuelistElo[pkt->pos]->setText(elo);
+		mainGame->wHostRoom.SetPlayerName(pkt->pos, name);
+		mainGame->wHostRoom.SetPlayerElo(pkt->pos, elo);
 		mainGame->gMutex.Unlock();
 		break;
 	}
@@ -671,53 +570,15 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		if(pos > 3)
 			break;
 		mainGame->gMutex.Lock();
-		if(state < 8) {
-			mainGame->PlaySound("./sound/playerenter.wav");
-			wchar_t* prename = (wchar_t*)mainGame->stHostPrepDuelist[pos]->getText();
-			wchar_t* elo = (wchar_t*)mainGame->stHostPrepDuelistElo[pos]->getText();
-			mainGame->stHostPrepDuelistElo[state]->setText(elo);
-			mainGame->stHostPrepDuelist[state]->setText(prename);
-			mainGame->stHostPrepDuelist[pos]->setText(L"");
-			mainGame->stHostPrepDuelistElo[pos]->setText(L"");
-			mainGame->chkHostPrepReady[pos]->setChecked(false);
-			if(pos == 0)
-				BufferIO::CopyWStr(prename, mainGame->dInfo.hostname, 20);
-			else if(pos == 1)
-				BufferIO::CopyWStr(prename, mainGame->dInfo.hostname_tag, 20);
-			else if(pos == 2)
-				BufferIO::CopyWStr(prename, mainGame->dInfo.clientname, 20);
-			else if(pos == 3)
-				BufferIO::CopyWStr(prename, mainGame->dInfo.clientname_tag, 20);
-		} else if(state == PLAYERCHANGE_READY) {
-			mainGame->chkHostPrepReady[pos]->setChecked(true);
-		} else if(state == PLAYERCHANGE_NOTREADY) {
-			mainGame->chkHostPrepReady[pos]->setChecked(false);
-		} else if(state == PLAYERCHANGE_LEAVE) {
-			mainGame->stHostPrepDuelist[pos]->setText(L"");
-			mainGame->stHostPrepDuelistElo[pos]->setText(L"");
-			mainGame->chkHostPrepReady[pos]->setChecked(false);
-		} else if(state == PLAYERCHANGE_OBSERVE) {
-			watching++;
-			wchar_t watchbuf[32];
-			myswprintf(watchbuf, L"%ls%d", dataManager.GetSysString(1253), watching);
-			mainGame->stHostPrepDuelist[pos]->setText(L"");
-			mainGame->stHostPrepDuelistElo[pos]->setText(L"");
-			mainGame->chkHostPrepReady[pos]->setChecked(false);
-			mainGame->stHostPrepOB->setText(watchbuf);
-		}
+		mainGame->wHostRoom.PlayerStateChange(pos, state, watching);
 		mainGame->gMutex.Unlock();
 		break;
 	}
 	case STOC_HS_WATCH_CHANGE: {
 		STOC_HS_WatchChange* pkt = (STOC_HS_WatchChange*)pdata;
 		watching = pkt->watch_count;
-		wchar_t watchbuf[32];
-		if (watching > 0)
-			myswprintf(watchbuf, L"%ls%d", dataManager.GetSysString(1253), watching);
-		else
-			myswprintf(watchbuf, L"");
 		mainGame->gMutex.Lock();
-		mainGame->stHostPrepOB->setText(watchbuf);
+		mainGame->wHostRoom.UpdateObserverText(watching);
 		mainGame->gMutex.Unlock();
 		break;
 	}
