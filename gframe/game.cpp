@@ -148,11 +148,7 @@ bool Game::Initialize() {
 	//host(single)
 	wHostRoom.Load();
 	//img
-	wCardImg = env->addStaticText(L"", rect<s32>(1, 1, 199, 273), true, false, 0, -1, true);
-	wCardImg->setBackgroundColor(0xc0c0c0c0);
-	wCardImg->setVisible(false);
-	imgCard = env->addImage(rect<s32>(10, 9, 187, 263), wCardImg);
-	imgCard->setUseAlphaChannel(true);
+	wInfoTab.Load();
 	//phase
 	wPhase = env->addStaticText(L"", rect<s32>(480, 310, 855, 330));
 	wPhase->setVisible(false);
@@ -188,54 +184,6 @@ bool Game::Initialize() {
 	btnChainWhenAvail->setVisible(false);
 	chain_when_avail = true;
 	//tab
-	wInfos = env->addTabControl(rect<s32>(1, 275, 301, 639), 0, true);
-	wInfos->setVisible(false);
-	//info
-	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));
-	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
-	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
-	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
-	stInfo->setOverrideColor(special_color);
-	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfo, -1, false);
-	stDataInfo->setOverrideColor(special_color);
-	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 316, 106), false, true, tabInfo, -1, false);
-	stSetName->setOverrideColor(setcolor);
-	stText = env->addStaticText(L"", rect<s32>(15, 83, 287, 324), false, true, tabInfo, -1, false);
-	scrCardText = env->addScrollBar(false, rect<s32>(267, 83, 287, 324), tabInfo, SCROLL_CARDTEXT);
-	scrCardText->setLargeStep(1);
-	scrCardText->setSmallStep(1);
-	scrCardText->setVisible(false);
-	//log
-	irr::gui::IGUITab* tabLog =  wInfos->addTab(dataManager.GetSysString(1271));
-	lstLog = env->addListBox(rect<s32>(10, 10, 290, 290), tabLog, LISTBOX_LOG, false);
-	lstLog->setItemHeight(18);
-	btnClearLog = env->addButton(rect<s32>(160, 300, 260, 325), tabLog, BUTTON_CLEAR_LOG, dataManager.GetSysString(1272));
-	//system
-	irr::gui::IGUITab* tabSystem = wInfos->addTab(dataManager.GetSysString(1273));
-	chkAutoPos = env->addCheckBox(gameConf.autoplace, rect<s32>(20, 20, 280, 45), tabSystem, -1, dataManager.GetSysString(1274));
-	chkRandomPos = env->addCheckBox(gameConf.randomplace, rect<s32>(40, 50, 300, 75), tabSystem, -1, dataManager.GetSysString(1275));
-	chkAutoChain = env->addCheckBox(gameConf.autochain, rect<s32>(20, 80, 280, 105), tabSystem, -1, dataManager.GetSysString(1276));
-	chkWaitChain = env->addCheckBox(false, rect<s32>(20, 110, 280, 135), tabSystem, -1, dataManager.GetSysString(1277));
-	chkIgnore1 = env->addCheckBox(gameConf.muteopponent, rect<s32>(20, 170, 280, 195), tabSystem, -1, dataManager.GetSysString(1290));
-	chkIgnore2 = env->addCheckBox(gameConf.mutespectator, rect<s32>(20, 200, 280, 225), tabSystem, -1, dataManager.GetSysString(1291));
-	chkHideSetname = env->addCheckBox(false, rect<s32>(20, 140, 280, 165), tabSystem, -1, dataManager.GetSysString(1354));
-	chkHideSetname->setChecked(gameConf.chkHideSetname != 0);
-	chkHideChainButton = env->addCheckBox(false, rect<s32>(150, 80, 410, 105), tabSystem, CHECKBOX_ENABLE_HIDECHAIN, dataManager.GetSysString(1355));
-	chkHideChainButton->setChecked(gameConf.chkHideChainButton != 0);
-	chkEnableSound = env->addCheckBox(gameConf.enablesound, rect<s32>(20, 230, 280, 255), tabSystem, CHECKBOX_ENABLE_SOUND, dataManager.GetSysString(2046));
-	scrSound = env->addScrollBar(true, rect<s32>(20, 260, 280, 270), tabSystem, SCROLL_SOUND);
-	scrSound->setMax(100);
-	scrSound->setMin(0);
-	scrSound->setPos(gameConf.soundvolume * 100);
-	scrSound->setLargeStep(1);
-	scrSound->setSmallStep(1);
-	chkEnableMusic  = env->addCheckBox(gameConf.enablemusic, rect<s32>(20, 275, 280, 300), tabSystem, CHECKBOX_ENABLE_MUSIC, dataManager.GetSysString(2047));
-	scrMusic = env->addScrollBar(true, rect<s32>(20, 305, 280, 315), tabSystem, SCROLL_MUSIC);
-	scrMusic->setMax(100);
-	scrMusic->setMin(0);
-	scrMusic->setPos(gameConf.musicvolume * 100);
-	scrMusic->setLargeStep(1);
-	scrMusic->setSmallStep(1);
 	//
 	wHand = env->addWindow(rect<s32>(500, 450, 825, 605), false, L"");
 	wHand->getCloseButton()->setVisible(false);
@@ -552,16 +500,13 @@ void Game::BuildProjectionMatrix(irr::core::matrix4& mProjection, f32 left, f32 
 void Game::InitStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, u32 cHeight, irr::gui::CGUITTFont* font, const wchar_t* text) {
 	SetStaticText(pControl, cWidth, font, text);
 	if(font->getDimension(dataManager.strBuffer).Height <= cHeight) {
-		scrCardText->setVisible(false);
+		wInfoTab.EnableScrollBar(false);
 		return;
 	}
 	SetStaticText(pControl, cWidth-25, font, text);
 	u32 fontheight = font->getDimension(L"A").Height + font->getKerningHeight();
 	u32 step = (font->getDimension(dataManager.strBuffer).Height - cHeight) / fontheight + 1;
-	scrCardText->setVisible(true);
-	scrCardText->setMin(0);
-	scrCardText->setMax(step);
-	scrCardText->setPos(0);
+	wInfoTab.EnableScrollBar(true, step);
 }
 void Game::SetStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, irr::gui::CGUITTFont* font, const wchar_t* text, u32 pos) {
 	int pbuffer = 0, lsnz = 0;
@@ -843,75 +788,6 @@ void Game::PlaySound(char* sound){
 		engineSound->setSoundVolume(gameConf.soundvolume);
 	}
 }
-void Game::ShowCardInfo(int code) {
-	CardData cd;
-	wchar_t formatBuffer[256];
-	displayedcard = code;
-	if(!dataManager.GetData(code, &cd))
-		memset(&cd, 0, sizeof(CardData));
-	imgCard->setImage(imageManager.GetTexture(code));
-	imgCard->setScaleImage(true);
-	if(cd.alias != 0 && (cd.alias - code < 10 || code - cd.alias < 10))
-		myswprintf(formatBuffer, L"%ls[%08d]", dataManager.GetName(cd.alias), cd.alias);
-	else myswprintf(formatBuffer, L"%ls[%08d]", dataManager.GetName(code), code);
-	stName->setText(formatBuffer);
-	int offset = 0;
-	if (!mainGame->chkHideSetname->isChecked()) {
-		unsigned long long sc = cd.setcode;
-		if (cd.alias) {
-			auto aptr = dataManager._datas.find(cd.alias);
-			if (aptr != dataManager._datas.end())
-				sc = aptr->second.setcode;
-		}
-		if (sc) {
-			offset = 30;
-			myswprintf(formatBuffer, L"%ls%ls", dataManager.GetSysString(1329), dataManager.FormatSetName(sc));
-			stSetName->setText(formatBuffer);
-		}
-		else
-			stSetName->setText(L"");
-	}
-	else {
-		stSetName->setText(L"");
-	}
-	if(cd.type & TYPE_MONSTER) {
-		myswprintf(formatBuffer, L"[%ls] %ls/%ls", dataManager.FormatType(cd.type), dataManager.FormatRace(cd.race), dataManager.FormatAttribute(cd.attribute));
-		stInfo->setText(formatBuffer);
-		int form = 0x2605;
-		if (cd.type & TYPE_XYZ) ++form;
-		myswprintf(formatBuffer, L"[%c%d] ", form, cd.level);
-		wchar_t adBuffer[16];
-		if(cd.attack < 0 && cd.defence < 0)
-			myswprintf(adBuffer, L"?/?");
-		else if(cd.attack < 0)
-			myswprintf(adBuffer, L"?/%d", cd.defence);
-		else if(cd.defence < 0)
-			myswprintf(adBuffer, L"%d/?", cd.attack);
-		else
-			myswprintf(adBuffer, L"%d/%d", cd.attack, cd.defence); 
-		wcscat(formatBuffer, adBuffer);
-		if(cd.type & TYPE_PENDULUM) {
-			wchar_t scaleBuffer[16];
-			myswprintf(scaleBuffer, L" %d/%d", cd.lscale, cd.rscale);
-			wcscat(formatBuffer, scaleBuffer);
-		}
-		stDataInfo->setText(formatBuffer);
-		stDataInfo->setText(formatBuffer);
-		stSetName->setRelativePosition(rect<s32>(15, 83, 316 * window_size.Width / 1024 - 30, 116));
-		stText->setRelativePosition(recti(15, 83 + offset, 296 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
-		scrCardText->setRelativePosition(rect<s32>(267, 83 + offset, 287, 324 * window_size.Height / 640));
-	} else {
-		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));
-		stInfo->setText(formatBuffer);
-		stDataInfo->setText(L"");
-		stSetName->setRelativePosition(rect<s32>(15, 60, 316 * window_size.Height / 640, 83));
-		stText->setRelativePosition(rect<s32>(15, 60 + offset, 287 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
-		scrCardText->setRelativePosition(rect<s32>(267, 60 + offset, 287, 324 * window_size.Height / 640));
-	}
-	showingtext = dataManager.GetText(code);
-	const auto& tsize = stText->getRelativePosition();
-	InitStaticText(stText, tsize.getWidth() - 30, tsize.getHeight(), textFont, showingtext);
-}
 void Game::AddChatMsg(wchar_t* msg, int player) {
 	for(int i = 7; i > 0; --i) {
 		chatMsg[i] = chatMsg[i - 1];
@@ -956,7 +832,7 @@ void Game::AddChatMsg(wchar_t* msg, int player) {
 }
 void Game::ClearTextures() {
 	matManager.mCard.setTexture(0, 0);
-	mainGame->imgCard->setImage(0);
+	mainGame->wInfoTab.SetImage(0);
 	mainGame->btnPSAU->setImage();
 	mainGame->btnPSDU->setImage();
 	for (int i = 0; i <= 4; ++i) {
@@ -975,13 +851,12 @@ void Game::CloseDuelWindow() {
 	wANCard->setVisible(false);
 	wANNumber->setVisible(false);
 	wANRace->setVisible(false);
-	wCardImg->setVisible(false);
 	wCardSelect->setVisible(false);
 	wCardDisplay->setVisible(false);
 	wCmdMenu->setVisible(false);
 	wFTSelect->setVisible(false);
 	wHand->setVisible(false);
-	wInfos->setVisible(false);
+	wInfoTab.Hide();
 	wMessage->setVisible(false);
 	wOptions->setVisible(false);
 	wPhase->setVisible(false);
@@ -996,7 +871,6 @@ void Game::CloseDuelWindow() {
 	btnChainAlways->setVisible(false);
 	btnChainWhenAvail->setVisible(false);
 	wChat->setVisible(false);
-	lstLog->clear();
 	logParam.clear();
 	wLan.ClearHostList();
 	DuelClient::hosts.clear();
@@ -1035,17 +909,7 @@ void Game::OnResize()
 
 	wChat->setRelativePosition(ResizeWin(305, 615, 1020, 640, true));
 	ebChatInput->setRelativePosition(recti(3, 2, window_size.Width - wChat->getRelativePosition().UpperLeftCorner.X - 6, 22));
-
-	wCardImg->setRelativePosition(Resize(1, 1, 199, 273));
-	imgCard->setRelativePosition(Resize(10, 9, 187, 263));
-	wInfos->setRelativePosition(Resize(1, 275, 301, 639));
-	stName->setRelativePosition(recti(10, 10, 287 * window_size.Width / 1024, 32));
-	stInfo->setRelativePosition(recti(15, 37, 296 * window_size.Width / 1024, 60));
-	stDataInfo->setRelativePosition(recti(15, 60, 296 * window_size.Width / 1024, 83));
-	stText->setRelativePosition(recti(15, 83, 296 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
-	scrCardText->setRelativePosition(recti(stInfo->getRelativePosition().getWidth() - 20, 83, stInfo->getRelativePosition().getWidth(), 324 * window_size.Height / 640));
-	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
-	btnClearLog->setRelativePosition(Resize(160, 300, 260, 325));
+	wInfoTab.OnResize();
 
 	btnLeaveGame->setRelativePosition(Resize(205, 5, 295, 80));
 	wReplayControl->setRelativePosition(Resize(205, 143, 295, 273));
@@ -1067,8 +931,6 @@ void Game::OnResize()
 	btnChainIgnore->setRelativePosition(Resize(205,100,295,135));
 	btnChainWhenAvail->setRelativePosition(Resize(205,180,295,215));
 
-	if(displayedcard > 0)
-		ShowCardInfo(displayedcard);
 }
 recti Game::Resize(s32 x, s32 y, s32 x2, s32 y2)
 {

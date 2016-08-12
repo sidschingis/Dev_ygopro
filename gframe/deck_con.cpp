@@ -137,26 +137,6 @@ bool GUIDeckEdit::OnEvent(const irr::SEvent& event) {
 			}
 			break;
 		}
-		case irr::gui::EGET_SCROLL_BAR_CHANGED: {
-			switch(id) {
-			case SCROLL_CARDTEXT: {
-				u32 pos = mainGame->scrCardText->getPos();
-				mainGame->SetStaticText(mainGame->stText, mainGame->stText->getRelativePosition().getWidth()-30, mainGame->textFont, mainGame->showingtext, pos);
-				break;
-			}
-			case SCROLL_SOUND: {
-				mainGame->gameConf.soundvolume = (double)mainGame->scrSound->getPos() /100;
-				mainGame->engineSound->setSoundVolume(mainGame->gameConf.soundvolume);
-				break;
-			}
-			case SCROLL_MUSIC: {
-				mainGame->gameConf.musicvolume = (double)mainGame->scrMusic->getPos() /100;
-				mainGame->engineMusic->setSoundVolume(mainGame->gameConf.musicvolume);
-				break;
-			}
-			break;
-			}
-		}
 		case irr::gui::EGET_EDITBOX_ENTER: {
 			switch(id) {
 			case EDITBOX_KEYWORD: {
@@ -181,22 +161,6 @@ bool GUIDeckEdit::OnEvent(const irr::SEvent& event) {
 				}
 				break;
 			}
-			}
-			break;
-		}
-		case irr::gui::EGET_CHECKBOX_CHANGED:{
-			s32 id = event.GUIEvent.Caller->getID();
-			switch(id) {
-			case CHECKBOX_ENABLE_SOUND:{
-				mainGame->gameConf.enablesound = mainGame->chkEnableSound->isChecked();
-				break;
-			}
-			case CHECKBOX_ENABLE_MUSIC:{
-				mainGame->gameConf.enablemusic = mainGame->chkEnableMusic->isChecked();
-				if(!mainGame->gameConf.enablemusic)
-					mainGame->engineMusic->stopAllSounds();
-				break;
-		    }
 			}
 			break;
 		}
@@ -603,7 +567,7 @@ case irr::EET_MOUSE_INPUT_EVENT: {
 		}
 		if (!is_draging && pre_code != hovered_code) {
 			if (hovered_code) {
-				mainGame->ShowCardInfo(hovered_code);
+				mainGame->wInfoTab.ShowCardInfo(hovered_code);
 			}
 			if (pre_code)
 				imageManager.RemoveTexture(pre_code);
@@ -647,6 +611,8 @@ case irr::EET_MOUSE_INPUT_EVENT: {
 	}
 	default: break;
 	}
+	//check info tab too
+	mainGame->wInfoTab.OnEvent(event);
 	return false;
 }
 

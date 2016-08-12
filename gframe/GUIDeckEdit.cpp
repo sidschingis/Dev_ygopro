@@ -199,8 +199,8 @@ namespace ygo {
 			deckManager.LoadDeck(_ComboBox[COMBOBOX_DBDECKS]->getItem(_ComboBox[COMBOBOX_DBDECKS]->getSelected()));
 		mainGame->is_building = true;
 		mainGame->is_siding = false;
-		mainGame->wInfos->setVisible(true);
-		mainGame->wCardImg->setVisible(true);
+		mainGame->wInfoTab.Show();
+		mainGame->wInfoTab.ShowImage(true);
 		_buttons[BUTTON_SIDE_OK]->setVisible(false);
 		filterList = deckManager._lfList[0].content;
 		_ComboBox[COMBOBOX_DBLFLIST]->setSelected(0);
@@ -248,8 +248,8 @@ namespace ygo {
 		wDeckEdit->setVisible(false);
 		wCategories->setVisible(false);
 		wFilter->setVisible(false);
-		mainGame->wCardImg->setVisible(false);
-		mainGame->wInfos->setVisible(false);
+		mainGame->wInfoTab.ShowImage(false);
+		mainGame->wInfoTab.Hide();
 		mainGame->wMenu.Show();
 		mainGame->wACMessage->setVisible(false);
 		imageManager.ClearTexture();

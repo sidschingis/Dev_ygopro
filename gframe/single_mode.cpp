@@ -54,16 +54,10 @@ int SingleMode::SinglePlayThread(void* param) {
 	}
 	mainGame->gMutex.Lock();
 	mainGame->wSingleList.Hide();
-	mainGame->wCardImg->setVisible(true);
-	mainGame->wInfos->setVisible(true);
+	mainGame->wInfoTab.Show();
 	mainGame->btnLeaveGame->setVisible(true);
 	mainGame->btnLeaveGame->setText(dataManager.GetSysString(1210));
-	mainGame->stName->setText(L"");
-	mainGame->stInfo->setText(L"");
-	mainGame->stDataInfo->setText(L"");
-	//mainGame->stSetName->setText(L"");
-	mainGame->stText->setText(L"");
-	mainGame->scrCardText->setVisible(false);
+	mainGame->wInfoTab.ClearText();
 	mainGame->wPhase->setVisible(true);
 	mainGame->dField.panel = 0;
 	mainGame->dField.hovered_card = 0;

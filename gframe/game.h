@@ -12,6 +12,7 @@
 #include "GUIReplayList.h"
 #include "GUISingleList.h"
 #include "GUIHostRoom.h"
+#include "GUIInfoTab.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -118,8 +119,6 @@ public:
 	void DrawThumb(code_pointer cp, position2di pos, std::unordered_map<int, int>* lflist, bool drag = false);
 	void DrawDeckBd();
 	void LoadConfig();
-	void SaveConfig();
-	void ShowCardInfo(int code);
 	void AddChatMsg(wchar_t* msg, int player);
 	void ClearTextures();
 	void CloseDuelWindow();
@@ -217,32 +216,10 @@ public:
 	irr::gui::CGUITTFont* lpcFont;
 	std::map<irr::gui::CGUIImageButton*, int> imageLoading;
 	//card image
-	irr::gui::IGUIStaticText* wCardImg;
-	irr::gui::IGUIImage* imgCard;
 	//hint text
 	irr::gui::IGUIStaticText* stHintMsg;
 	irr::gui::IGUIStaticText* stTip;
 	//infos
-	irr::gui::IGUITabControl* wInfos;
-	irr::gui::IGUIStaticText* stName;
-	irr::gui::IGUIStaticText* stInfo;
-	irr::gui::IGUIStaticText* stDataInfo;
-	irr::gui::IGUIStaticText* stSetName;
-	irr::gui::IGUIStaticText* stText;
-	irr::gui::IGUIScrollBar* scrCardText;
-	irr::gui::IGUICheckBox* chkAutoPos;
-	irr::gui::IGUICheckBox* chkRandomPos;
-	irr::gui::IGUICheckBox* chkAutoChain;
-	irr::gui::IGUICheckBox* chkWaitChain;
-	irr::gui::IGUICheckBox* chkHideSetname;
-	irr::gui::IGUICheckBox* chkHideChainButton;
-	irr::gui::IGUICheckBox* chkEnableSound;
-	irr::gui::IGUICheckBox* chkEnableMusic;
-	irr::gui::IGUIListBox* lstLog;
-	irr::gui::IGUIButton* btnClearLog;
-	irr::gui::IGUIButton* btnSaveLog;
-	irr::gui::IGUIScrollBar* scrSound;
-	irr::gui::IGUIScrollBar* scrMusic;
 	//create host
 	//host panel
 	//replay
@@ -361,6 +338,7 @@ public:
 	GUIReplayList wReplayList;
 	GUISingleList wSingleList;
 	GUIHostRoom wHostRoom;
+	GUIInfoTab wInfoTab;
 };
 
 extern Game* mainGame;

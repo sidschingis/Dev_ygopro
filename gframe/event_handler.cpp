@@ -20,11 +20,6 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 		switch(event.GUIEvent.EventType) {
 		case irr::gui::EGET_BUTTON_CLICKED: {
 			switch(id) {
-			case BUTTON_CLEAR_LOG: {
-				mainGame->lstLog->clear();
-				mainGame->logParam.clear();
-				break;
-			}
 			case BUTTON_HAND1:
 			case BUTTON_HAND2:
 			case BUTTON_HAND3: {
@@ -679,17 +674,17 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 		case irr::gui::EGET_CHECKBOX_CHANGED: {
 			switch(id) {
 			case CHECKBOX_ENABLE_SOUND:{
-				mainGame->gameConf.enablesound = mainGame->chkEnableSound->isChecked();
+				mainGame->gameConf.enablesound = mainGame->wInfoTab.IsChecked(CHECKBOX_ENABLE_SOUND);
 				break;
 			}
 			case CHECKBOX_ENABLE_MUSIC:{
-				mainGame->gameConf.enablemusic = mainGame->chkEnableMusic->isChecked();
+				mainGame->gameConf.enablemusic = mainGame->wInfoTab.IsChecked(CHECKBOX_ENABLE_MUSIC);
 				if (!mainGame->gameConf.enablemusic)
 					mainGame->engineMusic->stopAllSounds();
 				break;
 			}
 			case CHECKBOX_ENABLE_HIDECHAIN: {
-				mainGame->gameConf.chkHideChainButton = mainGame->chkHideChainButton->isChecked();
+				mainGame->gameConf.chkHideChainButton = mainGame->wInfoTab.IsChecked(CHECKBOX_HIDE_CHAINBUTTONS);
 				if (!mainGame->is_building) {
 					if (!mainGame->gameConf.chkHideChainButton) {
 						mainGame->btnChainAlways->setVisible(true);
@@ -738,9 +733,9 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 		case irr::gui::EGET_LISTBOX_CHANGED: {
 			switch(id) {
 			case LISTBOX_LOG: {
-				int sel = mainGame->lstLog->getSelected();
+				int sel = mainGame->wInfoTab.GetLogSelectedIndex();
 				if(sel != -1 && (int)mainGame->logParam.size() >= sel && mainGame->logParam[sel]) {
-					mainGame->ShowCardInfo(mainGame->logParam[sel]);
+					mainGame->wInfoTab.ShowCardInfo(mainGame->logParam[sel]);
 				}
 				break;
 			}
@@ -750,9 +745,9 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 		case irr::gui::EGET_LISTBOX_SELECTED_AGAIN: {
 			switch(id) {
 			case LISTBOX_LOG: {
-				int sel = mainGame->lstLog->getSelected();
+				int sel = mainGame->wInfoTab.GetLogSelectedIndex();
 				if(sel != -1 && (int)mainGame->logParam.size() >= sel && mainGame->logParam[sel]) {
-					mainGame->wInfos->setActiveTab(0);
+					mainGame->wInfoTab.SetActiveTab(0);
 				}
 				break;
 			}
@@ -839,21 +834,6 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				}
 				break;
 			}
-			case SCROLL_CARDTEXT: {
-				u32 pos = mainGame->scrCardText->getPos();
-				mainGame->SetStaticText(mainGame->stText, mainGame->stText->getRelativePosition().getWidth()-30, mainGame->textFont, mainGame->showingtext, pos);
-				break;
-			}
-			case SCROLL_SOUND: {
-				mainGame->gameConf.soundvolume = (double)mainGame->scrSound->getPos() / 100;
-				mainGame->engineSound->setSoundVolume(mainGame->gameConf.soundvolume);
-				break;
-			}
-			case SCROLL_MUSIC: {
-				mainGame->gameConf.musicvolume = (double)mainGame->scrMusic->getPos() / 100;
-				mainGame->engineMusic->setSoundVolume(mainGame->gameConf.musicvolume);
-				break;
-			}
 			break;
 			}
 		}
@@ -902,30 +882,20 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				int pos = mainGame->scrCardList->getPos() / 10;
 				ClientCard* mcard = selectable_cards[id - BUTTON_CARD_0 + pos];
 				if(mcard->code) {
-					mainGame->ShowCardInfo(mcard->code);
+					mainGame->wInfoTab.ShowCardInfo(mcard->code);
 				} else {
-					mainGame->imgCard->setImage(imageManager.tCover[0]);
-					mainGame->stName->setText(L"");
-					mainGame->stInfo->setText(L"");
-					mainGame->stDataInfo->setText(L"");
-					mainGame->stSetName->setText(L"");
-					mainGame->stText->setText(L"");
-					mainGame->scrCardText->setVisible(false);
+					mainGame->wInfoTab.SetImage(imageManager.tCover[0]);
+					mainGame->wInfoTab.ClearText();
 				}
 			}
 			if(id >= BUTTON_DISPLAY_0 && id <= BUTTON_DISPLAY_4) {
 				int pos = mainGame->scrDisplayList->getPos() / 10;
 				ClientCard* mcard = display_cards[id - BUTTON_DISPLAY_0 + pos];
 				if(mcard->code) {
-					mainGame->ShowCardInfo(mcard->code);
+					mainGame->wInfoTab.ShowCardInfo(mcard->code);
 				} else {
-					mainGame->imgCard->setImage(imageManager.tCover[0]);
-					mainGame->stName->setText(L"");
-					mainGame->stInfo->setText(L"");
-					mainGame->stDataInfo->setText(L"");
-					mainGame->stSetName->setText(L"");
-					mainGame->stText->setText(L"");
-					mainGame->scrCardText->setVisible(false);
+					mainGame->wInfoTab.SetImage(imageManager.tCover[0]);
+					mainGame->wInfoTab.ClearText();
 				}
 			}
 			break;
@@ -1496,7 +1466,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 						for(auto cit = mcard->ownerTarget.begin(); cit != mcard->ownerTarget.end(); ++cit)
 							(*cit)->is_showtarget = true;
 					if(mcard->code) {
-						mainGame->ShowCardInfo(mcard->code);
+						mainGame->wInfoTab.ShowCardInfo(mcard->code);
 						if(mcard->location & 0xe) {
 							std::wstring str;
 							if(mcard->type & TYPE_MONSTER) {
@@ -1582,13 +1552,8 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 						}
 					} else {
 						mainGame->stTip->setVisible(false);
-						mainGame->imgCard->setImage(imageManager.tCover[0]);
-						mainGame->stName->setText(L"");
-						mainGame->stInfo->setText(L"");
-						mainGame->stDataInfo->setText(L"");
-						mainGame->stSetName->setText(L"");
-						mainGame->stText->setText(L"");
-						mainGame->scrCardText->setVisible(false);
+						mainGame->wInfoTab.SetImage(imageManager.tCover[0]);
+						mainGame->wInfoTab.ClearText();
 					}
 				} else {
 					mainGame->stTip->setVisible(false);

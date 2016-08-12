@@ -96,14 +96,10 @@ namespace ygo {
 						break;
 					if (!ReplayMode::cur_replay.OpenReplay(GetListData()))
 						break;
-					mainGame->imgCard->setImage(imageManager.tCover[0]);
-					mainGame->wCardImg->setVisible(true);
-					mainGame->wInfos->setVisible(true);
-					mainGame->stName->setText(L"");
-					mainGame->stInfo->setText(L"");
-					mainGame->stDataInfo->setText(L"");
-					mainGame->stText->setText(L"");
-					mainGame->scrCardText->setVisible(false);
+					mainGame->wInfoTab.SetImage(imageManager.tCover[0]);
+					mainGame->wInfoTab.ShowImage(true);
+					mainGame->wInfoTab.Show();
+					mainGame->wInfoTab.ClearText();
 					mainGame->wReplayControl->setVisible(true);
 					mainGame->btnReplayStart->setVisible(false);
 					mainGame->btnReplayPause->setVisible(true);

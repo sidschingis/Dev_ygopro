@@ -2,12 +2,10 @@
 #include "game.h"
 #include "deck_manager.h"
 #include "duelclient.h"
-#include "netserver.h"
 
 namespace ygo {
 
 	void GUIHostRoom::Load() {
-		wchar_t strbuf[256];
 		IGUIEnvironment* env = mainGame->env;
 
 		wHostRoom = env->addWindow(rect<s32>(270, 120, 750 + 50, 440), false, dataManager.GetSysString(1250));
@@ -128,9 +126,14 @@ namespace ygo {
 	}
 
 	void GUIHostRoom::UpdateObserverText(int watching) {
-		wchar_t watchbuf[32];
-		myswprintf(watchbuf, L"%ls%d", dataManager.GetSysString(1253), watching);
-		_staticText[STATICTEXT_OB]->setText(watchbuf);
+		if (watching > 0) {
+			wchar_t watchbuf[32];
+			myswprintf(watchbuf, L"%ls%d", dataManager.GetSysString(1253), watching);
+			_staticText[STATICTEXT_OB]->setText(watchbuf);
+		}
+		else {
+			_staticText[STATICTEXT_OB]->setText(L"");
+		}
 	}
 
 	void GUIHostRoom::PlayerStateChange(int pos, int state, int watching) {
