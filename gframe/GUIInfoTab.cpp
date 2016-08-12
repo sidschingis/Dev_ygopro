@@ -5,7 +5,6 @@
 namespace ygo {
 
 	void GUIInfoTab::Load() {
-		//wchar_t strbuf[256];
 		IGUIEnvironment* env = mainGame->env;
 		_staticText[STATICTEXT_CARDIMAGE] = env->addStaticText(L"", rect<s32>(1, 1, 199, 273), true, false, 0, STATICTEXT_CARDIMAGE, true);
 		_staticText[STATICTEXT_CARDIMAGE]->setBackgroundColor(0xc0c0c0c0);
@@ -287,7 +286,7 @@ namespace ygo {
 			}
 			break;
 		}
-		return false;
 		}
+		return false;
 	}
 }
