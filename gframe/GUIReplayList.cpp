@@ -6,6 +6,11 @@
 #include "image_manager.h"
 #include "replay_mode.h"
 
+#ifdef _WIN32
+#include "dirent.h"
+#define strcasecmp _stricmp
+#endif
+
 namespace ygo {
 
 	void GUIReplayList::Load() {
@@ -63,8 +68,27 @@ namespace ygo {
 		_list->setSelected(item);
 	}
 
-	void GUIReplayList::ClearReplayList() {
+	void GUIReplayList::RefreshReplayList() {
 		_list->clear();
+		FindReplays("./replay/", ".yrp");
+		FindReplays("./replay/", ".yrp2");
+	}
+
+	void GUIReplayList::FindReplays(const char* path, const char* extension) {
+		DIR * dir;
+		struct dirent * dirp;
+		if ((dir = opendir(path)) == NULL)
+			return;
+		while ((dirp = readdir(dir)) != NULL) {
+			size_t len = strlen(dirp->d_name);
+			if (len < 5 || strcasecmp(dirp->d_name + len - strlen(extension), extension) != 0)
+				continue;
+			wchar_t wname[256];
+			BufferIO::DecodeUTF8(dirp->d_name, wname);
+			if (Replay::CheckReplay(wname))
+				AddListItem(wname);
+		}
+		closedir(dir);
 	}
 
 	void GUIReplayList::AddListItem(wchar_t* item) {
@@ -94,7 +118,9 @@ namespace ygo {
 				case BUTTON_LOAD_REPLAY: {
 					if (GetSelected() == -1)
 						break;
-					if (!ReplayMode::cur_replay.OpenReplay(GetListData()))
+					const wchar_t* selected = GetListData();
+					mainGame->dInfo.isYRP2 = wcsstr(selected, L".yrp2");
+					if (!ReplayMode::cur_replay.OpenReplay(selected))
 						break;
 					mainGame->wInfoTab.SetImage(imageManager.tCover[0]);
 					mainGame->wInfoTab.ShowImage(true);

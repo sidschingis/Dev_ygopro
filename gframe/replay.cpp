@@ -10,7 +10,7 @@ namespace ygo {
 		is_recording = false;
 		is_replaying = false;
 		replay_data = new unsigned char[0x20000];
-		comp_data = new unsigned char[0x2000];
+		comp_data = new unsigned char[0x20000];
 	}
 	Replay::~Replay() {
 		delete[] replay_data;
@@ -155,7 +155,7 @@ namespace ygo {
 		fseek(fp, 0, SEEK_SET);
 		fread(&pheader, sizeof(pheader), 1, fp);
 		if (pheader.flag & REPLAY_COMPRESSED) {
-			fread(comp_data, 0x1000, 1, fp);
+			fread(comp_data, 0x20000, 1, fp);
 			fclose(fp);
 			replay_size = pheader.datasize;
 			if (LzmaUncompress(replay_data, &replay_size, comp_data, &comp_size, pheader.props, 5) != SZ_OK)
@@ -214,7 +214,7 @@ namespace ygo {
 		if (!is_replaying)
 			return -1;
 		short ret = *((short*)pdata);
-		pdata += 4;
+		pdata += 2;
 		return ret;
 	}
 	char Replay::ReadInt8() {

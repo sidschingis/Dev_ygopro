@@ -18,12 +18,13 @@ namespace ygo {
 		void SetText(unsigned int, const wchar_t*);
 		void SetStaticText(unsigned int, const wchar_t*);
 		bool IsVisible() { return wReplayList->isVisible(); };
-		void ClearReplayList();
+		void RefreshReplayList();
 		void AddListItem(wchar_t*);
 		const wchar_t* GetListData();
 		int GetSelected();
 		void SetSelected(const wchar_t*);
 	private:
+		void FindReplays(const char* path, const char* extension);
 		irr::gui::IGUIWindow* wReplayList;
 		irr::gui::IGUIListBox* _list;
 		std::unordered_map<unsigned int, irr::gui::IGUIButton*> _buttons;

@@ -60,6 +60,7 @@ struct Config {
 struct DuelInfo {
 	bool isStarted;
 	bool isReplay;
+	bool isYRP2;
 	bool isReplaySkiping;
 	bool isFirst;
 	bool isTag;
