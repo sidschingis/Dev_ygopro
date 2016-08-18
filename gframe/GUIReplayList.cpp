@@ -15,19 +15,19 @@ namespace ygo {
 
 	void GUIReplayList::Load() {
 		IGUIEnvironment* env = mainGame->env;
-		wReplayList = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1202));
+		wReplayList = env->addWindow(rect<s32>(320, 100, 800, 510), false, dataManager.GetSysString(1202));
 		wReplayList->getCloseButton()->setVisible(false);
 		wReplayList->setVisible(false);
 		_list = env->addListBox(rect<s32>(10, 30, 350, 400), wReplayList, LISTBOX_REPLAY_LIST, true);
 		_list->setItemHeight(18);
-		_buttons[BUTTON_LOAD_REPLAY] = env->addButton(rect<s32>(460, 355, 570, 380), wReplayList, BUTTON_LOAD_REPLAY, dataManager.GetSysString(1348));
-		_buttons[BUTTON_CANCEL_REPLAY] = env->addButton(rect<s32>(460, 385, 570, 410), wReplayList, BUTTON_CANCEL_REPLAY, dataManager.GetSysString(1347));
+		_buttons[BUTTON_LOAD_REPLAY] = env->addButton(rect<s32>(360, 345, 470, 370), wReplayList, BUTTON_LOAD_REPLAY, dataManager.GetSysString(1348));
+		_buttons[BUTTON_CANCEL_REPLAY] = env->addButton(rect<s32>(360, 375, 470, 400), wReplayList, BUTTON_CANCEL_REPLAY, dataManager.GetSysString(1347));
 		env->addStaticText(dataManager.GetSysString(1349), rect<s32>(360, 30, 570, 50), false, true, wReplayList);
 		_staticText[STATICTEXT_REPLAYINFO] = env->addStaticText(L"", rect<s32>(360, 60, 570, 350), false, true, wReplayList, STATICTEXT_REPLAYINFO);
-		env->addStaticText(dataManager.GetSysString(1353), rect<s32>(360, 275, 570, 295), false, true, wReplayList);
-		_editBox[EDITBOX_STARTTURN] = env->addEditBox(L"", rect<s32>(360, 300, 460, 320), true, wReplayList, EDITBOX_STARTTURN);
+		env->addStaticText(dataManager.GetSysString(1353), rect<s32>(360, 285, 570, 305), false, true, wReplayList);
+		_editBox[EDITBOX_STARTTURN] = env->addEditBox(L"", rect<s32>(360, 310, 460, 330), true, wReplayList, EDITBOX_STARTTURN);
 		_editBox[EDITBOX_STARTTURN]->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
-		
+		_replayDebug = env->addCheckBox(false, rect<s32>(360, 255, 570, 275), wReplayList, -1, L"Debug");
 	}
 
 	irr::gui::IGUIElement* GUIReplayList::GetBtnElement(unsigned int item) {
@@ -71,7 +71,6 @@ namespace ygo {
 	void GUIReplayList::RefreshReplayList() {
 		_list->clear();
 		FindReplays("./replay/", ".yrp");
-		FindReplays("./replay/", ".yrp2");
 	}
 
 	void GUIReplayList::FindReplays(const char* path, const char* extension) {
@@ -96,7 +95,7 @@ namespace ygo {
 	}
 
 	void GUIReplayList::OnResize() {
-		wReplayList->setRelativePosition(mainGame->ResizeWin(220, 100, 800, 520));
+		wReplayList->setRelativePosition(mainGame->ResizeWin(320, 100, 800, 510));
 	}
 	void GUIReplayList::Show() {
 		mainGame->PopupElement(wReplayList);
@@ -119,7 +118,7 @@ namespace ygo {
 					if (GetSelected() == -1)
 						break;
 					const wchar_t* selected = GetListData();
-					mainGame->dInfo.isYRP2 = wcsstr(selected, L".yrp2");
+					mainGame->dInfo.isYRP2 = !_replayDebug->isChecked();
 					if (!ReplayMode::cur_replay.OpenReplay(selected))
 						break;
 					mainGame->wInfoTab.SetImage(imageManager.tCover[0]);

@@ -27,6 +27,7 @@ namespace ygo {
 		void FindReplays(const char* path, const char* extension);
 		irr::gui::IGUIWindow* wReplayList;
 		irr::gui::IGUIListBox* _list;
+		irr::gui::IGUICheckBox* _replayDebug;
 		std::unordered_map<unsigned int, irr::gui::IGUIButton*> _buttons;
 		std::unordered_map<unsigned int, irr::gui::IGUIEditBox*> _editBox;
 		std::unordered_map<unsigned int, irr::gui::IGUIStaticText*> _staticText;
