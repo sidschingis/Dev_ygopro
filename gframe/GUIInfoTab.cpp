@@ -177,6 +177,7 @@ namespace ygo {
 	void GUIInfoTab::Hide() {
 		wInfos->setVisible(false);
 		ShowImage(false);
+		ClearText();
 		ClearLog();
 	}
 

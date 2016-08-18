@@ -68,8 +68,10 @@ bool GUIDeckEdit::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_DBEXIT: {
 				Hide();
+				mainGame->wInfoTab.Hide();
 				if(exit_on_return)
 					mainGame->device->closeDevice();
+				mainGame->wMenu.Show();
 				break;
 			}
 			case BUTTON_EFFECT_FILTER: {

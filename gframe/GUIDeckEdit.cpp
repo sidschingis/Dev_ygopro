@@ -248,8 +248,6 @@ namespace ygo {
 		wDeckEdit->setVisible(false);
 		wCategories->setVisible(false);
 		wFilter->setVisible(false);
-		mainGame->wInfoTab.ShowImage(false);
-		mainGame->wInfoTab.Hide();
 		mainGame->wACMessage->setVisible(false);
 		imageManager.ClearTexture();
 		scrFilter->setVisible(false);
