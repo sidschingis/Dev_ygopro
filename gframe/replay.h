@@ -49,10 +49,8 @@ namespace ygo {
 		HANDLE recording_fp;
 #endif
 		unsigned char* replay_data;
-		unsigned char* comp_data;
 		unsigned char* pdata;
 		size_t replay_size;
-		size_t comp_size;
 		bool is_recording;
 		bool is_replaying;
 	};

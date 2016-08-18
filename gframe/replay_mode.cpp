@@ -533,6 +533,40 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 				ReplayRefreshSingle(cc, cl, cs);
 			break;
 		}
+		case MSG_START: {
+			mainGame->showcardcode = 11;
+			mainGame->showcarddif = 30;
+			mainGame->showcardp = 0;
+			mainGame->showcard = 101;
+			mainGame->WaitFrameSignal(40);
+			mainGame->showcard = 0;
+			mainGame->gMutex.Lock();
+			int playertype = BufferIO::ReadInt8(pbuf);
+			mainGame->dInfo.isFirst = (playertype & 0xf) ? false : true;
+			if (playertype & 0xf0)
+				mainGame->dInfo.player_type = 7;
+			if (mainGame->dInfo.isTag) {
+				if (mainGame->dInfo.isFirst)
+					mainGame->dInfo.tag_player[1] = true;
+				else
+					mainGame->dInfo.tag_player[0] = true;
+			}
+			mainGame->dInfo.lp[mainGame->LocalPlayer(0)] = BufferIO::ReadInt32(pbuf);
+			mainGame->dInfo.lp[mainGame->LocalPlayer(1)] = BufferIO::ReadInt32(pbuf);
+			myswprintf(mainGame->dInfo.strLP[0], L"%d", mainGame->dInfo.lp[0]);
+			myswprintf(mainGame->dInfo.strLP[1], L"%d", mainGame->dInfo.lp[1]);
+			int deckc = BufferIO::ReadInt16(pbuf);
+			int extrac = BufferIO::ReadInt16(pbuf);
+			mainGame->dField.Initial(mainGame->LocalPlayer(0), deckc, extrac);
+			deckc = BufferIO::ReadInt16(pbuf);
+			extrac = BufferIO::ReadInt16(pbuf);
+			mainGame->dField.Initial(mainGame->LocalPlayer(1), deckc, extrac);
+			mainGame->dInfo.turn = 0;
+			mainGame->dInfo.strTurn[0] = 0;
+			mainGame->dInfo.is_shuffling = false;
+			mainGame->gMutex.Unlock();
+			return true;
+		}
 		case MSG_UPDATE_DATA: {
 			int player = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
 			int location = BufferIO::ReadInt8(pbuf);

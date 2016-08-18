@@ -134,7 +134,6 @@ bool Game::Initialize() {
 	guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	textFont = guiFont;
 	smgr = device->getSceneManager();
-	device->setWindowCaption(L"YGOPro DevPro");
 	device->setResizable(true);
 	wchar_t strbuf[256];
 	//main menu
@@ -464,7 +463,7 @@ void Game::MainLoop() {
 			usleep(20000);
 #endif
 		if(cur_time >= 1000) {
-			myswprintf(cap, L"YGOPro DevPro | FPS: %d", fps);
+			myswprintf(cap, L"YGOPro Test Client | FPS: %d", fps);
 			device->setWindowCaption(cap);
 			fps = 0;
 			cur_time -= 1000;
@@ -750,15 +749,15 @@ void Game::PlayMusic(char* song, bool loop){
 	if(gameConf.enablemusic){
 		if(!engineMusic->isCurrentlyPlaying(song)){
 					engineMusic->stopAllSounds();
-					engineMusic->play2D(song, loop);
 					engineMusic->setSoundVolume(gameConf.musicvolume);
+					engineMusic->play2D(song, loop);
 		}
 	}
 }
 void Game::PlaySound(char* sound){
-	if(gameConf.enablesound){
-		engineSound->play2D(sound);
+	if(gameConf.enablesound){		
 		engineSound->setSoundVolume(gameConf.soundvolume);
+		engineSound->play2D(sound);
 	}
 }
 void Game::AddChatMsg(wchar_t* msg, int player) {
