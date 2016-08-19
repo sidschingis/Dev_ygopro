@@ -3,6 +3,11 @@
 #include "deck_manager.h"
 #include "image_manager.h"
 
+#ifdef _WIN32
+#include "dirent.h"
+#define strcasecmp _stricmp
+#endif
+
 namespace ygo {
 
 	void GUIDeckEdit::Load() {
@@ -29,8 +34,6 @@ namespace ygo {
 			_ComboBox[COMBOBOX_DBLFLIST]->addItem(deckManager._lfList[i].listName, deckManager._lfList[i].hash);
 		
 		_ComboBox[COMBOBOX_DBDECKS] = mainGame->env->addComboBox(rect<s32>(80, 35, 220, 60), wDeckEdit, COMBOBOX_DBDECKS);
-		for (unsigned int i = 0; i < deckManager._lfList.size(); ++i)
-			_ComboBox[COMBOBOX_DBDECKS]->addItem(deckManager._lfList[i].listName);
 
 		_buttons[BUTTON_SAVE_DECK] = mainGame->env->addButton(rect<s32>(225, 35, 290, 60), wDeckEdit, BUTTON_SAVE_DECK, dataManager.GetSysString(1302));
 		_editBox[EDITBOX_DECKNAME] = mainGame->env->addEditBox(L"", rect<s32>(80, 65, 220, 90), true, wDeckEdit, EDITBOX_DECKNAME);
@@ -194,7 +197,7 @@ namespace ygo {
 	}
 
 	void GUIDeckEdit::ShowDeckEdit() {
-		mainGame->RefreshDeck(_ComboBox[COMBOBOX_DBDECKS]);
+		RefreshDeck();
 		if (_ComboBox[COMBOBOX_DBDECKS]->getSelected() != -1)
 			deckManager.LoadDeck(_ComboBox[COMBOBOX_DBDECKS]->getItem(_ComboBox[COMBOBOX_DBDECKS]->getSelected()));
 		mainGame->is_building = true;
@@ -230,6 +233,30 @@ namespace ygo {
 		mainGame->PopupElement(wDeckEdit);
 		mainGame->PopupElement(wFilter);
 		mainGame->PopupElement(wSort);
+	}
+
+	void GUIDeckEdit::RefreshDeck() {
+		_ComboBox[COMBOBOX_DBDECKS]->clear();
+		DIR * dir;
+		struct dirent * dirp;
+		if ((dir = opendir("./deck/")) == NULL)
+			return;
+		while ((dirp = readdir(dir)) != NULL) {
+			size_t len = strlen(dirp->d_name);
+			if (len < 5 || strcasecmp(dirp->d_name + len - 4, ".ydk") != 0)
+				continue;
+			dirp->d_name[len - 4] = 0;
+			wchar_t wname[256];
+			BufferIO::DecodeUTF8(dirp->d_name, wname);
+			_ComboBox[COMBOBOX_DBDECKS]->addItem(wname);
+		}
+		closedir(dir);
+		for (size_t i = 0; i < _ComboBox[COMBOBOX_DBDECKS]->getItemCount(); ++i) {
+			if (!wcscmp(_ComboBox[COMBOBOX_DBDECKS]->getItem(i), mainGame->gameConf.lastdeck)) {
+				_ComboBox[COMBOBOX_DBDECKS]->setSelected(i);
+				break;
+			}
+		}
 	}
 
 	void GUIDeckEdit::ShowSiding() {

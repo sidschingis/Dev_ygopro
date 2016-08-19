@@ -149,8 +149,8 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 				} else {
 					mainGame->gMutex.Lock();
 					mainGame->env->addMessageBox(L"", dataManager.GetSysString(1502));
-					mainGame->wLan.Show();
 					mainGame->gMutex.Unlock();
+					mainGame->wLan.Show();
 					mainGame->closeDoneSignal.Reset();
 					mainGame->closeSignal.Set();
 					mainGame->closeDoneSignal.Wait();

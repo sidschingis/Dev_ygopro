@@ -3,6 +3,11 @@
 #include "deck_manager.h"
 #include "duelclient.h"
 
+#ifdef _WIN32
+#include "dirent.h"
+#define strcasecmp _stricmp
+#endif
+
 namespace ygo {
 
 	void GUIHostRoom::Load() {
@@ -83,7 +88,7 @@ namespace ygo {
 		stHostPrepDuelist[3]->setText(L"");
 		_staticText[STATICTEXT_OB]->setText(L"");
 		mainGame->SetStaticText(_staticText[STATICTEXT_RULE], 180, mainGame->guiFont, (wchar_t*)str.c_str());
-		mainGame->RefreshDeck(_deckSelect);
+		RefreshDeck();
 		_deckSelect->setEnabled(true);
 
 		//forced mode for DevPro ranked duels
@@ -110,6 +115,30 @@ namespace ygo {
 			_deckSelect->setEnabled(false);
 			int selftype = (chkHostPrepReady[0]->isEnabled()) ? 0 : 1;
 			chkHostPrepReady[selftype]->setChecked(true);
+		}
+	}
+
+	void GUIHostRoom::RefreshDeck() {
+		_deckSelect->clear();
+		DIR * dir;
+		struct dirent * dirp;
+		if ((dir = opendir("./deck/")) == NULL)
+			return;
+		while ((dirp = readdir(dir)) != NULL) {
+			size_t len = strlen(dirp->d_name);
+			if (len < 5 || strcasecmp(dirp->d_name + len - 4, ".ydk") != 0)
+				continue;
+			dirp->d_name[len - 4] = 0;
+			wchar_t wname[256];
+			BufferIO::DecodeUTF8(dirp->d_name, wname);
+			_deckSelect->addItem(wname);
+		}
+		closedir(dir);
+		for (size_t i = 0; i < _deckSelect->getItemCount(); ++i) {
+			if (!wcscmp(_deckSelect->getItem(i), mainGame->gameConf.lastdeck)) {
+				_deckSelect->setSelected(i);
+				break;
+			}
 		}
 	}
 

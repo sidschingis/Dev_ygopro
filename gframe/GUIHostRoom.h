@@ -24,6 +24,7 @@ namespace ygo {
 		void PlayerStateChange(int index, int state, int watching);
 		void UpdateObserverText(int watching);
 	private:
+		void RefreshDeck();
 		irr::gui::IGUIWindow* wHostRoom;
 		std::unordered_map<unsigned int, irr::gui::IGUIButton*> _buttons;
 		std::unordered_map<unsigned int, irr::gui::IGUIStaticText*> _staticText;

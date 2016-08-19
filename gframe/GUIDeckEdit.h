@@ -53,6 +53,7 @@ namespace ygo {
 		std::vector<code_pointer> results;
 		wchar_t result_string[8];
 	private:
+		void RefreshDeck();
 		irr::gui::IGUIStaticText* wDeckEdit;
 		irr::gui::IGUIStaticText* wSort;
 		irr::gui::IGUIStaticText* wFilter;
