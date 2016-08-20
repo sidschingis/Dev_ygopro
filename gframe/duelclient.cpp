@@ -375,7 +375,6 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->dInfo.time_left[1] = 0;
 		mainGame->dInfo.time_player = 2;
 		mainGame->is_building = false;
-		mainGame->wInfoTab.ShowImage(true);
 		mainGame->wInfoTab.Show();
 		mainGame->wPhase->setVisible(true);
 		mainGame->wEdit.Hide();
@@ -387,7 +386,6 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->btnEP->setVisible(false);
 		mainGame->btnShuffle->setVisible(false);
 		mainGame->wChat->setVisible(true);
-		mainGame->wInfoTab.SetImage(imageManager.tCover[0]);
 		mainGame->device->setEventReceiver(&mainGame->dField);
 		if(!mainGame->dInfo.isTag) {
 			if(selftype > 1) {
@@ -3037,7 +3035,8 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		mainGame->gMutex.Lock();
 		mainGame->dField.Clear();
 		int val = 0;
-		for(int p = 0; p < 2; ++p) {
+		for(int i = 0; i < 2; ++i) {
+			int p = mainGame->LocalPlayer(i);
 			mainGame->dInfo.lp[p] = BufferIO::ReadInt32(pbuf);
 			myswprintf(mainGame->dInfo.strLP[p], L"%d", mainGame->dInfo.lp[p]);
 			for(int seq = 0; seq < 5; ++seq) {

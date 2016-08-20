@@ -65,7 +65,8 @@ namespace ygo {
 		wLan->setRelativePosition(mainGame->ResizeWin(220, 100, 800, 520));
 	}
 	void GUILanWindow::Show() {
-		mainGame->PopupElement(wLan);
+		//mainGame->PopupElement(wLan);
+		wLan->setVisible(true);
 		mainGame->device->setEventReceiver(&mainGame->wLan);
 	}
 

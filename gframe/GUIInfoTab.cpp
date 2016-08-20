@@ -172,6 +172,7 @@ namespace ygo {
 	void GUIInfoTab::Show() {
 		ShowImage(true);
 		wInfos->setVisible(true);
+		SetImage(imageManager.tCover[0]);
 	}
 
 	void GUIInfoTab::Hide() {
