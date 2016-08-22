@@ -43,7 +43,7 @@ irr::video::ITexture* ImageManager::LoadTexture(const char* image) {
 		strncat(file, ".jpg", sizeof(file));
 		texture = driver->getTexture(file);
 	}
-	return texture == NULL ? tUnknown : texture;
+	return texture;
 }
 void ImageManager::SetDevice(irr::IrrlichtDevice* dev) {
 	device = dev;

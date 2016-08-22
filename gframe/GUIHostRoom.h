@@ -17,7 +17,7 @@ namespace ygo {
 		bool IsVisible() { return wHostRoom->isVisible(); };
 		void EnableDeckSelect(bool value) { _deckSelect->setEnabled(value); };
 		void RoomSetUp(bool isTag, std::wstring);
-		void TypeChange(int type);
+		void TypeChange(int type, int selftype);
 		void SetPlayerName(int index, const wchar_t* name);
 		void SetPlayerElo(int index, const wchar_t* elo);
 		const wchar_t* GetPlayerName(int index);

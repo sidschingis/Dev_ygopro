@@ -235,6 +235,39 @@ namespace ygo {
 		mainGame->PopupElement(wSort);
 	}
 
+	void GUIDeckEdit::ShowSiding() {
+		mainGame->is_building = true;
+		mainGame->is_siding = true;
+		wDeckEdit->setVisible(false);
+		wFilter->setVisible(false);
+		wSort->setVisible(false);
+		_buttons[BUTTON_SIDE_OK]->setVisible(true);
+		result_string[0] = L'0';
+		result_string[1] = 0;
+		results.clear();
+		is_draging = false;
+		pre_mainc = deckManager.current_deck.main.size();
+		pre_extrac = deckManager.current_deck.extra.size();
+		pre_sidec = deckManager.current_deck.side.size();
+		mainGame->device->setEventReceiver(&mainGame->wEdit);
+	}
+
+	void GUIDeckEdit::Hide() {
+		_buttons[BUTTON_SIDE_OK]->setVisible(false);
+		mainGame->is_building = false;
+		mainGame->is_siding = false;
+		wDeckEdit->setVisible(false);
+		wCategories->setVisible(false);
+		wFilter->setVisible(false);
+		mainGame->wACMessage->setVisible(false);
+		imageManager.ClearTexture();
+		scrFilter->setVisible(false);
+		wSort->setVisible(false);
+		if (_ComboBox[COMBOBOX_DBDECKS]->getSelected() != -1) {
+			BufferIO::CopyWStr(_ComboBox[COMBOBOX_DBDECKS]->getItem(_ComboBox[COMBOBOX_DBDECKS]->getSelected()), mainGame->gameConf.lastdeck, 64);
+		}
+	}
+
 	void GUIDeckEdit::RefreshDeck() {
 		_ComboBox[COMBOBOX_DBDECKS]->clear();
 		DIR * dir;
@@ -256,31 +289,6 @@ namespace ygo {
 				_ComboBox[COMBOBOX_DBDECKS]->setSelected(i);
 				break;
 			}
-		}
-	}
-
-	void GUIDeckEdit::ShowSiding() {
-		mainGame->is_building = false;
-		mainGame->is_siding = true;
-		wDeckEdit->setVisible(false);
-		wFilter->setVisible(false);
-		wSort->setVisible(false);
-		_buttons[BUTTON_SIDE_OK]->setVisible(true);
-	}
-
-	void GUIDeckEdit::Hide() {
-		_buttons[BUTTON_SIDE_OK]->setVisible(false);
-		mainGame->is_building = false;
-		mainGame->is_siding = false;
-		wDeckEdit->setVisible(false);
-		wCategories->setVisible(false);
-		wFilter->setVisible(false);
-		mainGame->wACMessage->setVisible(false);
-		imageManager.ClearTexture();
-		scrFilter->setVisible(false);
-		wSort->setVisible(false);
-		if (_ComboBox[COMBOBOX_DBDECKS]->getSelected() != -1) {
-			BufferIO::CopyWStr(_ComboBox[COMBOBOX_DBDECKS]->getItem(_ComboBox[COMBOBOX_DBDECKS]->getSelected()), mainGame->gameConf.lastdeck, 64);
 		}
 	}
 

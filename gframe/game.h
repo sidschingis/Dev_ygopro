@@ -297,8 +297,6 @@ public:
 	irr::gui::IGUIWindow* wChat;
 	irr::gui::IGUIListBox* lstChatLog;
 	irr::gui::IGUIEditBox* ebChatInput;
-	irr::gui::IGUICheckBox* chkIgnore1;
-	irr::gui::IGUICheckBox* chkIgnore2;
 	//phase button
 	irr::gui::IGUIStaticText* wPhase;
 	irr::gui::IGUIButton* btnDP;

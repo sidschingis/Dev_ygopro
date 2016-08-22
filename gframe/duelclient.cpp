@@ -268,8 +268,6 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->gMutex.Lock();
 		mainGame->dInfo.isStarted = false;
 		mainGame->dField.Clear();
-		mainGame->is_building = true;
-		mainGame->is_siding = true;
 		mainGame->wPhase->setVisible(false);
 		mainGame->wEdit.ShowSiding();
 		if(mainGame->dInfo.player_type < 7)
@@ -277,14 +275,6 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->btnChainIgnore->setVisible(false);
 		mainGame->btnChainAlways->setVisible(false);
 		mainGame->btnChainWhenAvail->setVisible(false);
-		mainGame->wEdit.result_string[0] = L'0';
-		mainGame->wEdit.result_string[1] = 0;
-		mainGame->wEdit.results.clear();
-		mainGame->wEdit.is_draging = false;
-		mainGame->wEdit.pre_mainc = deckManager.current_deck.main.size();
-		mainGame->wEdit.pre_extrac = deckManager.current_deck.extra.size();
-		mainGame->wEdit.pre_sidec = deckManager.current_deck.side.size();
-		mainGame->device->setEventReceiver(&mainGame->wEdit);
 		mainGame->gMutex.Unlock();
 		break;
 	}
@@ -357,7 +347,8 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 	}
 	case STOC_TYPE_CHANGE: {
 		STOC_TypeChange* pkt = (STOC_TypeChange*)pdata;
-		mainGame->wHostRoom.TypeChange(pkt->type);
+		selftype = pkt->type & 0xf;
+		mainGame->wHostRoom.TypeChange(pkt->type, selftype);
 		break;
 	}
 	case STOC_DUEL_START: {
@@ -495,7 +486,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		STOC_Chat* pkt = (STOC_Chat*)pdata;
 		int player = pkt->player;
 		if(player < 4) {
-			if(mainGame->chkIgnore1->isChecked())
+			if(mainGame->wInfoTab.IsChecked(CHECKBOX_MUTEOPPONENT))
 				break;
 			if(!mainGame->dInfo.isTag) {
 				if(mainGame->dInfo.isStarted)
@@ -516,10 +507,10 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			}
 		} else {
 			if(player == 8) { //system custom message.
-				if(mainGame->chkIgnore1->isChecked())
+				if(mainGame->wInfoTab.IsChecked(CHECKBOX_MUTEOPPONENT))
 					break;
 			} else if(player < 11 || player > 19) {
-				if(mainGame->chkIgnore2->isChecked())
+				if(mainGame->wInfoTab.IsChecked(CHECKBOX_MUTESPECTATORS))
 					break;
 				player = 10;
 			}

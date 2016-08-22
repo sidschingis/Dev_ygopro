@@ -204,8 +204,7 @@ namespace ygo {
 		}
 	}
 
-	void GUIHostRoom::TypeChange(int type) {
-		int selftype = type & 0xf;
+	void GUIHostRoom::TypeChange(int type, int selftype) {
 		bool is_host = ((type >> 4) & 0xf) != 0;
 		if (!mainGame->dInfo.isTag) {
 			btnHostPrepKick[2]->setVisible(false);
