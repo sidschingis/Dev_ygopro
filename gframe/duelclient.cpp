@@ -141,7 +141,7 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 					mainGame->wLan.Show();
 					mainGame->gMutex.Lock();
 					mainGame->wHostRoom.Hide();
-					mainGame->wChat->setVisible(false);
+					mainGame->wChat.Hide();
 					if(events & BEV_EVENT_EOF)
 						mainGame->env->addMessageBox(L"", dataManager.GetSysString(1401));
 					else mainGame->env->addMessageBox(L"", dataManager.GetSysString(1402));
@@ -340,7 +340,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		else if (mainGame->wLan.isVisible())
 			mainGame->wLan.Hide();
 		mainGame->wHostRoom.Show();
-		mainGame->wChat->setVisible(true);
+		mainGame->wChat.Show();
 		mainGame->gMutex.Unlock();
 		connect_state |= 0x4;
 		break;
@@ -376,7 +376,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->btnM2->setVisible(false);
 		mainGame->btnEP->setVisible(false);
 		mainGame->btnShuffle->setVisible(false);
-		mainGame->wChat->setVisible(true);
+		mainGame->wChat.Show();
 		mainGame->device->setEventReceiver(&mainGame->dField);
 		if(!mainGame->dInfo.isTag) {
 			if(selftype > 1) {

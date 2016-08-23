@@ -126,7 +126,7 @@ namespace ygo {
 			_staticText[STATICTEXT_CARDTEXT]->setRelativePosition(rect<s32>(15, 60 + offset, 287 * mainGame->window_size.Width / 1024 - 30, 324 * mainGame->window_size.Height / 640));
 			scrCardText->setRelativePosition(rect<s32>(267, 60 + offset, 287, 324 * mainGame->window_size.Height / 640));
 		}
-		const wchar_t* showingtext = dataManager.GetText(code);
+		showingtext = dataManager.GetText(code);
 		const auto& tsize = _staticText[STATICTEXT_CARDTEXT]->getRelativePosition();
 		mainGame->InitStaticText(_staticText[STATICTEXT_CARDTEXT], tsize.getWidth() - 30, tsize.getHeight(), mainGame->textFont, showingtext);
 	}
@@ -237,7 +237,7 @@ namespace ygo {
 				switch (id) {
 				case SCROLL_CARDTEXT: {
 					u32 pos = scrCardText->getPos();
-					mainGame->SetStaticText(_staticText[STATICTEXT_CARDTEXT], _staticText[STATICTEXT_CARDTEXT]->getRelativePosition().getWidth() - 30, mainGame->textFont, mainGame->showingtext, pos);
+					mainGame->SetStaticText(_staticText[STATICTEXT_CARDTEXT], _staticText[STATICTEXT_CARDTEXT]->getRelativePosition().getWidth() - 30, mainGame->textFont, showingtext, pos);
 					break;
 				}
 				case SCROLL_SOUND: {

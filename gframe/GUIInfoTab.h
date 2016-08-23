@@ -26,6 +26,7 @@ namespace ygo {
 		bool IsChecked(unsigned int);
 	private:
 		int displayedcard = 0;
+		const wchar_t* showingtext;
 		irr::gui::IGUIImage* imgCard;
 		irr::gui::IGUITabControl* wInfos;
 		irr::gui::IGUIListBox* lstLog;

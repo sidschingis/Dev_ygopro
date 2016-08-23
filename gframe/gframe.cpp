@@ -1,7 +1,6 @@
 #include "config.h"
 #include "game.h"
 #include "data_manager.h"
-#include "menu_handler.h"
 #include <event2/thread.h>
 
 int enable_log = 0;

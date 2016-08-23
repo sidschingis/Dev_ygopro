@@ -300,7 +300,7 @@ namespace ygo {
 					DuelClient::StopClient();
 					Hide();
 					mainGame->wLan.Show();
-					mainGame->wChat->setVisible(false);
+					mainGame->wChat.Hide();
 					if (exit_on_return)
 						mainGame->device->closeDevice();
 					break;
@@ -350,6 +350,7 @@ namespace ygo {
 		}
 		break;
 		}
+		mainGame->wChat.OnEvent(event);
 		return false;
 	}
 }

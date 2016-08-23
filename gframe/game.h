@@ -3,7 +3,6 @@
 
 #include "config.h"
 #include "client_field.h"
-#include "menu_handler.h"
 #include "GUIMainMenu.h"
 #include "GUIOnline.h"
 #include "GUILanWindow.h"
@@ -13,6 +12,7 @@
 #include "GUISingleList.h"
 #include "GUIHostRoom.h"
 #include "GUIInfoTab.h"
+#include "GUIChat.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -167,7 +167,6 @@ public:
 	int waitFrame;
 	int signalFrame;
 	int actionParam;
-	const wchar_t* showingtext;
 	int showcard;
 	int showcardcode;
 	int showcarddif;
@@ -202,7 +201,6 @@ public:
 	CGUISkinSystem *skinSystem;
 
 	ClientField dField;
-	MenuHandler menuHandler;
 	irr::IrrlichtDevice* device;
 	irr::video::IVideoDriver* driver;
 	irr::scene::ISceneManager* smgr;
@@ -294,9 +292,6 @@ public:
 	irr::gui::IGUIButton* btnShowList;
 	irr::gui::IGUIButton* btnShuffle;
 	//chat window
-	irr::gui::IGUIWindow* wChat;
-	irr::gui::IGUIListBox* lstChatLog;
-	irr::gui::IGUIEditBox* ebChatInput;
 	//phase button
 	irr::gui::IGUIStaticText* wPhase;
 	irr::gui::IGUIButton* btnDP;
@@ -337,6 +332,7 @@ public:
 	GUISingleList wSingleList;
 	GUIHostRoom wHostRoom;
 	GUIInfoTab wInfoTab;
+	GUIChat wChat;
 };
 
 extern Game* mainGame;

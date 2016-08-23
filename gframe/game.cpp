@@ -135,7 +135,6 @@ bool Game::Initialize() {
 	textFont = guiFont;
 	smgr = device->getSceneManager();
 	device->setResizable(true);
-	wchar_t strbuf[256];
 	//main menu
 	wMenu.Load();
 	//online mode
@@ -350,12 +349,7 @@ bool Game::Initialize() {
 	btnReplaySwap = env->addButton(rect<s32>(5, 30, 85, 50), wReplayControl, BUTTON_REPLAY_SWAP, dataManager.GetSysString(1346));
 	btnReplayExit = env->addButton(rect<s32>(5, 105, 85, 125), wReplayControl, BUTTON_REPLAY_EXIT, dataManager.GetSysString(1347));
 	//chat
-	wChat = env->addWindow(rect<s32>(305, 615, 1020, 640), false, L"");
-	wChat->getCloseButton()->setVisible(false);
-	wChat->setDraggable(false);
-	wChat->setDrawTitlebar(false);
-	wChat->setVisible(false);
-	ebChatInput = env->addEditBox(L"", rect<s32>(3, 2, 710, 22), true, wChat, EDITBOX_CHAT);
+	wChat.Load();
 	//leave/surrender/exit
 	btnLeaveGame = env->addButton(rect<s32>(205, 5, 295, 80), 0, BUTTON_LEAVE_GAME, L"");
 	btnLeaveGame->setVisible(false);
@@ -463,7 +457,7 @@ void Game::MainLoop() {
 			usleep(20000);
 #endif
 		if(cur_time >= 1000) {
-			myswprintf(cap, L"YGOPro Test Client | FPS: %d", fps);
+			myswprintf(cap, L"YGOPro Recode | FPS: %d", fps);
 			device->setWindowCaption(cap);
 			fps = 0;
 			cur_time -= 1000;
@@ -802,7 +796,7 @@ void Game::CloseDuelWindow() {
 	btnChainIgnore->setVisible(false);
 	btnChainAlways->setVisible(false);
 	btnChainWhenAvail->setVisible(false);
-	wChat->setVisible(false);
+	wChat.Hide();
 	logParam.clear();
 	wLan.ClearHostList();
 	DuelClient::hosts.clear();
@@ -839,8 +833,7 @@ void Game::OnResize()
 	wReplaySave->setRelativePosition(ResizeWin(510, 200, 820, 320));
 	stHintMsg->setRelativePosition(ResizeWin(500, 60, 820, 90));
 
-	wChat->setRelativePosition(ResizeWin(305, 615, 1020, 640, true));
-	ebChatInput->setRelativePosition(recti(3, 2, window_size.Width - wChat->getRelativePosition().UpperLeftCorner.X - 6, 22));
+	wChat.OnResize();
 	wInfoTab.OnResize();
 
 	btnLeaveGame->setRelativePosition(Resize(205, 5, 295, 80));

@@ -6,7 +6,7 @@ namespace ygo {
 
 	void GUIMainMenu::Load() {
 		wchar_t strbuf[256];
-		myswprintf(strbuf, L"YGOPro DevPro (Version:%X.0%X.%X)", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
+		myswprintf(strbuf, L"YGOPro Recode (Version:%X.0%X.%X)", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
 		wMenu = mainGame->env->addWindow(rect<s32>(370, 200, 650, 415), false, strbuf);
 		wMenu->getCloseButton()->setVisible(false);
 		_buttons[BUTTON_LAN_MODE] = mainGame->env->addButton(rect<s32>(10, 30, 270, 60), wMenu, BUTTON_LAN_MODE, dataManager.GetSysString(1200));
