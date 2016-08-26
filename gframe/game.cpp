@@ -610,6 +610,7 @@ void Game::LoadConfig() {
 	gameConf.control_mode = 0;
 	gameConf.chkHideSetname = 0;
 	gameConf.chkHideChainButton = 0;
+	gameConf.old_replay_mode = 0;
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -695,6 +696,8 @@ void Game::LoadConfig() {
 			gameConf.chkHideSetname = atoi(valbuf) > 0;
 		} else if (!strcmp(strbuf, "hide_chain_button")) {
 			gameConf.chkHideChainButton = atoi(valbuf) > 0;
+		} else if (!strcmp(strbuf, "old_replay_mode")) {
+			gameConf.old_replay_mode = atoi(valbuf) > 0;
 		}
 	}
 	fclose(fp);

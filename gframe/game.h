@@ -55,6 +55,7 @@ struct Config {
 	bool forced;
 	bool savereplay;
 	int control_mode;
+	bool old_replay_mode;
 };
 
 struct DuelInfo {

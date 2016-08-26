@@ -28,6 +28,7 @@ namespace ygo {
 		_editBox[EDITBOX_STARTTURN] = env->addEditBox(L"", rect<s32>(360, 310, 460, 330), true, wReplayList, EDITBOX_STARTTURN);
 		_editBox[EDITBOX_STARTTURN]->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 		_replayDebug = env->addCheckBox(false, rect<s32>(360, 255, 570, 275), wReplayList, -1, L"Debug");
+		_replayDebug->setChecked(mainGame->gameConf.old_replay_mode);
 	}
 
 	irr::gui::IGUIElement* GUIReplayList::GetBtnElement(unsigned int item) {
@@ -99,6 +100,7 @@ namespace ygo {
 	}
 	void GUIReplayList::Show() {
 		mainGame->PopupElement(wReplayList);
+		
 		mainGame->device->setEventReceiver(&mainGame->wReplayList);
 	}
 
