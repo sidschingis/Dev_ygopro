@@ -111,18 +111,18 @@ namespace ygo {
 				switch (id) {
 				case BUTTON_HOST_CONFIRM: {
 					BufferIO::CopyWStr(_editBox[EDITBOX_SERVERNAME]->getText(), mainGame->gameConf.gamename, 20);
-					//if(!NetServer::StartServer(mainGame->gameConf.serverport))
-					//	break;
-					//if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
-					//	NetServer::StopServer();
-					//	break;
-					//}
-					char ip[20];
-					BufferIO::CopyWStr(L"127.0.0.1", ip, 20);
-					if (!DuelClient::StartClient(0x7f000001, 7911, true)) {
+					if(!NetServer::StartServer(mainGame->gameConf.serverport))
+						break;
+					if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
 						NetServer::StopServer();
 						break;
 					}
+					//char ip[20];
+					//BufferIO::CopyWStr(L"127.0.0.1", ip, 20);
+					//if (!DuelClient::StartClient(0x7f000001, 7911, true)) {
+					//	NetServer::StopServer();
+					//	break;
+					//}
 					_buttons[BUTTON_HOST_CONFIRM]->setEnabled(false);
 					_buttons[BUTTON_HOST_CANCEL]->setEnabled(false);
 					break;
