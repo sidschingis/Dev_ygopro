@@ -12,6 +12,8 @@
 
 #ifdef _WIN32
 #include <io.h>
+#include "dirent.h"
+#define strcasecmp _stricmp
 #else
 #include <sys/types.h>
 #include <dirent.h>
@@ -96,20 +98,7 @@ bool Game::Initialize() {
 	deckManager.LoadLFList();
 	if(!dataManager.LoadStrings("strings.conf"))
 		return false; 
-#ifdef _WIN32
-	char fpath[1000];
-	WIN32_FIND_DATAW fdataw;
-	HANDLE fh = FindFirstFileW(L"./expansions/*.cdb", &fdataw);
-	if (fh != INVALID_HANDLE_VALUE) {
-		do {
-			if (!(fdataw.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-				sprintf(fpath, "./expansions/%ls", fdataw.cFileName);
-				dataManager.LoadDB(fpath);
-			}
-		} while (FindNextFileW(fh, &fdataw));
-		FindClose(fh);
-	}
-#else
+
 	DIR * dir;
 	struct dirent * dirp;
 	const char *foldername = "./expansions/";
@@ -117,18 +106,17 @@ bool Game::Initialize() {
 		while ((dirp = readdir(dir)) != NULL) {
 			size_t len = strlen(dirp->d_name);
 			if (len < 5 || strcasecmp(dirp->d_name + len - 4, ".cdb") != 0)
-				+ continue;
+				continue;
 			char *filepath = (char *)malloc(sizeof(char)*(len + strlen(foldername)));
 			strncpy(filepath, foldername, strlen(foldername) + 1);
 			strncat(filepath, dirp->d_name, len);
 			std::cout << "Found file " << filepath << std::endl;
 			if (!dataManager.LoadDB(filepath))
-					std::cout << "Error loading file" << std::endl;
+				std::cout << "Error loading file" << std::endl;
 			free(filepath);
-			
 		}
 		closedir(dir);
-#endif
+	}
 	env = device->getGUIEnvironment();
 	numFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 16);
 	adFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 12);
