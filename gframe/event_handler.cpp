@@ -1412,9 +1412,9 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 						mcard = deck[hovered_controler].back();
 				}
 				else {
-					if (irr::core::recti(327, 8, 630, 51).isPointInside(pos))
+					if (mainGame->Resize(327, 8, 630, 51).isPointInside(mousepos))
 						mplayer = 0;
-					else if (irr::core::recti(689, 8, 991, 51).isPointInside(pos))
+					else if (mainGame->Resize(689, 8, 991, 51).isPointInside(mousepos))
 						mplayer = 1;
 				}
 			}
@@ -1425,7 +1425,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 			else if (mcard == hovered_card && mplayer == hovered_player) {
 				if (mainGame->stTip->isVisible()) {
 					irr::core::recti tpos = mainGame->stTip->getRelativePosition();
-					mainGame->stTip->setRelativePosition(irr::core::position2di(x - tpos.getWidth() - 10, mcard ? y - tpos.getHeight() - 10 : y + 10));
+					mainGame->stTip->setRelativePosition(irr::core::position2di(mousepos.X - tpos.getWidth() - 10, mousepos.Y - tpos.getHeight() - 10));
 				}
 			}
 			if(mcard != hovered_card) {
