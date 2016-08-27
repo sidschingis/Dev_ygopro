@@ -17,10 +17,12 @@
 #include <dirent.h>
 #endif
 
-const unsigned short PRO_VERSION = 0x1339;
+const unsigned short PRO_VERSION = 0x133A;
+const wchar_t* CLIENT_NAME = L"Recode";
+
 
 namespace ygo {
-
+	
 Game* mainGame;
 
 bool Game::Initialize() {
@@ -136,7 +138,7 @@ bool Game::Initialize() {
 	smgr = device->getSceneManager();
 	device->setResizable(true);
 	//main menu
-	wMenu.Load();
+	wMenu.Load(CLIENT_NAME);
 	//online mode
 	wOnline.Load();
 	//lan mode
@@ -457,7 +459,7 @@ void Game::MainLoop() {
 			usleep(20000);
 #endif
 		if(cur_time >= 1000) {
-			myswprintf(cap, L"YGOPro Recode | FPS: %d", fps);
+			myswprintf(cap, L"YGOPro %ls | FPS: %d", CLIENT_NAME, fps);
 			device->setWindowCaption(cap);
 			fps = 0;
 			cur_time -= 1000;

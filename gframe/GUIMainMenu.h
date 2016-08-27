@@ -9,7 +9,7 @@ namespace ygo {
 	class GUIMainMenu : public irr::IEventReceiver {
 	public:
 		virtual bool OnEvent(const irr::SEvent& event);
-		void Load();
+		void Load(const wchar_t*);
 		virtual void Hide() { wMenu->setVisible(false); };
 		virtual void Show();
 		void OnResize();
