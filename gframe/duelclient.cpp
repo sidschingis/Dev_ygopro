@@ -1187,7 +1187,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		unsigned char respbuf[64];
 		int pzone = 0;
 		if (mainGame->dInfo.curMsg == MSG_SELECT_PLACE && mainGame->wInfoTab.IsChecked(CHECKBOX_AUTOPOS)) {
-			int filter;
+			unsigned int filter;
 			if (mainGame->dField.selectable_field & 0x1f) {
 				respbuf[0] = mainGame->dInfo.isFirst ? 0 : 1;
 				respbuf[1] = 0x4;
@@ -1527,6 +1527,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 				l = pcard->location;
 				if (l == LOCATION_HAND) {
 					mainGame->dField.MoveCard(pcard, 5);
+					pcard->is_highlighting = true;
 				} else if (l == LOCATION_MZONE) {
 					if (pcard->position & POS_FACEUP)
 						continue;
@@ -1546,9 +1547,14 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 					pcard->aniFrame = 5;
 				}
 			}
-			mainGame->WaitFrameSignal(90);
+			if (mainGame->dInfo.isReplay)
+				mainGame->WaitFrameSignal(30);
+			else
+				mainGame->WaitFrameSignal(90);
 			for(size_t i = 0; i < field_confirm.size(); ++i) {
-				mainGame->dField.MoveCard(field_confirm[i], 5);
+				pcard = field_confirm[i];
+				mainGame->dField.MoveCard(pcard, 5);
+				pcard->is_highlighting = false;
 			}
 			mainGame->WaitFrameSignal(5);
 		}
@@ -2902,6 +2908,21 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 				pcard->is_highlighting = false;
 				mainGame->showcard = 0;
 			}
+		}
+		return true;
+	}
+	case MSG_PLAYER_HINT: {
+		int player = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
+		int chtype = BufferIO::ReadInt8(pbuf);
+		int value = BufferIO::ReadInt32(pbuf);
+		auto& player_desc_hints = mainGame->dField.player_desc_hints[player];
+		if (chtype == PHINT_DESC_ADD) {
+			player_desc_hints[value]++;
+		}
+		else if (chtype == PHINT_DESC_REMOVE) {
+			player_desc_hints[value]--;
+			if (player_desc_hints[value] == 0)
+				player_desc_hints.erase(value);	
 		}
 		return true;
 	}

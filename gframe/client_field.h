@@ -45,9 +45,9 @@ public:
 	size_t selected_option;
 	ClientCard* attacker;
 	ClientCard* attack_target;
-	int disabled_field;
-	int selectable_field;
-	int selected_field;
+	unsigned int disabled_field;
+	unsigned int selectable_field;
+	unsigned int selected_field;
 	int select_min;
 	int select_max;
 	int must_select_count;
@@ -65,6 +65,7 @@ public:
 	std::vector<ClientCard*> selectsum_all;
 	std::vector<ClientCard*> display_cards;
 	std::vector<int> sort_list;
+	std::map<int, int> player_desc_hints[2];
 	bool grave_act;
 	bool remove_act;
 	bool deck_act;
@@ -114,11 +115,11 @@ public:
 	int command_location;
 	size_t command_sequence;
 	ClientCard* hovered_card;
+	int hovered_player;
 	ClientCard* clicked_card;
 	ClientCard* command_card;
 	ClientCard* highlighting_card;
 	int list_command;
-	wchar_t formatBuffer[2048];
 
 	virtual bool OnEvent(const irr::SEvent& event);
 	void GetHoverField(int x, int y);

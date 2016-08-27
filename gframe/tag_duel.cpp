@@ -10,6 +10,7 @@
 namespace ygo {
 
 TagDuel::TagDuel() {
+	game_started = false;
 	for(int i = 0; i < 4; ++i) {
 		players[i] = 0;
 		ready[i] = false;
@@ -121,7 +122,7 @@ void TagDuel::LeaveGame(DuelPlayer* dp) {
 		NetServer::StopServer();
 	} else if(dp->type == NETPLAYER_TYPE_OBSERVER) {
 		observers.erase(dp);
-		if(!pduel) {
+		if(!game_started) {
 			STOC_HS_WatchChange scwc;
 			scwc.watch_count = observers.size();
 			for(int i = 0; i < 4; ++i)
@@ -132,7 +133,7 @@ void TagDuel::LeaveGame(DuelPlayer* dp) {
 		}
 		NetServer::DisconnectPlayer(dp);
 	} else {
-		if(!pduel) {
+		if(!game_started) {
 			STOC_HS_PlayerChange scpc;
 			players[dp->type] = 0;
 			ready[dp->type] = false;
@@ -267,6 +268,7 @@ void TagDuel::StartDuel(DuelPlayer* dp) {
 	if(!ready[0] || !ready[1] || !ready[2] || !ready[3])
 		return;
 	NetServer::StopListen();
+	game_started = true;
 	//NetServer::StopBroadcast();
 	for(int i = 0; i < 4; ++i)
 		NetServer::SendPacketToPlayer(players[i], STOC_DUEL_START);
@@ -694,7 +696,7 @@ int TagDuel::Analyze(char* msgbuffer, unsigned int len) {
 		case MSG_CONFIRM_CARDS: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadInt8(pbuf);
-			if(pbuf[5] == LOCATION_HAND) {
+			if(pbuf[5] != LOCATION_DECK) {
 				pbuf += count * 7;
 				NetServer::SendBufferToPlayer(players[0], STOC_GAME_MSG, offset, pbuf - offset);
 				NetServer::ReSendToPlayer(players[1]);
@@ -1328,6 +1330,16 @@ int TagDuel::Analyze(char* msgbuffer, unsigned int len) {
 			NetServer::ReSendToPlayer(players[2]);
 			NetServer::ReSendToPlayer(players[3]);
 			for(auto oit = observers.begin(); oit != observers.end(); ++oit)
+				NetServer::ReSendToPlayer(*oit);
+			break;
+		}
+		case MSG_PLAYER_HINT: {
+			pbuf += 6;
+			NetServer::SendBufferToPlayer(players[0], STOC_GAME_MSG, offset, pbuf - offset);
+			NetServer::ReSendToPlayer(players[1]);
+			NetServer::ReSendToPlayer(players[2]);
+			NetServer::ReSendToPlayer(players[3]);
+			for (auto oit = observers.begin(); oit != observers.end(); ++oit)
 				NetServer::ReSendToPlayer(*oit);
 			break;
 		}
