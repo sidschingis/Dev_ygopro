@@ -45,7 +45,7 @@ bool Game::Initialize() {
 		return false;
 
 	// Apply skin
-	unsigned int special_color = 0xFF0000FF;
+	special_color = 0xFF0000FF;
 	turncolor = 0x8000ffff;
 	playerlpcolor = 0xffffff00;
 	extracolor = 0xffffff00;
@@ -129,6 +129,8 @@ bool Game::Initialize() {
 	wMenu.Load(CLIENT_NAME);
 	//online mode
 	wOnline.Load();
+	//AI mode
+	wAI.Load();
 	//lan mode
 	wLan.Load();
 	//create host
@@ -601,6 +603,7 @@ void Game::LoadConfig() {
 	gameConf.chkHideSetname = 0;
 	gameConf.chkHideChainButton = 0;
 	gameConf.old_replay_mode = 0;
+	BufferIO::CopyWStr(L"DevBot", gameConf.botname, 20);
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -688,6 +691,9 @@ void Game::LoadConfig() {
 			gameConf.chkHideChainButton = atoi(valbuf) > 0;
 		} else if (!strcmp(strbuf, "old_replay_mode")) {
 			gameConf.old_replay_mode = atoi(valbuf) > 0;
+		} else if (!strcmp(strbuf, "botname")) {
+			BufferIO::DecodeUTF8(valbuf, wstr);
+			BufferIO::CopyWStr(wstr, gameConf.botname, 20);
 		}
 	}
 	fclose(fp);
@@ -805,6 +811,7 @@ const wchar_t* Game::LocalName(int local_player) {
 void Game::OnResize()
 {
 	wMenu.OnResize();
+	wAI.OnResize();
 	wEdit.OnResize();
 	wLan.OnResize();
 	wHost.OnResize();

@@ -12,6 +12,7 @@ namespace ygo {
 		void Load();
 		virtual void Hide();
 		virtual void Show();
+		void ShowAIRoom();
 		void OnResize();
 		irr::gui::IGUIElement* GetBtnElement(unsigned int);	
 		bool IsVisible() { return wHostRoom->isVisible(); };

@@ -10,9 +10,11 @@ namespace ygo {
 		is_recording = false;
 		is_replaying = false;
 		replay_data = new unsigned char[0x20000];
+		comp_data = new unsigned char[0x2000];
 	}
 	Replay::~Replay() {
 		delete[] replay_data;
+		delete[] comp_data;
 	}
 	void Replay::BeginRecord() {
 #ifdef _WIN32
@@ -116,13 +118,12 @@ namespace ygo {
 		pheader.datasize = pdata - replay_data;
 		pheader.flag |= REPLAY_COMPRESSED;
 		size_t propsize = 5;
-		unsigned char* comp_data = new unsigned char[pheader.datasize];
-		size_t comp_size = pheader.datasize;
+		comp_size = 0x1000;
 		LzmaCompress(comp_data, &comp_size, replay_data, pdata - replay_data, pheader.props, &propsize, 5, 1 << 24, 3, 0, 2, 32, 1);
 		is_recording = false;
 	}
 	void Replay::SaveReplay(const wchar_t* name) {
-		wchar_t fname[64];
+		wchar_t fname[256];
 		myswprintf(fname, L"./replay/%ls.yrp", name);
 #ifdef WIN32
 		fp = _wfopen(fname, L"wb");
@@ -134,7 +135,7 @@ namespace ygo {
 		if (!fp)
 			return;
 		fwrite(&pheader, sizeof(pheader), 1, fp);
-		fwrite(replay_data, replay_size, 1, fp);
+		fwrite(comp_data, comp_size, 1, fp);
 		fclose(fp);
 	}
 	bool Replay::OpenReplay(const wchar_t* name) {
@@ -150,20 +151,18 @@ namespace ygo {
 		if (!fp)
 			return false;
 		fseek(fp, 0, SEEK_END);
-		size_t comp_size = ftell(fp) - sizeof(pheader);
+		comp_size = ftell(fp) - sizeof(pheader);
 		fseek(fp, 0, SEEK_SET);
 		fread(&pheader, sizeof(pheader), 1, fp);
 		if (pheader.flag & REPLAY_COMPRESSED) {
-			unsigned char* comp_data = new unsigned char[comp_size];
-			fread(comp_data, comp_size, 1, fp);
+			fread(comp_data, 0x1000, 1, fp);
 			fclose(fp);
 			replay_size = pheader.datasize;
-			replay_data = new unsigned char[replay_size];
 			if (LzmaUncompress(replay_data, &replay_size, comp_data, &comp_size, pheader.props, 5) != SZ_OK)
 				return false;
 		}
 		else {
-			fread(replay_data, 0x7FFE, 1, fp);
+			fread(replay_data, 0x20000, 1, fp);
 			fclose(fp);
 			replay_size = comp_size;
 		}

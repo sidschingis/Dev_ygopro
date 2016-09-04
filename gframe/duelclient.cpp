@@ -105,20 +105,38 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 		BufferIO::CopyWStr(mainGame->wLan.GetText(EDITBOX_NICKNAME), cspi.name, 20);
 		SendPacketToServer(CTOS_PLAYER_INFO, cspi);
 		if(create_game) {
-			CTOS_CreateGame cscg;
-			BufferIO::CopyWStr(mainGame->wHost.GetText(EDITBOX_SERVERNAME), cscg.name, 20);
-			BufferIO::CopyWStr(mainGame->wHost.GetText(EDITBOX_SERVERPASS), cscg.pass, 40);
-			cscg.info.rule = mainGame->wHost.GetComboBoxIndex(COMBOBOX_RULE);
-			cscg.info.mode = mainGame->wHost.GetComboBoxIndex(COMBOBOX_MATCHMODE);
-			cscg.info.start_hand = _wtoi(mainGame->wHost.GetText(EDITBOX_STARTHAND));
-			cscg.info.start_lp = _wtoi(mainGame->wHost.GetText(EDITBOX_STARTLP));
-			cscg.info.draw_count = _wtoi(mainGame->wHost.GetText(EDITBOX_DRAWCOUNT));
-			cscg.info.time_limit = _wtoi(mainGame->wHost.GetText(EDITBOX_TIMELIMIT));
-			cscg.info.lflist = mainGame->wHost.GetLFData();
-			cscg.info.enable_priority = mainGame->wHost.IsChecked(CHECKBOX_PRIORITY);
-			cscg.info.no_check_deck = mainGame->wHost.IsChecked(CHECKBOX_NOCHECKDECK);
-			cscg.info.no_shuffle_deck = mainGame->wHost.IsChecked(CHECKBOX_NOSHUFFLE);
-			SendPacketToServer(CTOS_CREATE_GAME, cscg);
+			if (mainGame->is_aimode) {
+				CTOS_CreateGame cscg;
+				BufferIO::CopyWStr(mainGame->wHost.GetText(EDITBOX_SERVERNAME), cscg.name, 20);
+				BufferIO::CopyWStr(mainGame->wHost.GetText(EDITBOX_SERVERPASS), cscg.pass, 40);
+				cscg.info.rule = 2;
+				cscg.info.mode = 0;
+				cscg.info.start_hand = _wtoi(mainGame->wAI.GetText(EDITBOX_STARTHAND));
+				cscg.info.start_lp = _wtoi(mainGame->wAI.GetText(EDITBOX_STARTLP));
+				cscg.info.draw_count = _wtoi(mainGame->wAI.GetText(EDITBOX_DRAWCOUNT));
+				cscg.info.time_limit = 9999;
+				cscg.info.lflist = 0;
+				cscg.info.enable_priority = mainGame->wAI.IsChecked(CHECKBOX_PRIORITY);
+				cscg.info.no_check_deck = true;
+				cscg.info.no_shuffle_deck = mainGame->wAI.IsChecked(CHECKBOX_NOSHUFFLE);
+				SendPacketToServer(CTOS_CREATE_GAME, cscg);
+			}
+			else {
+				CTOS_CreateGame cscg;
+				BufferIO::CopyWStr(mainGame->wHost.GetText(EDITBOX_SERVERNAME), cscg.name, 20);
+				BufferIO::CopyWStr(mainGame->wHost.GetText(EDITBOX_SERVERPASS), cscg.pass, 40);
+				cscg.info.rule = mainGame->wHost.GetComboBoxIndex(COMBOBOX_RULE);
+				cscg.info.mode = mainGame->wHost.GetComboBoxIndex(COMBOBOX_MATCHMODE);
+				cscg.info.start_hand = _wtoi(mainGame->wHost.GetText(EDITBOX_STARTHAND));
+				cscg.info.start_lp = _wtoi(mainGame->wHost.GetText(EDITBOX_STARTLP));
+				cscg.info.draw_count = _wtoi(mainGame->wHost.GetText(EDITBOX_DRAWCOUNT));
+				cscg.info.time_limit = _wtoi(mainGame->wHost.GetText(EDITBOX_TIMELIMIT));
+				cscg.info.lflist = mainGame->wHost.GetLFData();
+				cscg.info.enable_priority = mainGame->wHost.IsChecked(CHECKBOX_PRIORITY);
+				cscg.info.no_check_deck = mainGame->wHost.IsChecked(CHECKBOX_NOCHECKDECK);
+				cscg.info.no_shuffle_deck = mainGame->wHost.IsChecked(CHECKBOX_NOSHUFFLE);
+				SendPacketToServer(CTOS_CREATE_GAME, cscg);
+			}
 		} else {
 			CTOS_JoinGame csjg;
 			csjg.version = PRO_VERSION;
@@ -132,13 +150,19 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 		bufferevent_disable(bev, EV_READ);
 		if(!is_closing) {
 			if(connect_state == 0x1) {
-				mainGame->wLan.Show();
+				if (mainGame->is_aimode)
+					mainGame->wAI.Show();
+				else
+					mainGame->wLan.Show();
 				mainGame->gMutex.Lock();
 				mainGame->env->addMessageBox(L"", dataManager.GetSysString(1400));
 				mainGame->gMutex.Unlock();
 			} else if(connect_state == 0x7) {
 				if(!mainGame->dInfo.isStarted && !mainGame->is_building) {
-					mainGame->wLan.Show();
+					if (mainGame->is_aimode)
+						mainGame->wAI.Show();
+					else
+						mainGame->wLan.Show();
 					mainGame->gMutex.Lock();
 					mainGame->wHostRoom.Hide();
 					mainGame->wChat.Hide();
@@ -339,7 +363,10 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			mainGame->wHost.Hide();
 		else if (mainGame->wLan.isVisible())
 			mainGame->wLan.Hide();
-		mainGame->wHostRoom.Show();
+		if (mainGame->is_aimode)
+			mainGame->wHostRoom.ShowAIRoom();
+		else
+			mainGame->wHostRoom.Show();
 		mainGame->wChat.Show();
 		mainGame->gMutex.Unlock();
 		connect_state |= 0x4;
@@ -464,9 +491,8 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			Replay new_replay;
 			memcpy(&new_replay.pheader, prep, sizeof(ReplayHeader));
 			prep += sizeof(ReplayHeader);
-			new_replay.replay_data = new unsigned char[len - sizeof(ReplayHeader) - 1];
-			memcpy(new_replay.replay_data, prep, len - sizeof(ReplayHeader) - 1);
-			new_replay.replay_size = len - sizeof(ReplayHeader) - 1;
+			memcpy(new_replay.comp_data, prep, len - sizeof(ReplayHeader) - 1);
+			new_replay.comp_size = len - sizeof(ReplayHeader) - 1;
 			if (mainGame->actionParam)
 				new_replay.SaveReplay(mainGame->ebRSName->getText());
 			else new_replay.SaveReplay(L"_LastReplay");

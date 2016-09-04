@@ -7,13 +7,14 @@ namespace ygo {
 	void GUIMainMenu::Load(const wchar_t* clientName) {
 		wchar_t strbuf[256];
 		myswprintf(strbuf, L"YGOPro %ls (Version:%X.0%X.%X)", clientName, PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
-		wMenu = mainGame->env->addWindow(rect<s32>(370, 200, 650, 415), false, strbuf);
+		wMenu = mainGame->env->addWindow(rect<s32>(370, 200, 650, 440), false, strbuf);
 		wMenu->getCloseButton()->setVisible(false);
 		_buttons[BUTTON_LAN_MODE] = mainGame->env->addButton(rect<s32>(10, 30, 270, 60), wMenu, BUTTON_LAN_MODE, dataManager.GetSysString(1200));
-		_buttons[BUTTON_SINGLE_MODE] = mainGame->env->addButton(rect<s32>(10, 65, 270, 95), wMenu, BUTTON_SINGLE_MODE, dataManager.GetSysString(1201));
-		_buttons[BUTTON_REPLAY_MODE] = mainGame->env->addButton(rect<s32>(10, 100, 270, 130), wMenu, BUTTON_REPLAY_MODE, dataManager.GetSysString(1202));
-		_buttons[BUTTON_DECK_EDIT] = mainGame->env->addButton(rect<s32>(10, 135, 270, 165), wMenu, BUTTON_DECK_EDIT, dataManager.GetSysString(1204));
-		_buttons[BUTTON_MODE_EXIT] = mainGame->env->addButton(rect<s32>(10, 170, 270, 200), wMenu, BUTTON_MODE_EXIT, dataManager.GetSysString(1210));
+		_buttons[BUTTON_AI_MODE] = mainGame->env->addButton(rect<s32>(10, 65, 270, 95), wMenu, BUTTON_AI_MODE, dataManager.GetSysString(2017));
+		_buttons[BUTTON_SINGLE_MODE] = mainGame->env->addButton(rect<s32>(10, 100, 270, 130), wMenu, BUTTON_SINGLE_MODE, dataManager.GetSysString(1201));
+		_buttons[BUTTON_REPLAY_MODE] = mainGame->env->addButton(rect<s32>(10, 135, 270, 165), wMenu, BUTTON_REPLAY_MODE, dataManager.GetSysString(1202));
+		_buttons[BUTTON_DECK_EDIT] = mainGame->env->addButton(rect<s32>(10, 170, 270, 200), wMenu, BUTTON_DECK_EDIT, dataManager.GetSysString(1204));
+		_buttons[BUTTON_MODE_EXIT] = mainGame->env->addButton(rect<s32>(10, 200, 270, 230), wMenu, BUTTON_MODE_EXIT, dataManager.GetSysString(1210));
 		
 	}
 
@@ -25,7 +26,7 @@ namespace ygo {
 	}
 
 	void GUIMainMenu::OnResize() {
-		wMenu->setRelativePosition(mainGame->ResizeWin(370, 200, 650, 415));
+		wMenu->setRelativePosition(mainGame->ResizeWin(370, 200, 650, 440));
 	}
 	void GUIMainMenu::Show() {
 		mainGame->PopupElement(wMenu);
@@ -41,19 +42,24 @@ namespace ygo {
 			case irr::gui::EGET_BUTTON_CLICKED: {
 				switch (id) {
 					case BUTTON_LAN_MODE: {
-						mainGame->wMenu.Hide();
+						Hide();
 						mainGame->wLan.Show();
 						break;
 						}
+					case BUTTON_AI_MODE: {
+						Hide();
+						mainGame->wAI.Show();
+						break;
+					}
 					case BUTTON_REPLAY_MODE: {
-						mainGame->wMenu.Hide();
+						Hide();
 						mainGame->wReplayList.Show();
 						mainGame->wReplayList.SetText(EDITBOX_STARTTURN, L"1");
 						mainGame->RefreshReplay();
 						break;
 						}
 					case BUTTON_SINGLE_MODE: {
-						mainGame->wMenu.Hide();
+						Hide();
 						mainGame->wSingleList.Show();
 						mainGame->RefreshSingleplay();
 						break;

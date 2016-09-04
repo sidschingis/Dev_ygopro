@@ -13,6 +13,7 @@
 #include "GUIHostRoom.h"
 #include "GUIInfoTab.h"
 #include "GUIChat.h"
+#include "GUIAIMode.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -56,6 +57,7 @@ struct Config {
 	bool savereplay;
 	int control_mode;
 	bool old_replay_mode;
+	wchar_t botname[20];
 };
 
 struct DuelInfo {
@@ -188,6 +190,7 @@ public:
 	int bonuscolor;
 	int negativecolor;
 	int setcolor;
+	int special_color;
 	wchar_t* lpcstring;
 	bool always_chain;
 	bool ignore_chain;
@@ -195,6 +198,7 @@ public:
 
 	bool is_building;
 	bool is_siding;
+	bool is_aimode;
 	int displayedcard;
 
 	irr::core::dimension2d<irr::u32> window_size;
@@ -334,6 +338,7 @@ public:
 	GUIHostRoom wHostRoom;
 	GUIInfoTab wInfoTab;
 	GUIChat wChat;
+	GUIAIMode wAI;
 };
 
 extern Game* mainGame;
@@ -358,6 +363,7 @@ extern Game* mainGame;
 #define BUTTON_TEST_MODE			103
 #define BUTTON_DECK_EDIT			104
 #define BUTTON_MODE_EXIT			105
+#define BUTTON_AI_MODE				106
 #define LISTBOX_LAN_HOST			110
 #define BUTTON_JOIN_HOST			111
 #define BUTTON_JOIN_CANCEL			112

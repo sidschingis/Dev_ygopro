@@ -30,7 +30,8 @@ int main(int argc, char* argv[]) {
 		 * -r: replay */
 		if(argv[i][0] == '-' && argv[i][1] == 'e') {
 			ygo::dataManager.LoadDB(&argv[i][2]);
-		} else if(!strcmp(argv[i], "-j") || !strcmp(argv[i], "-f") || !strcmp(argv[i], "-d") || !strcmp(argv[i], "-r") || !strcmp(argv[i], "-s")) {
+		} else if(!strcmp(argv[i], "-j") || !strcmp(argv[i], "-f") || !strcmp(argv[i], "-d") || !strcmp(argv[i], "-r") 
+			|| !strcmp(argv[i], "-s") || !strcmp(argv[i], "-ai")) {
 			exit_on_return = true;
 			irr::SEvent event;
 			event.EventType = irr::EET_GUI_EVENT;
@@ -60,6 +61,10 @@ int main(int argc, char* argv[]) {
 					event.GUIEvent.Caller = ygo::mainGame->wSingleList.GetBtnElement(BUTTON_LOAD_SINGLEPLAY);
 					ygo::mainGame->device->postEventFromUser(event);
 				}
+			}
+			else if(!strcmp(argv[i], "-ai")) {
+				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetBtnElement(BUTTON_AI_MODE);
+				ygo::mainGame->device->postEventFromUser(event);
 			}
 
 		}

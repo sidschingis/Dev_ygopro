@@ -52,8 +52,18 @@ namespace ygo {
 		wHostRoom->setRelativePosition(mainGame->ResizeWin(270, 120, 750 + 50, 440));
 	}
 	void GUIHostRoom::Show() {
+		_buttons[BUTTON_HP_DUELIST]->setVisible(true);
+		_buttons[BUTTON_HP_OBSERVER]->setVisible(true);
 		mainGame->PopupElement(wHostRoom);
 		mainGame->device->setEventReceiver(&mainGame->wHostRoom);
+	}
+
+	void GUIHostRoom::ShowAIRoom() {
+		Show();
+		_buttons[BUTTON_HP_DUELIST]->setVisible(false);
+		_buttons[BUTTON_HP_OBSERVER]->setVisible(false);
+		for (int i = 0; i < 4; ++i)
+			btnHostPrepKick[i]->setVisible(false);
 	}
 
 	void GUIHostRoom::Hide() {
@@ -160,9 +170,8 @@ namespace ygo {
 			myswprintf(watchbuf, L"%ls%d", dataManager.GetSysString(1253), watching);
 			_staticText[STATICTEXT_OB]->setText(watchbuf);
 		}
-		else {
+		else
 			_staticText[STATICTEXT_OB]->setText(L"");
-		}
 	}
 
 	void GUIHostRoom::PlayerStateChange(int pos, int state, int watching) {
@@ -211,8 +220,10 @@ namespace ygo {
 			btnHostPrepKick[3]->setVisible(false);
 			if (is_host) {
 				_buttons[BUTTON_HP_START]->setVisible(true);
-				btnHostPrepKick[0]->setVisible(true);
-				btnHostPrepKick[1]->setVisible(true);
+				if (!mainGame->is_aimode) {
+					btnHostPrepKick[0]->setVisible(true);
+					btnHostPrepKick[1]->setVisible(true);
+				}
 			}
 			else {
 				_buttons[BUTTON_HP_START]->setVisible(false);
@@ -241,8 +252,10 @@ namespace ygo {
 			_buttons[BUTTON_HP_DUELIST]->setEnabled(true);
 			if (is_host) {
 				_buttons[BUTTON_HP_START]->setVisible(true);
-				for (int i = 0; i < 4; ++i)
-					btnHostPrepKick[i]->setVisible(true);
+				if (!mainGame->is_aimode) {
+					for (int i = 0; i < 4; ++i)
+						btnHostPrepKick[i]->setVisible(true);
+				}
 			}
 			else {
 				_buttons[BUTTON_HP_START]->setVisible(false);
@@ -299,7 +312,10 @@ namespace ygo {
 				case BUTTON_HP_CANCEL: {
 					DuelClient::StopClient();
 					Hide();
-					mainGame->wLan.Show();
+					if (mainGame->is_aimode)
+						mainGame->wAI.Show();
+					else
+						mainGame->wLan.Show();
 					mainGame->wChat.Hide();
 					if (exit_on_return)
 						mainGame->device->closeDevice();
