@@ -1946,6 +1946,8 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 	default: break;
 	}
 	mainGame->wChat.OnEvent(event);
+	//check info tab too
+	mainGame->wInfoTab.OnEvent(event);
 	return false;
 }
 void ClientField::GetHoverField(int x, int y) {

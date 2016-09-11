@@ -1817,7 +1817,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->btnLeaveGame->setVisible(true);
 		}
 		if (!mainGame->dInfo.isReplay && mainGame->dInfo.player_type < 7) {
-			if (!mainGame->gameConf.control_mode == 0) {
+			if (!mainGame->gameConf.control_mode == 1) {
 				mainGame->btnChainIgnore->setVisible(true);
 				mainGame->btnChainAlways->setVisible(true);
 				mainGame->btnChainWhenAvail->setVisible(true);
