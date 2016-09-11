@@ -19,7 +19,7 @@
 #include <dirent.h>
 #endif
 
-const unsigned short PRO_VERSION = 0x133A;
+const unsigned short PRO_VERSION = 0x133B;
 const wchar_t* CLIENT_NAME = L"Recode";
 
 
@@ -170,6 +170,9 @@ bool Game::Initialize() {
 	btnChainAlways->setVisible(false);
 	btnChainWhenAvail->setVisible(false);
 	chain_when_avail = true;
+	//cancel or finish
+	btnCancelOrFinish = env->addButton(rect<s32>(205, 230, 295, 265), 0, BUTTON_CANCEL_OR_FINISH, dataManager.GetSysString(1295));
+	btnCancelOrFinish->setVisible(false);
 	//tab
 	//
 	wHand = env->addWindow(rect<s32>(500, 450, 825, 605), false, L"");
@@ -313,6 +316,8 @@ bool Game::Initialize() {
 	btnRepos = env->addButton(rect<s32>(1, 106, 99, 126), wCmdMenu, BUTTON_CMD_REPOS, dataManager.GetSysString(1154));
 	btnAttack = env->addButton(rect<s32>(1, 127, 99, 147), wCmdMenu, BUTTON_CMD_ATTACK, dataManager.GetSysString(1157));
 	btnShowList = env->addButton(rect<s32>(1, 148, 99, 168), wCmdMenu, BUTTON_CMD_SHOWLIST, dataManager.GetSysString(1158));
+	btnOperation = env->addButton(rect<s32>(1, 169, 99, 189), wCmdMenu, BUTTON_CMD_ACTIVATE, dataManager.GetSysString(1161));
+	btnReset = env->addButton(rect<s32>(1, 190, 99, 210), wCmdMenu, BUTTON_CMD_RESET, dataManager.GetSysString(1162));
 	//deck edit
 	wEdit.Load();
 	//replay window
@@ -792,6 +797,7 @@ void Game::CloseDuelWindow() {
 	btnChainIgnore->setVisible(false);
 	btnChainAlways->setVisible(false);
 	btnChainWhenAvail->setVisible(false);
+	btnCancelOrFinish->setVisible(false);
 	wChat.Hide();
 	logParam.clear();
 	wLan.ClearHostList();

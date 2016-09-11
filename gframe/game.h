@@ -295,6 +295,8 @@ public:
 	irr::gui::IGUIButton* btnRepos;
 	irr::gui::IGUIButton* btnAttack;
 	irr::gui::IGUIButton* btnShowList;
+	irr::gui::IGUIButton* btnOperation;
+	irr::gui::IGUIButton* btnReset;
 	irr::gui::IGUIButton* btnShuffle;
 	//chat window
 	//phase button
@@ -324,6 +326,8 @@ public:
 	irr::gui::IGUIButton* btnChainIgnore;
 	irr::gui::IGUIButton* btnChainAlways;
 	irr::gui::IGUIButton* btnChainWhenAvail;
+	//cancel or finish
+	irr::gui::IGUIButton* btnCancelOrFinish;
 	//soundEngine
 	irrklang::ISoundEngine* engineSound;
 	irrklang::ISoundEngine* engineMusic;
@@ -356,6 +360,10 @@ extern Game* mainGame;
 #define COMMAND_REPOS		0x0020
 #define COMMAND_ATTACK		0x0040
 #define COMMAND_LIST		0x0080
+#define COMMAND_OPERATION	0x0100
+#define COMMAND_RESET		0x0200
+
+#define POSITION_HINT		0x8000
 
 #define BUTTON_LAN_MODE				100
 #define BUTTON_SINGLE_MODE			101
@@ -412,6 +420,7 @@ extern Game* mainGame;
 #define BUTTON_CMD_ATTACK			246
 #define BUTTON_CMD_SHOWLIST			247
 #define BUTTON_CMD_SHUFFLE			248
+#define BUTTON_CMD_RESET			249
 #define BUTTON_ANNUMBER_OK			250
 #define BUTTON_ANCARD_OK			251
 #define EDITBOX_ANCARD				252
@@ -425,6 +434,7 @@ extern Game* mainGame;
 #define BUTTON_CHAIN_IGNORE			264
 #define BUTTON_CHAIN_ALWAYS			265
 #define BUTTON_CHAIN_WHENAVAIL		266
+#define BUTTON_CANCEL_OR_FINISH		267
 #define BUTTON_CLEAR_LOG			270
 #define LISTBOX_LOG					271
 #define SCROLL_CARDTEXT				280

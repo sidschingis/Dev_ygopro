@@ -270,7 +270,7 @@ bool GUIDeckEdit::OnEvent(const irr::SEvent& event) {
 case irr::EET_MOUSE_INPUT_EVENT: {
 	switch (event.MouseInput.Event) {
 	case irr::EMIE_LMOUSE_PRESSED_DOWN: {
-		position2d<s32> mouse_pos = position2d<s32>(event.MouseInput.X, event.MouseInput.Y);
+		irr::core::position2di mouse_pos(event.MouseInput.X, event.MouseInput.Y);
 		irr::gui::IGUIElement* root = mainGame->env->getRootGUIElement();
 		if (root->getElementFromPoint(mouse_pos) != root)
 			break;
@@ -896,28 +896,27 @@ bool GUIDeckEdit::CardNameCompare(const wchar_t *sa, const wchar_t *sb)
 }
 
 void GUIDeckEdit::SortList() {
+	auto left = results.begin();
+	const wchar_t* pstr = _editBox[EDITBOX_KEYWORD]->getText();
+	for (auto it = results.begin(); it != results.end(); ++it) {
+		if (wcscmp(pstr, dataManager.GetName((*it)->first)) == 0) {
+			std::iter_swap(left, it);
+			++left;
+		}
+	}
 	switch (_ComboBox[COMBOBOX_SORTTYPE]->getSelected()) {
 	case 0:
-		std::sort(results.begin(), results.end(), ClientCard::deck_sort_lv);
+		std::sort(left, results.end(), ClientCard::deck_sort_lv);
 		break;
 	case 1:
-		std::sort(results.begin(), results.end(), ClientCard::deck_sort_atk);
+		std::sort(left, results.end(), ClientCard::deck_sort_atk);
 		break;
 	case 2:
-		std::sort(results.begin(), results.end(), ClientCard::deck_sort_def);
+		std::sort(left, results.end(), ClientCard::deck_sort_def);
 		break;
 	case 3:
-		std::sort(results.begin(), results.end(), ClientCard::deck_sort_name);
+		std::sort(left, results.end(), ClientCard::deck_sort_name);
 		break;
-	}
-	const wchar_t* pstr = _editBox[EDITBOX_KEYWORD]->getText();
-	for (size_t i = 0, pos = 0; i < results.size(); ++i) {
-		code_pointer ptr = results[i];
-		if (wcscmp(pstr, dataManager.GetName(ptr->first)) == 0) {
-			results.insert(results.begin() + pos, ptr);
-			results.erase(results.begin() + i + 1);
-			pos++;
-		}
 	}
 }
 

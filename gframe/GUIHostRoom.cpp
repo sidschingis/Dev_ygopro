@@ -231,11 +231,10 @@ namespace ygo {
 				btnHostPrepKick[1]->setVisible(false);
 			}
 			chkHostPrepReady[0]->setEnabled(false);
-			chkHostPrepReady[0]->setChecked(false);
 			chkHostPrepReady[1]->setEnabled(false);
-			chkHostPrepReady[1]->setChecked(false);
 			if (selftype < 2) {
 				chkHostPrepReady[selftype]->setEnabled(true);
+				chkHostPrepReady[selftype]->setChecked(false);
 				_buttons[BUTTON_HP_DUELIST]->setEnabled(false);
 				_buttons[BUTTON_HP_OBSERVER]->setEnabled(true);
 			}

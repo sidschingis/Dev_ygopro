@@ -299,6 +299,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->btnChainIgnore->setVisible(false);
 		mainGame->btnChainAlways->setVisible(false);
 		mainGame->btnChainWhenAvail->setVisible(false);
+		mainGame->btnCancelOrFinish->setVisible(false);
 		mainGame->gMutex.Unlock();
 		break;
 	}
@@ -449,6 +450,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->btnChainIgnore->setVisible(false);
 		mainGame->btnChainAlways->setVisible(false);
 		mainGame->btnChainWhenAvail->setVisible(false);
+		mainGame->btnCancelOrFinish->setVisible(false);
 		mainGame->stMessage->setText(dataManager.GetSysString(1500));
 		mainGame->PopupElement(mainGame->wMessage);
 		mainGame->gMutex.Unlock();
@@ -474,6 +476,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->btnChainIgnore->setVisible(false);
 		mainGame->btnChainAlways->setVisible(false);
 		mainGame->btnChainWhenAvail->setVisible(false);
+		mainGame->btnCancelOrFinish->setVisible(false);
 		time_t nowtime = time(NULL);
 		struct tm *localedtime = localtime(&nowtime);
 		char timebuf[40];
@@ -1117,6 +1120,9 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->stHintMsg->setText(textBuffer);
 			mainGame->stHintMsg->setVisible(true);
 		}
+		if (mainGame->dField.select_cancelable) {
+			mainGame->dField.ShowCancelOrFinishButton(1);
+		}
 		return false;
 	}
 	case MSG_SELECT_CHAIN: {
@@ -1129,11 +1135,14 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		int code, c, l, s, ss, desc;
 		ClientCard* pcard;
 		bool panelmode = false;
+		bool conti_exist = false;
 		mainGame->dField.chain_forced = (forced != 0);
 		mainGame->dField.activatable_cards.clear();
 		mainGame->dField.activatable_descs.clear();
 		mainGame->dField.conti_cards.clear();
+		mainGame->dField.reset_descs.clear();
 		for (int i = 0; i < count; ++i) {
+			int flag = BufferIO::ReadInt8(pbuf);
 			code = BufferIO::ReadInt32(pbuf);
 			c = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
 			l = BufferIO::ReadInt8(pbuf);
@@ -1146,16 +1155,22 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->dField.activatable_cards.push_back(pcard);
 			mainGame->dField.activatable_descs.push_back(desc);
 			pcard->is_selected = false;
-			if(code >= 1000000000) {
+			if(code == 0x1) {
 				pcard->is_conti = true;
-				pcard->chain_code = code % 1000000000;
+				pcard->chain_code = code;
 				mainGame->dField.conti_cards.push_back(pcard);
-				mainGame->dField.remove_act = true;
+				mainGame->dField.conti_act = true;
+				conti_exist = true;
 			}
 			else {
 				pcard->chain_code = code;
 				pcard->is_selectable = true;
-				pcard->cmdFlag |= COMMAND_ACTIVATE;
+				if (flag == 0x2) {
+					pcard->cmdFlag |= COMMAND_RESET;
+					mainGame->dField.reset_descs.insert(desc);
+				}
+				else
+					pcard->cmdFlag |= COMMAND_ACTIVATE;
 				if(l == LOCATION_GRAVE)
 					mainGame->dField.grave_act = true;
 				else if(l == LOCATION_REMOVED)
@@ -1182,7 +1197,10 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			return true;
 		}
 		mainGame->gMutex.Lock();
-		mainGame->stHintMsg->setText(dataManager.GetSysString(550));
+		if (!conti_exist)
+			mainGame->stHintMsg->setText(dataManager.GetSysString(550));
+		else
+			mainGame->stHintMsg->setText(dataManager.GetSysString(556));
 		mainGame->stHintMsg->setVisible(true);
 		if(panelmode) {
 			mainGame->dField.list_command = COMMAND_ACTIVATE;
@@ -1341,6 +1359,8 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		mainGame->gMutex.Lock();
 		mainGame->stHintMsg->setText(textBuffer);
 		mainGame->stHintMsg->setVisible(true);
+		if (mainGame->dField.select_cancelable)
+			mainGame->dField.ShowCancelOrFinishButton(1);
 		mainGame->gMutex.Unlock();
 		return false;
 	}
@@ -1797,7 +1817,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->btnLeaveGame->setVisible(true);
 		}
 		if (!mainGame->dInfo.isReplay && mainGame->dInfo.player_type < 7) {
-			if (!mainGame->wInfoTab.IsChecked(CHECKBOX_HIDE_CHAINBUTTONS)) {
+			if (!mainGame->gameConf.control_mode == 0) {
 				mainGame->btnChainIgnore->setVisible(true);
 				mainGame->btnChainAlways->setVisible(true);
 				mainGame->btnChainWhenAvail->setVisible(true);
@@ -1807,6 +1827,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 				mainGame->btnChainIgnore->setVisible(false);
 				mainGame->btnChainAlways->setVisible(false);
 				mainGame->btnChainWhenAvail->setVisible(false);
+				mainGame->btnCancelOrFinish->setVisible(false);
 			}
 		}
 		if(mainGame->dInfo.isTag && mainGame->dInfo.turn != 1) {

@@ -19,11 +19,11 @@ namespace ygo {
 		_staticText[STATICTEXT_CARDNAME] = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, STATICTEXT_CARDNAME, false);
 		_staticText[STATICTEXT_CARDNAME]->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 		_staticText[STATICTEXT_CARDINFO] = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, STATICTEXT_CARDINFO, false);
-		//_staticText[STATICTEXT_CARDINFO]->setOverrideColor(special_color);
+		_staticText[STATICTEXT_CARDINFO]->setOverrideColor(mainGame->special_color);
 		_staticText[STATICTEXT_CARDDATA] = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfo, STATICTEXT_CARDDATA, false);
-		//_staticText[STATICTEXT_CARDDATA]->setOverrideColor(special_color);
+		_staticText[STATICTEXT_CARDDATA]->setOverrideColor(mainGame->special_color);
 		_staticText[STATICTEXT_CARDSETNAME] = env->addStaticText(L"", rect<s32>(15, 83, 316, 106), false, true, tabInfo, STATICTEXT_CARDSETNAME, false);
-		//_staticText[STATICTEXT_CARDSETNAME]->setOverrideColor(setcolor);
+		_staticText[STATICTEXT_CARDSETNAME]->setOverrideColor(mainGame->setcolor);
 		_staticText[STATICTEXT_CARDTEXT] = env->addStaticText(L"", rect<s32>(15, 83, 287, 324), false, true, tabInfo, STATICTEXT_CARDTEXT, false);
 		scrCardText = env->addScrollBar(false, rect<s32>(267, 83, 287, 324), tabInfo, SCROLL_CARDTEXT);
 		scrCardText->setLargeStep(1);
@@ -217,6 +217,13 @@ namespace ygo {
 		if (cdit == _checkBox.end())
 			return false;
 		return _checkBox[item]->isChecked();
+	}
+
+	void GUIInfoTab::SetChecked(unsigned int item, bool value) {
+		auto cdit = _checkBox.find(item);
+		if (cdit == _checkBox.end())
+			return;
+		_checkBox[item]->setChecked(value);
 	}
 
 	bool GUIInfoTab::OnEvent(const irr::SEvent& event) {

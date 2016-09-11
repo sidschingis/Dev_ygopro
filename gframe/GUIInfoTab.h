@@ -24,6 +24,7 @@ namespace ygo {
 		int GetLogSelectedIndex();
 		void SetActiveTab(int index);
 		bool IsChecked(unsigned int);
+		void SetChecked(unsigned int, bool checked);
 	private:
 		int displayedcard = 0;
 		const wchar_t* showingtext;

@@ -406,7 +406,7 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 		case MSG_SELECT_CHAIN: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadInt8(pbuf);
-			pbuf += 10 + count * 12;
+			pbuf += 10 + count * 13;
 			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_SELECT_PLACE:
