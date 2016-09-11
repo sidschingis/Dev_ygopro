@@ -1605,165 +1605,168 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 		case irr::EMIE_MOUSE_MOVED: {
 			if(!mainGame->dInfo.isStarted)
 				break;
+			bool should_show_tip = false;
 			position2di pos = mainGame->Resize(event.MouseInput.X, event.MouseInput.Y, true);
 			position2di mousepos = position2di(event.MouseInput.X, event.MouseInput.Y);
 			s32 x = pos.X;
 			s32 y = pos.Y;
-			irr::gui::IGUIElement* root = mainGame->env->getRootGUIElement();
-			if (root->getElementFromPoint(pos) == mainGame->btnCancelOrFinish) {
-				mainGame->stTip->setVisible(true);
-				wchar_t formatBuffer[2048];
-				myswprintf(formatBuffer, dataManager.GetSysString(1700), mainGame->btnCancelOrFinish->getText());
-				irr::core::dimension2d<unsigned int> dtip = mainGame->textFont->getDimension(formatBuffer) + irr::core::dimension2d<unsigned int>(10, 10);
-				mainGame->stTip->setRelativePosition(recti(x - 10 - dtip.Width, y - 10 - dtip.Height, x - 10, y - 10));
-				mainGame->stTip->setText(formatBuffer);
-			}
-			else
-				mainGame->stTip->setVisible(false);
-			hovered_location = 0;
-			if(x < 300)
-				break;
-			ClientCard* mcard = 0;
-			int mplayer = -1;
-			if(!panel || !panel->isVisible() || !panel->getRelativePosition().isPointInside(mousepos)) {
-				GetHoverField(x, y);
-				if(hovered_location & 0xe)
-					mcard = GetCard(hovered_controler, hovered_location, hovered_sequence);
-				else if (hovered_location == LOCATION_GRAVE) {
-					if (grave[hovered_controler].size())
-						mcard = grave[hovered_controler].back();
-				}
-				else if (hovered_location == LOCATION_REMOVED) {
-					if (remove[hovered_controler].size()) {
-						mcard = remove[hovered_controler].back();
-						if (mcard->position & POS_FACEDOWN)
-							mcard = 0;
-					}
-				}
-				else if (hovered_location == LOCATION_DECK) {
-					if (deck[hovered_controler].size())
-						mcard = deck[hovered_controler].back();
-				}
-				else {
-					if (mainGame->Resize(327, 8, 630, 51).isPointInside(mousepos))
-						mplayer = 0;
-					else if (mainGame->Resize(689, 8, 991, 51).isPointInside(mousepos))
-						mplayer = 1;
+			wchar_t formatBuffer[2048];
+			if (x < 300) {
+				irr::gui::IGUIElement* root = mainGame->env->getRootGUIElement();
+				irr::gui::IGUIElement* elem = root->getElementFromPoint(pos);
+				if (elem == mainGame->btnCancelOrFinish) {
+					should_show_tip = true;
+					myswprintf(formatBuffer, dataManager.GetSysString(1700), mainGame->btnCancelOrFinish->getText());
+					mainGame->stTip->setText(formatBuffer);
+					irr::core::dimension2d<unsigned int> dtip = mainGame->textFont->getDimension(formatBuffer) + irr::core::dimension2d<unsigned int>(10, 10);
+					mainGame->stTip->setRelativePosition(recti(x - 10 - dtip.Width, y - 10 - dtip.Height, x - 10, y - 10));
 				}
 			}
-			if(hovered_location == LOCATION_HAND && (mainGame->dInfo.is_shuffling || mainGame->dInfo.curMsg == MSG_SHUFFLE_HAND))
-				mcard = 0;
-			if (mcard == 0 && mplayer < 0)
-				mainGame->stTip->setVisible(false);
-			else if (mcard == hovered_card && mplayer == hovered_player) {
-				if (mainGame->stTip->isVisible()) {
-					irr::core::recti tpos = mainGame->stTip->getRelativePosition();
-					mainGame->stTip->setRelativePosition(irr::core::position2di(mousepos.X - tpos.getWidth() - 10, mousepos.Y - tpos.getHeight() - 10));
-				}
-			}
-			if(mcard != hovered_card) {
-				if(hovered_card) {
-					if(hovered_card->location == LOCATION_HAND && !mainGame->dInfo.is_shuffling && mainGame->dInfo.curMsg != MSG_SHUFFLE_HAND) {
-						hovered_card->is_hovered = false;
-						MoveCard(hovered_card, 5);
-						if(hovered_controler == 0)
-							mainGame->hideChat = false;
+			else {
+				hovered_location = 0;
+				ClientCard* mcard = 0;
+				int mplayer = -1;
+				if (!panel || !panel->isVisible() || !panel->getRelativePosition().isPointInside(mousepos)) {
+					GetHoverField(x, y);
+					if (hovered_location & 0xe)
+						mcard = GetCard(hovered_controler, hovered_location, hovered_sequence);
+					else if (hovered_location == LOCATION_GRAVE) {
+						if (grave[hovered_controler].size())
+							mcard = grave[hovered_controler].back();
 					}
-					if(hovered_card->equipTarget)
-						hovered_card->equipTarget->is_showequip = false;
-					if(hovered_card->equipped.size())
-						for(auto cit = hovered_card->equipped.begin(); cit != hovered_card->equipped.end(); ++cit)
-							(*cit)->is_showequip = false;
-					if(hovered_card->cardTarget.size())
-						for(auto cit = hovered_card->cardTarget.begin(); cit != hovered_card->cardTarget.end(); ++cit)
-							(*cit)->is_showtarget = false;
-					if(hovered_card->ownerTarget.size())
-						for(auto cit = hovered_card->ownerTarget.begin(); cit != hovered_card->ownerTarget.end(); ++cit)
-							(*cit)->is_showtarget = false;
-				}
-				if(mcard) {
-					if(mcard != clicked_card)
-						mainGame->wCmdMenu->setVisible(false);
-					if(hovered_location == LOCATION_HAND) {
-						mcard->is_hovered = true;
-						MoveCard(mcard, 5);
-						if(hovered_controler == 0)
-							mainGame->hideChat = true;
-					}
-					if(mcard->equipTarget)
-						mcard->equipTarget->is_showequip = true;
-					for (auto cit = mcard->equipped.begin(); cit != mcard->equipped.end(); ++cit)
-						(*cit)->is_showequip = true;
-					for (auto cit = mcard->cardTarget.begin(); cit != mcard->cardTarget.end(); ++cit)
-						(*cit)->is_showtarget = true;
-					for (auto cit = mcard->ownerTarget.begin(); cit != mcard->ownerTarget.end(); ++cit)
-						(*cit)->is_showtarget = true;
-					if(mcard->code) {
-						mainGame->wInfoTab.ShowCardInfo(mcard->code);
-						if(mcard->location & 0xe) {
-							std::wstring str;
-							wchar_t formatBuffer[2048];
-							myswprintf(formatBuffer, L"%ls", dataManager.GetName(mcard->code));
-							str.append(formatBuffer);
-							if(mcard->type & TYPE_MONSTER) {
-								if(mcard->alias && (mcard->alias < mcard->code - 10 || mcard->alias > mcard->code + 10)
-								        && wcscmp(dataManager.GetName(mcard->code), dataManager.GetName(mcard->alias))) {
-									myswprintf(formatBuffer, L"\n(%ls)", dataManager.GetName(mcard->alias));
-									str.append(formatBuffer);
-								}
-								myswprintf(formatBuffer, L"\n%ls/%ls", mcard->atkstring, mcard->defstring);
-								str.append(formatBuffer);
-								int form = 0x2605;
-								if (mcard->rank) ++form;
-								myswprintf(formatBuffer, L"\n%c%d %ls/%ls", form, (mcard->level ? mcard->level : mcard->rank), dataManager.FormatRace(mcard->race), dataManager.FormatAttribute(mcard->attribute));
-								str.append(formatBuffer);
-								if(mcard->location == LOCATION_HAND && (mcard->type & TYPE_PENDULUM)) {
-									myswprintf(formatBuffer, L"\n%d/%d", mcard->lscale, mcard->rscale);
-									str.append(formatBuffer);
-								}
-							} else {
-								if(mcard->alias && (mcard->alias < mcard->code - 10 || mcard->alias > mcard->code + 10)) {
-									myswprintf(formatBuffer, L"\n(%ls)", dataManager.GetName(mcard->alias));
-									str.append(formatBuffer);
-								}
-								if(mcard->location == LOCATION_SZONE && (mcard->sequence == 6 || mcard->sequence == 7)) {
-									myswprintf(formatBuffer, L"\n%d/%d", mcard->lscale, mcard->rscale);
-									str.append(formatBuffer);
-								}
-							}
-							for (std::map<int, int>::iterator ctit = mcard->counters.begin(); ctit != mcard->counters.end(); ++ctit) {
-								myswprintf(formatBuffer, L"\n[%ls]: %d", dataManager.GetCounterName(ctit->first), ctit->second);
-								str.append(formatBuffer);
-							}
-							if (mcard->cHint && mcard->chValue && (mcard->location & LOCATION_ONFIELD)) {
-								if (mcard->cHint == CHINT_TURN)
-									myswprintf(formatBuffer, L"\n%ls%d", dataManager.GetSysString(211), mcard->chValue);
-								else if (mcard->cHint == CHINT_CARD)
-									myswprintf(formatBuffer, L"\n%ls%ls", dataManager.GetSysString(212), dataManager.GetName(mcard->chValue));
-								else if (mcard->cHint == CHINT_RACE)
-									myswprintf(formatBuffer, L"\n%ls%ls", dataManager.GetSysString(213), dataManager.FormatRace(mcard->chValue));
-								else if (mcard->cHint == CHINT_ATTRIBUTE)
-									myswprintf(formatBuffer, L"\n%ls%ls", dataManager.GetSysString(214), dataManager.FormatAttribute(mcard->chValue));
-								else if (mcard->cHint == CHINT_NUMBER)
-									myswprintf(formatBuffer, L"\n%ls%d", dataManager.GetSysString(215), mcard->chValue);
-								str.append(formatBuffer);
-							}
-							for (auto iter = mcard->desc_hints.begin(); iter != mcard->desc_hints.end(); ++iter) {
-								myswprintf(formatBuffer, L"\n*%ls", dataManager.GetDesc(iter->first));
-								str.append(formatBuffer);
-							}
-							mainGame->stTip->setVisible(true);
-							irr::core::dimension2d<unsigned int> dtip = mainGame->textFont->getDimension(str.c_str()) + irr::core::dimension2d<unsigned int>(10, 10);
-							mainGame->stTip->setRelativePosition(recti(x - 10 - dtip.Width, y - 10 - dtip.Height, x - 10, y - 10));
-							mainGame->stTip->setText(str.c_str());
+					else if (hovered_location == LOCATION_REMOVED) {
+						if (remove[hovered_controler].size()) {
+							mcard = remove[hovered_controler].back();
+							if (mcard->position & POS_FACEDOWN)
+								mcard = 0;
 						}
-					} else {
-						mainGame->stTip->setVisible(false);
-						mainGame->wInfoTab.SetImage(imageManager.tCover[0]);
-						mainGame->wInfoTab.ClearText();
+					}
+					else if (hovered_location == LOCATION_DECK) {
+						if (deck[hovered_controler].size())
+							mcard = deck[hovered_controler].back();
+					}
+					else {
+						if (mainGame->Resize(327, 8, 630, 51).isPointInside(mousepos))
+							mplayer = 0;
+						else if (mainGame->Resize(689, 8, 991, 51).isPointInside(mousepos))
+							mplayer = 1;
 					}
 				}
-				hovered_card = mcard;
+				if (hovered_location == LOCATION_HAND && (mainGame->dInfo.is_shuffling || mainGame->dInfo.curMsg == MSG_SHUFFLE_HAND))
+					mcard = 0;
+				if (mcard == 0 && mplayer < 0)
+					should_show_tip = false;
+				else if (mcard == hovered_card && mplayer == hovered_player) {
+					if (mainGame->stTip->isVisible()) {
+						should_show_tip = true;
+						irr::core::recti tpos = mainGame->stTip->getRelativePosition();
+						mainGame->stTip->setRelativePosition(irr::core::position2di(x - tpos.getWidth() - 10, mcard ? y - tpos.getHeight() - 10 : y + 10));
+					}
+				}
+				if (mcard != hovered_card) {
+					if (hovered_card) {
+						if (hovered_card->location == LOCATION_HAND && !mainGame->dInfo.is_shuffling && mainGame->dInfo.curMsg != MSG_SHUFFLE_HAND) {
+							hovered_card->is_hovered = false;
+							MoveCard(hovered_card, 5);
+							if (hovered_controler == 0)
+								mainGame->hideChat = false;
+						}
+						if (hovered_card->equipTarget)
+							hovered_card->equipTarget->is_showequip = false;
+						if (hovered_card->equipped.size())
+							for (auto cit = hovered_card->equipped.begin(); cit != hovered_card->equipped.end(); ++cit)
+								(*cit)->is_showequip = false;
+						if (hovered_card->cardTarget.size())
+							for (auto cit = hovered_card->cardTarget.begin(); cit != hovered_card->cardTarget.end(); ++cit)
+								(*cit)->is_showtarget = false;
+						if (hovered_card->ownerTarget.size())
+							for (auto cit = hovered_card->ownerTarget.begin(); cit != hovered_card->ownerTarget.end(); ++cit)
+								(*cit)->is_showtarget = false;
+					}
+					if (mcard) {
+						if (mcard != clicked_card)
+							mainGame->wCmdMenu->setVisible(false);
+						if (hovered_location == LOCATION_HAND) {
+							mcard->is_hovered = true;
+							MoveCard(mcard, 5);
+							if (hovered_controler == 0)
+								mainGame->hideChat = true;
+						}
+						if (mcard->equipTarget)
+							mcard->equipTarget->is_showequip = true;
+						for (auto cit = mcard->equipped.begin(); cit != mcard->equipped.end(); ++cit)
+							(*cit)->is_showequip = true;
+						for (auto cit = mcard->cardTarget.begin(); cit != mcard->cardTarget.end(); ++cit)
+							(*cit)->is_showtarget = true;
+						for (auto cit = mcard->ownerTarget.begin(); cit != mcard->ownerTarget.end(); ++cit)
+							(*cit)->is_showtarget = true;
+						if (mcard->code) {
+							mainGame->wInfoTab.ShowCardInfo(mcard->code);
+							if (mcard->location & 0xe) {
+								std::wstring str;
+								myswprintf(formatBuffer, L"%ls", dataManager.GetName(mcard->code));
+								str.append(formatBuffer);
+								if (mcard->type & TYPE_MONSTER) {
+									if (mcard->alias && (mcard->alias < mcard->code - 10 || mcard->alias > mcard->code + 10)
+										&& wcscmp(dataManager.GetName(mcard->code), dataManager.GetName(mcard->alias))) {
+										myswprintf(formatBuffer, L"\n(%ls)", dataManager.GetName(mcard->alias));
+										str.append(formatBuffer);
+									}
+									myswprintf(formatBuffer, L"\n%ls/%ls", mcard->atkstring, mcard->defstring);
+									str.append(formatBuffer);
+									int form = 0x2605;
+									if (mcard->rank) ++form;
+									myswprintf(formatBuffer, L"\n%c%d %ls/%ls", form, (mcard->level ? mcard->level : mcard->rank), dataManager.FormatRace(mcard->race), dataManager.FormatAttribute(mcard->attribute));
+									str.append(formatBuffer);
+									if (mcard->location == LOCATION_HAND && (mcard->type & TYPE_PENDULUM)) {
+										myswprintf(formatBuffer, L"\n%d/%d", mcard->lscale, mcard->rscale);
+										str.append(formatBuffer);
+									}
+								}
+								else {
+									if (mcard->alias && (mcard->alias < mcard->code - 10 || mcard->alias > mcard->code + 10)) {
+										myswprintf(formatBuffer, L"\n(%ls)", dataManager.GetName(mcard->alias));
+										str.append(formatBuffer);
+									}
+									if (mcard->location == LOCATION_SZONE && (mcard->sequence == 6 || mcard->sequence == 7)) {
+										myswprintf(formatBuffer, L"\n%d/%d", mcard->lscale, mcard->rscale);
+										str.append(formatBuffer);
+									}
+								}
+								for (std::map<int, int>::iterator ctit = mcard->counters.begin(); ctit != mcard->counters.end(); ++ctit) {
+									myswprintf(formatBuffer, L"\n[%ls]: %d", dataManager.GetCounterName(ctit->first), ctit->second);
+									str.append(formatBuffer);
+								}
+								if (mcard->cHint && mcard->chValue && (mcard->location & LOCATION_ONFIELD)) {
+									if (mcard->cHint == CHINT_TURN)
+										myswprintf(formatBuffer, L"\n%ls%d", dataManager.GetSysString(211), mcard->chValue);
+									else if (mcard->cHint == CHINT_CARD)
+										myswprintf(formatBuffer, L"\n%ls%ls", dataManager.GetSysString(212), dataManager.GetName(mcard->chValue));
+									else if (mcard->cHint == CHINT_RACE)
+										myswprintf(formatBuffer, L"\n%ls%ls", dataManager.GetSysString(213), dataManager.FormatRace(mcard->chValue));
+									else if (mcard->cHint == CHINT_ATTRIBUTE)
+										myswprintf(formatBuffer, L"\n%ls%ls", dataManager.GetSysString(214), dataManager.FormatAttribute(mcard->chValue));
+									else if (mcard->cHint == CHINT_NUMBER)
+										myswprintf(formatBuffer, L"\n%ls%d", dataManager.GetSysString(215), mcard->chValue);
+									str.append(formatBuffer);
+								}
+								for (auto iter = mcard->desc_hints.begin(); iter != mcard->desc_hints.end(); ++iter) {
+									myswprintf(formatBuffer, L"\n*%ls", dataManager.GetDesc(iter->first));
+									str.append(formatBuffer);
+								}
+								should_show_tip = true;
+								irr::core::dimension2d<unsigned int> dtip = mainGame->textFont->getDimension(str.c_str()) + irr::core::dimension2d<unsigned int>(10, 10);
+								mainGame->stTip->setRelativePosition(recti(x - 10 - dtip.Width, y - 10 - dtip.Height, x - 10, y - 10));
+								mainGame->stTip->setText(str.c_str());
+							}
+						}
+						else {
+							should_show_tip = false;
+							mainGame->wInfoTab.SetImage(imageManager.tCover[0]);
+							mainGame->wInfoTab.ClearText();
+						}
+					}
+					hovered_card = mcard;
 				}
 				if (mplayer != hovered_player) {
 					if (mplayer >= 0) {
@@ -1781,19 +1784,23 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 								player_name = mainGame->dInfo.clientname_tag;
 						}
 						std::wstring str(player_name);
-						wchar_t formatBuffer[2048];
 						const auto& player_desc_hints = mainGame->dField.player_desc_hints[mplayer];
 						for (auto iter = player_desc_hints.begin(); iter != player_desc_hints.end(); ++iter) {
 							myswprintf(formatBuffer, L"\n*%ls", dataManager.GetDesc(iter->first));
 							str.append(formatBuffer);
 						}
-						mainGame->stTip->setVisible(true);
+						should_show_tip = true;
 						irr::core::dimension2d<unsigned int> dtip = mainGame->textFont->getDimension(str.c_str()) + irr::core::dimension2d<unsigned int>(10, 10);
 						mainGame->stTip->setRelativePosition(recti(x - 10 - dtip.Width, y + 10, x - 10, y + 10 + dtip.Height));
 						mainGame->stTip->setText(str.c_str());
-				}
+					}
 					hovered_player = mplayer;
+				}
 			}
+			if (should_show_tip)
+				mainGame->stTip->setVisible(true);
+			else
+				mainGame->stTip->setVisible(false);
 			break;
 		}
 		case irr::EMIE_MOUSE_WHEEL: {
@@ -2185,7 +2192,7 @@ void ClientField::UpdateChainButtons() {
 	mainGame->btnChainWhenAvail->setPressed(mainGame->chain_when_avail);
 }
 void ClientField::ShowCancelOrFinishButton(int buttonOp) {
-	if (!mainGame->wInfoTab.IsChecked(CHECKBOX_HIDE_CHAINBUTTONS) && !mainGame->dInfo.isReplay) {
+	if (!mainGame->dInfo.isReplay) {
 		switch (buttonOp) {
 			case 1:
 				mainGame->btnCancelOrFinish->setText(dataManager.GetSysString(1295));

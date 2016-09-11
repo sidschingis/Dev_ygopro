@@ -1120,9 +1120,10 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->stHintMsg->setText(textBuffer);
 			mainGame->stHintMsg->setVisible(true);
 		}
-		if (mainGame->dField.select_cancelable) {
+		if (mainGame->dField.select_cancelable)
 			mainGame->dField.ShowCancelOrFinishButton(1);
-		}
+		else
+			mainGame->dField.ShowCancelOrFinishButton(0);
 		return false;
 	}
 	case MSG_SELECT_CHAIN: {
@@ -1827,7 +1828,6 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 				mainGame->btnChainIgnore->setVisible(false);
 				mainGame->btnChainAlways->setVisible(false);
 				mainGame->btnChainWhenAvail->setVisible(false);
-				mainGame->btnCancelOrFinish->setVisible(false);
 			}
 		}
 		if(mainGame->dInfo.isTag && mainGame->dInfo.turn != 1) {

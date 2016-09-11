@@ -858,6 +858,7 @@ void Game::OnResize()
 	btnChainAlways->setRelativePosition(Resize(205,140,295,175));
 	btnChainIgnore->setRelativePosition(Resize(205,100,295,135));
 	btnChainWhenAvail->setRelativePosition(Resize(205,180,295,215));
+	btnCancelOrFinish->setRelativePosition(Resize(205, 230, 295, 265));
 
 }
 recti Game::Resize(s32 x, s32 y, s32 x2, s32 y2)
