@@ -1660,7 +1660,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					if (mainGame->stTip->isVisible()) {
 						should_show_tip = true;
 						irr::core::recti tpos = mainGame->stTip->getRelativePosition();
-						mainGame->stTip->setRelativePosition(irr::core::position2di(x - tpos.getWidth() - 10, mcard ? y - tpos.getHeight() - 10 : y + 10));
+						mainGame->stTip->setRelativePosition(irr::core::position2di(mousepos.X - tpos.getWidth() - 10, mcard ? mousepos.Y - tpos.getHeight() - 10 : y + 10));
 					}
 				}
 				if (mcard != hovered_card) {

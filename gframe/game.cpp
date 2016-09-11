@@ -855,6 +855,7 @@ void Game::OnResize()
 	btnBP->setRelativePosition(Resize(195, 0, 245, 20));
 	btnM2->setRelativePosition(Resize(260, 0, 310, 20));
 	btnEP->setRelativePosition(Resize(325, 0, 375, 20));
+	btnShuffle->setRelativePosition(Resize(0, 0, 50, 20));
 	btnChainAlways->setRelativePosition(Resize(205,140,295,175));
 	btnChainIgnore->setRelativePosition(Resize(205,100,295,135));
 	btnChainWhenAvail->setRelativePosition(Resize(205,180,295,215));
