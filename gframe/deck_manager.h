@@ -43,6 +43,8 @@ public:
 	bool LoadSide(Deck& deck, int* dbuf, int mainc, int sidec);
 	bool LoadDeck(const wchar_t* file);
 	bool SaveDeck(Deck& deck, const wchar_t* name);
+private:
+	void AddBLType(LFList* cur, unsigned int type, int count);
 };
 
 extern DeckManager deckManager;

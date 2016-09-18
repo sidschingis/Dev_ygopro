@@ -27,7 +27,7 @@ void SingleMode::SetResponse(unsigned char* resp) {
 	set_responseb(pduel, resp);
 }
 int SingleMode::SinglePlayThread(void* param) {
-	const wchar_t* name = mainGame->lstSinglePlayList->getListItem(mainGame->lstSinglePlayList->getSelected());
+	const wchar_t* name = mainGame->wSingleList.GetListData();
 	wchar_t fname[256];
 	myswprintf(fname, L"./single/%ls", name);
 	char fname2[256];
@@ -44,7 +44,7 @@ int SingleMode::SinglePlayThread(void* param) {
 	mainGame->dInfo.lp[1] = 8000;
 	myswprintf(mainGame->dInfo.strLP[0], L"%d", mainGame->dInfo.lp[0]);
 	myswprintf(mainGame->dInfo.strLP[1], L"%d", mainGame->dInfo.lp[1]);
-	BufferIO::CopyWStr(mainGame->ebNickName->getText(), mainGame->dInfo.hostname, 20);
+	BufferIO::CopyWStr(mainGame->wLan.GetText(EDITBOX_NICKNAME), mainGame->dInfo.hostname, 20);
 	mainGame->dInfo.clientname[0] = 0;
 	mainGame->dInfo.turn = 0;
 	mainGame->dInfo.strTurn[0] = 0;
@@ -53,17 +53,11 @@ int SingleMode::SinglePlayThread(void* param) {
 		return 0;
 	}
 	mainGame->gMutex.Lock();
-	mainGame->HideElement(mainGame->wSinglePlay);
-	mainGame->wCardImg->setVisible(true);
-	mainGame->wInfos->setVisible(true);
+	mainGame->wSingleList.Hide();
+	mainGame->wInfoTab.Show();
 	mainGame->btnLeaveGame->setVisible(true);
 	mainGame->btnLeaveGame->setText(dataManager.GetSysString(1210));
-	mainGame->stName->setText(L"");
-	mainGame->stInfo->setText(L"");
-	mainGame->stDataInfo->setText(L"");
-	//mainGame->stSetName->setText(L"");
-	mainGame->stText->setText(L"");
-	mainGame->scrCardText->setVisible(false);
+	mainGame->wInfoTab.ClearText();
 	mainGame->wPhase->setVisible(true);
 	mainGame->dField.panel = 0;
 	mainGame->dField.hovered_card = 0;
@@ -98,8 +92,7 @@ int SingleMode::SinglePlayThread(void* param) {
 		mainGame->closeSignal.Set();
 		mainGame->closeDoneSignal.Wait();
 		mainGame->gMutex.Lock();
-		mainGame->ShowElement(mainGame->wSinglePlay);
-		mainGame->device->setEventReceiver(&mainGame->menuHandler);
+		mainGame->wSingleList.Show();
 		mainGame->gMutex.Unlock();
 	}
 	return 0;
@@ -213,7 +206,7 @@ bool SingleMode::SinglePlayAnalyze(char* msg, unsigned int len) {
 		case MSG_SELECT_CHAIN: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadInt8(pbuf);
-			pbuf += 10 + count * 12;
+			pbuf += 10 + count * 13;
 			if(!DuelClient::ClientAnalyze(offset, pbuf - offset)) {
 				mainGame->singleSignal.Reset();
 				mainGame->singleSignal.Wait();
@@ -596,6 +589,11 @@ bool SingleMode::SinglePlayAnalyze(char* msg, unsigned int len) {
 		}
 		case MSG_CARD_HINT: {
 			pbuf += 9;
+			DuelClient::ClientAnalyze(offset, pbuf - offset);
+			break;
+		}
+		case MSG_PLAYER_HINT: {
+			pbuf += 6;
 			DuelClient::ClientAnalyze(offset, pbuf - offset);
 			break;
 		}

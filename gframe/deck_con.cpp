@@ -1,5 +1,5 @@
 #include "config.h"
-#include "deck_con.h"
+#include "GUIDeckEdit.h"
 #include "data_manager.h"
 #include "deck_manager.h"
 #include "image_manager.h"
@@ -9,7 +9,7 @@
 
 namespace ygo {
 
-bool DeckBuilder::OnEvent(const irr::SEvent& event) {
+bool GUIDeckEdit::OnEvent(const irr::SEvent& event) {
 	switch(event.EventType) {
 	case irr::EET_GUI_EVENT: {
 		s32 id = event.GUIEvent.Caller->getID();
@@ -23,29 +23,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_CLEAR_FILTER:{
-				mainGame->cbCardType->setSelected(0);
-				mainGame->cbCardType2->setSelected(0);
-				mainGame->cbAttribute->setSelected(0);
-				mainGame->cbRace->setSelected(0);
-				mainGame->cbLimit->setSelected(0);
-				mainGame->cbSetCode->setSelected(0);
-				mainGame->ebAttack->setText(L"");
-				mainGame->ebDefence->setText(L"");
-				mainGame->ebStar->setText(L"");
-				mainGame->ebScale->setText(L"");
-				filter_effect = 0;
-				mainGame->ebCardName->setText(L"");
-				for(int i = 0; i < 32; ++i)
-					mainGame->chkCategory[i]->setChecked(false);
-				results.clear();
-				myswprintf(result_string, L"0");
-				mainGame->cbCardType2->setEnabled(false);
-				mainGame->cbRace->setEnabled(false);
-				mainGame->cbAttribute->setEnabled(false);
-				mainGame->ebAttack->setEnabled(false);
-				mainGame->ebDefence->setEnabled(false);
-				mainGame->ebStar->setEnabled(false);
-				mainGame->ebScale->setEnabled(false);
+				ClearFilter();
 				break;
 			}
 			case BUTTON_SORT_DECK: {
@@ -59,28 +37,28 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_SAVE_DECK: {
-				if(deckManager.SaveDeck(deckManager.current_deck, mainGame->cbDBDecks->getItem(mainGame->cbDBDecks->getSelected()))) {
+				if(deckManager.SaveDeck(deckManager.current_deck, _ComboBox[COMBOBOX_DBDECKS]->getItem(_ComboBox[COMBOBOX_DBDECKS]->getSelected()))) {
 					mainGame->stACMessage->setText(dataManager.GetSysString(1335));
 					mainGame->PopupElement(mainGame->wACMessage, 20);
 				}
 				break;
 			}
 			case BUTTON_SAVE_DECK_AS: {
-				const wchar_t* dname = mainGame->ebDeckname->getText();
+				const wchar_t* dname = _editBox[EDITBOX_DECKNAME]->getText();
 				if(*dname == 0)
 					break;
 				int sel = -1;
-				for(size_t i = 0; i < mainGame->cbDBDecks->getItemCount(); ++i) {
-					if(!wcscmp(dname, mainGame->cbDBDecks->getItem(i))) {
+				for(size_t i = 0; i < _ComboBox[COMBOBOX_DBDECKS]->getItemCount(); ++i) {
+					if(!wcscmp(dname, _ComboBox[COMBOBOX_DBDECKS]->getItem(i))) {
 						sel = i;
 						break;
 					}
 				}
 				if(sel >= 0)
-					mainGame->cbDBDecks->setSelected(sel);
+					_ComboBox[COMBOBOX_DBDECKS]->setSelected(sel);
 				else {
-					mainGame->cbDBDecks->addItem(dname);
-					mainGame->cbDBDecks->setSelected(mainGame->cbDBDecks->getItemCount() - 1);
+					_ComboBox[COMBOBOX_DBDECKS]->addItem(dname);
+					_ComboBox[COMBOBOX_DBDECKS]->setSelected(_ComboBox[COMBOBOX_DBDECKS]->getItemCount() - 1);
 				}
 				if(deckManager.SaveDeck(deckManager.current_deck, dname)) {
 					mainGame->stACMessage->setText(dataManager.GetSysString(1335));
@@ -89,27 +67,15 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_DBEXIT: {
-				mainGame->is_building = false;
-				mainGame->wDeckEdit->setVisible(false);
-				mainGame->wCategories->setVisible(false);
-				mainGame->wFilter->setVisible(false);
-				mainGame->wCardImg->setVisible(false);
-				mainGame->wInfos->setVisible(false);
-				mainGame->PopupElement(mainGame->wMainMenu);
-				mainGame->device->setEventReceiver(&mainGame->menuHandler);
-				mainGame->wACMessage->setVisible(false);
-				imageManager.ClearTexture();
-				mainGame->scrFilter->setVisible(false);
-				mainGame->wSort->setVisible(false);
-				if(mainGame->cbDBDecks->getSelected() != -1) {
-					BufferIO::CopyWStr(mainGame->cbDBDecks->getItem(mainGame->cbDBDecks->getSelected()), mainGame->gameConf.lastdeck, 64);
-				}
+				Hide();
+				mainGame->wInfoTab.Hide();
 				if(exit_on_return)
 					mainGame->device->closeDevice();
+				mainGame->wMenu.Show();
 				break;
 			}
 			case BUTTON_EFFECT_FILTER: {
-				mainGame->PopupElement(mainGame->wCategories);
+				mainGame->PopupElement(wCategories);
 				break;
 			}
 			case BUTTON_START_FILTER: {
@@ -121,9 +87,9 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				filter_effect = 0;
 				long long filter = 0x1;
 				for(int i = 0; i < 32; ++i, filter <<= 1)
-					if(mainGame->chkCategory[i]->isChecked())
+					if(chkCategory[i]->isChecked())
 						filter_effect |= filter;
-				mainGame->HideElement(mainGame->wCategories);
+				mainGame->HideElement(wCategories);
 				break;
 			}
 			case BUTTON_SIDE_OK: {
@@ -154,12 +120,12 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			case BUTTON_YES: {
 				mainGame->HideElement(mainGame->wQuery);				
 				std::wstring filestr(L"./deck/");
-				filestr += mainGame->cbDBDecks->getItem(mainGame->cbDBDecks->getSelected());
+				filestr += _ComboBox[COMBOBOX_DBDECKS]->getItem(_ComboBox[COMBOBOX_DBDECKS]->getSelected());
 				filestr += L".ydk";
 				char* path = new char[256];
 				std::wcstombs(path,filestr.c_str(),256);
 				if(remove(path) == 0){
-					mainGame->cbDBDecks->removeItem(mainGame->cbDBDecks->getSelected());
+					_ComboBox[COMBOBOX_DBDECKS]->removeItem(_ComboBox[COMBOBOX_DBDECKS]->getSelected());
 					deckManager.current_deck.main.clear();
 					deckManager.current_deck.extra.clear();
 					deckManager.current_deck.side.clear();
@@ -173,34 +139,14 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			}
 			break;
 		}
-		case irr::gui::EGET_SCROLL_BAR_CHANGED: {
-			switch(id) {
-			case SCROLL_CARDTEXT: {
-				u32 pos = mainGame->scrCardText->getPos();
-				mainGame->SetStaticText(mainGame->stText, mainGame->stText->getRelativePosition().getWidth()-30, mainGame->textFont, mainGame->showingtext, pos);
-				break;
-			}
-			case SCROLL_SOUND: {
-				mainGame->gameConf.soundvolume = (double)mainGame->scrSound->getPos() /100;
-				mainGame->engineSound->setSoundVolume(mainGame->gameConf.soundvolume);
-				break;
-			}
-			case SCROLL_MUSIC: {
-				mainGame->gameConf.musicvolume = (double)mainGame->scrMusic->getPos() /100;
-				mainGame->engineMusic->setSoundVolume(mainGame->gameConf.musicvolume);
-				break;
-			}
-			break;
-			}
-		}
 		case irr::gui::EGET_EDITBOX_ENTER: {
 			switch(id) {
 			case EDITBOX_KEYWORD: {
 				irr::SEvent me;
 				me.EventType = irr::EET_GUI_EVENT;
 				me.GUIEvent.EventType = irr::gui::EGET_BUTTON_CLICKED;
-				me.GUIEvent.Caller = mainGame->btnStartFilter;
-				me.GUIEvent.Element = mainGame->btnStartFilter;
+				me.GUIEvent.Caller = _buttons[BUTTON_START_FILTER];
+				me.GUIEvent.Element = _buttons[BUTTON_START_FILTER];
 				mainGame->device->postEventFromUser(me);
 				break;
 			}
@@ -210,7 +156,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 		case irr::gui::EGET_EDITBOX_CHANGED: {
 			switch(id) {
 			case EDITBOX_KEYWORD: {
-				stringw filter = mainGame->ebCardName->getText();
+				stringw filter = _editBox[EDITBOX_KEYWORD]->getText();
 				if(filter.size() > 2){
 					FilterStart();
 					FilterCards(false);
@@ -220,107 +166,91 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			}
 			break;
 		}
-		case irr::gui::EGET_CHECKBOX_CHANGED:{
-			s32 id = event.GUIEvent.Caller->getID();
-			switch(id) {
-			case CHECKBOX_ENABLE_SOUND:{
-				mainGame->gameConf.enablesound = mainGame->chkEnableSound->isChecked();
-				break;
-			}
-			case CHECKBOX_ENABLE_MUSIC:{
-				mainGame->gameConf.enablemusic = mainGame->chkEnableMusic->isChecked();
-				if(!mainGame->gameConf.enablemusic)
-					mainGame->engineMusic->stopAllSounds();
-				break;
-		    }
-			}
-			break;
-		}
 		case irr::gui::EGET_COMBO_BOX_CHANGED: {
 			switch(id) {
 			case COMBOBOX_DBLFLIST: {
-				filterList = deckManager._lfList[mainGame->cbDBLFList->getSelected()].content;
+				filterList = deckManager._lfList[_ComboBox[COMBOBOX_DBLFLIST]->getSelected()].content;
 				break;
 			}
 			case COMBOBOX_DBDECKS: {
-				deckManager.LoadDeck(mainGame->cbDBDecks->getItem(mainGame->cbDBDecks->getSelected()));
+				deckManager.LoadDeck(_ComboBox[COMBOBOX_DBDECKS]->getItem(_ComboBox[COMBOBOX_DBDECKS]->getSelected()));
 				break;
 			}
 			case COMBOBOX_MAINTYPE: {
-				mainGame->cbCardType2->setSelected(0);
-				mainGame->cbAttribute->setSelected(0);
-				mainGame->cbRace->setSelected(0);
-				mainGame->ebAttack->setText(L"");
-				mainGame->ebDefence->setText(L"");
-				mainGame->ebStar->setText(L"");
-				mainGame->ebScale->setText(L"");
-				switch(mainGame->cbCardType->getSelected()) {
+				_ComboBox[COMBOBOX_MAINTYPE2]->setSelected(0);
+				_ComboBox[COMBOBOX_ATTRIBUTE]->setSelected(0);
+				_ComboBox[COMBOBOX_RACE]->setSelected(0);
+				_editBox[EDITBOX_ATTACK]->setText(L"");
+				_editBox[EDITBOX_DEFENCE]->setText(L"");
+				_editBox[EDITBOX_LEVEL]->setText(L"");
+				_editBox[EDITBOX_SCALE]->setText(L"");
+				switch(_ComboBox[COMBOBOX_MAINTYPE]->getSelected()) {
 				case 0: {
-					mainGame->cbCardType2->setEnabled(false);
-					mainGame->cbRace->setEnabled(false);
-					mainGame->cbAttribute->setEnabled(false);
-					mainGame->ebAttack->setEnabled(false);
-					mainGame->ebDefence->setEnabled(false);
-					mainGame->ebStar->setEnabled(false);
-					mainGame->ebScale->setEnabled(false);
+					_ComboBox[COMBOBOX_MAINTYPE2]->setEnabled(false);
+					_ComboBox[COMBOBOX_RACE]->setEnabled(false);
+					_ComboBox[COMBOBOX_ATTRIBUTE]->setEnabled(false);
+					_editBox[EDITBOX_ATTACK]->setEnabled(false);
+					_editBox[EDITBOX_DEFENCE]->setEnabled(false);
+					_editBox[EDITBOX_LEVEL]->setEnabled(false);
+					_editBox[EDITBOX_SCALE]->setEnabled(false);
 					break;
 				}
 				case 1: {
-					mainGame->cbCardType2->setEnabled(true);
-					mainGame->cbRace->setEnabled(true);
-					mainGame->cbAttribute->setEnabled(true);
-					mainGame->ebAttack->setEnabled(true);
-					mainGame->ebDefence->setEnabled(true);
-					mainGame->ebStar->setEnabled(true);
-					mainGame->ebScale->setEnabled(true);
-					mainGame->cbCardType2->clear();
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1080), 0);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1054), TYPE_MONSTER + TYPE_NORMAL);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1055), TYPE_MONSTER + TYPE_EFFECT);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1056), TYPE_MONSTER + TYPE_FUSION);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1057), TYPE_MONSTER + TYPE_RITUAL);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1063), TYPE_MONSTER + TYPE_SYNCHRO);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1073), TYPE_MONSTER + TYPE_XYZ);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1062), TYPE_MONSTER + TYPE_TUNER);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1061), TYPE_MONSTER + TYPE_DUAL);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1060), TYPE_MONSTER + TYPE_UNION);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1059), TYPE_MONSTER + TYPE_SPIRIT);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1071), TYPE_MONSTER + TYPE_FLIP);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1072), TYPE_MONSTER + TYPE_TOON);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1074), TYPE_MONSTER + TYPE_PENDULUM);
+					_ComboBox[COMBOBOX_MAINTYPE2]->setEnabled(true);
+					_ComboBox[COMBOBOX_RACE]->setEnabled(true);
+					_ComboBox[COMBOBOX_ATTRIBUTE]->setEnabled(true);
+					_editBox[EDITBOX_ATTACK]->setEnabled(true);
+					_editBox[EDITBOX_DEFENCE]->setEnabled(true);
+					_editBox[EDITBOX_LEVEL]->setEnabled(true);
+					_editBox[EDITBOX_SCALE]->setEnabled(true);
+					_ComboBox[COMBOBOX_MAINTYPE2]->clear();
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1080), 0);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1054), TYPE_MONSTER + TYPE_NORMAL);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1055), TYPE_MONSTER + TYPE_EFFECT);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1056), TYPE_MONSTER + TYPE_FUSION);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1057), TYPE_MONSTER + TYPE_RITUAL);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1063), TYPE_MONSTER + TYPE_SYNCHRO);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1073), TYPE_MONSTER + TYPE_XYZ);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1062), TYPE_MONSTER + TYPE_TUNER);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1061), TYPE_MONSTER + TYPE_DUAL);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1060), TYPE_MONSTER + TYPE_UNION);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1059), TYPE_MONSTER + TYPE_SPIRIT);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1071), TYPE_MONSTER + TYPE_FLIP);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1072), TYPE_MONSTER + TYPE_TOON);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1074), TYPE_MONSTER + TYPE_PENDULUM);
 					break;
 				}
 				case 2: {
-					mainGame->cbCardType2->setEnabled(true);
-					mainGame->cbRace->setEnabled(false);
-					mainGame->cbAttribute->setEnabled(false);
-					mainGame->ebAttack->setEnabled(false);
-					mainGame->ebDefence->setEnabled(false);
-					mainGame->ebStar->setEnabled(false);
-					mainGame->ebScale->setEnabled(false);
-					mainGame->cbCardType2->clear();
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1080), 0);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1054), TYPE_SPELL);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1066), TYPE_SPELL + TYPE_QUICKPLAY);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1067), TYPE_SPELL + TYPE_CONTINUOUS);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1057), TYPE_SPELL + TYPE_RITUAL);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1068), TYPE_SPELL + TYPE_EQUIP);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1069), TYPE_SPELL + TYPE_FIELD);
+					_ComboBox[COMBOBOX_MAINTYPE2]->setEnabled(true);
+					_ComboBox[COMBOBOX_RACE]->setEnabled(false);
+					_ComboBox[COMBOBOX_ATTRIBUTE]->setEnabled(false);
+					_editBox[EDITBOX_ATTACK]->setEnabled(false);
+					_editBox[EDITBOX_DEFENCE]->setEnabled(false);
+					_editBox[EDITBOX_LEVEL]->setEnabled(false);
+					_editBox[EDITBOX_SCALE]->setEnabled(false);
+					_ComboBox[COMBOBOX_MAINTYPE2]->clear();
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1080), 0);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1054), TYPE_SPELL);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1066), TYPE_SPELL + TYPE_QUICKPLAY);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1067), TYPE_SPELL + TYPE_CONTINUOUS);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1057), TYPE_SPELL + TYPE_RITUAL);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1068), TYPE_SPELL + TYPE_EQUIP);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1069), TYPE_SPELL + TYPE_FIELD);
 					break;
 				}
 				case 3: {
-					mainGame->cbCardType2->setEnabled(true);
-					mainGame->cbRace->setEnabled(false);
-					mainGame->cbAttribute->setEnabled(false);
-					mainGame->ebAttack->setEnabled(false);
-					mainGame->ebDefence->setEnabled(false);
-					mainGame->ebStar->setEnabled(false);
-					mainGame->ebScale->setEnabled(false);
-					mainGame->cbCardType2->clear();
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1080), 0);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1054), TYPE_TRAP);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1067), TYPE_TRAP + TYPE_CONTINUOUS);
-					mainGame->cbCardType2->addItem(dataManager.GetSysString(1070), TYPE_TRAP + TYPE_COUNTER);
+					_ComboBox[COMBOBOX_MAINTYPE2]->setEnabled(true);
+					_ComboBox[COMBOBOX_RACE]->setEnabled(false);
+					_ComboBox[COMBOBOX_ATTRIBUTE]->setEnabled(false);
+					_editBox[EDITBOX_ATTACK]->setEnabled(false);
+					_editBox[EDITBOX_DEFENCE]->setEnabled(false);
+					_editBox[EDITBOX_LEVEL]->setEnabled(false);
+					_editBox[EDITBOX_SCALE]->setEnabled(false);
+					_ComboBox[COMBOBOX_MAINTYPE2]->clear();
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1080), 0);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1054), TYPE_TRAP);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1067), TYPE_TRAP + TYPE_CONTINUOUS);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1070), TYPE_TRAP + TYPE_COUNTER);
 					break;
 				}
 
@@ -340,11 +270,11 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 case irr::EET_MOUSE_INPUT_EVENT: {
 	switch (event.MouseInput.Event) {
 	case irr::EMIE_LMOUSE_PRESSED_DOWN: {
-		position2d<s32> mouse_pos = position2d<s32>(event.MouseInput.X, event.MouseInput.Y);
+		irr::core::position2di mouse_pos(event.MouseInput.X, event.MouseInput.Y);
 		irr::gui::IGUIElement* root = mainGame->env->getRootGUIElement();
 		if (root->getElementFromPoint(mouse_pos) != root)
 			break;
-		if (mainGame->wCategories->isVisible() || mainGame->wQuery->isVisible())
+		if (wCategories->isVisible() || mainGame->wQuery->isVisible())
 			break;
 		if (hovered_pos == 0 || hovered_seq == -1)
 			break;
@@ -488,7 +418,7 @@ case irr::EET_MOUSE_INPUT_EVENT: {
 			}
 			break;
 		}
-		if (mainGame->wCategories->isVisible() || mainGame->wQuery->isVisible())
+		if (wCategories->isVisible() || mainGame->wQuery->isVisible())
 			break;
 		if (hovered_pos == 0 || hovered_seq == -1)
 			break;
@@ -621,12 +551,12 @@ case irr::EET_MOUSE_INPUT_EVENT: {
 		else if (x >= 810 && x <= 995 && y >= 165 && y <= 626) {
 			hovered_pos = 4;
 			hovered_seq = (y - 165) / 66;
-			if (mainGame->scrFilter->getPos() + hovered_seq >= (int)results.size()) {
+			if (scrFilter->getPos() + hovered_seq >= (int)results.size()) {
 				hovered_seq = -1;
 				hovered_code = 0;
 			}
 			else {
-				hovered_code = results[mainGame->scrFilter->getPos() + hovered_seq]->first;
+				hovered_code = results[scrFilter->getPos() + hovered_seq]->first;
 			}
 		}
 		else {
@@ -639,7 +569,7 @@ case irr::EET_MOUSE_INPUT_EVENT: {
 		}
 		if (!is_draging && pre_code != hovered_code) {
 			if (hovered_code) {
-				mainGame->ShowCardInfo(hovered_code);
+				mainGame->wInfoTab.ShowCardInfo(hovered_code);
 			}
 			if (pre_code)
 				imageManager.RemoveTexture(pre_code);
@@ -647,14 +577,14 @@ case irr::EET_MOUSE_INPUT_EVENT: {
 		break;
 	}
 		case irr::EMIE_MOUSE_WHEEL: {
-			if(!mainGame->scrFilter->isVisible())
+			if(!scrFilter->isVisible())
 				break;
 			if(event.MouseInput.Wheel < 0) {
-				if(mainGame->scrFilter->getPos() < mainGame->scrFilter->getMax())
-					mainGame->scrFilter->setPos(mainGame->scrFilter->getPos() + 1);
+				if(scrFilter->getPos() < scrFilter->getMax())
+					scrFilter->setPos(scrFilter->getPos() + 1);
 			} else {
-				if(mainGame->scrFilter->getPos() > 0)
-					mainGame->scrFilter->setPos(mainGame->scrFilter->getPos() - 1);
+				if(scrFilter->getPos() > 0)
+					scrFilter->setPos(scrFilter->getPos() - 1);
 			}
 			SEvent e = event;
 			e.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
@@ -683,21 +613,23 @@ case irr::EET_MOUSE_INPUT_EVENT: {
 	}
 	default: break;
 	}
+	//check info tab too
+	mainGame->wInfoTab.OnEvent(event);
 	return false;
 }
 
-void DeckBuilder::FilterStart(){
-	filter_type = mainGame->cbCardType->getSelected();
-				filter_type2 = mainGame->cbCardType2->getItemData(mainGame->cbCardType2->getSelected());
-				filter_lm = mainGame->cbLimit->getSelected();
+void GUIDeckEdit::FilterStart(){
+	filter_type = _ComboBox[COMBOBOX_MAINTYPE]->getSelected();
+				filter_type2 = _ComboBox[COMBOBOX_MAINTYPE2]->getItemData(_ComboBox[COMBOBOX_MAINTYPE2]->getSelected());
+				filter_lm = _ComboBox[COMBOBOX_LIMIT]->getSelected();
 				if(filter_type > 1) {
 					FilterCards(true);
 					return;
 				}
-				filter_attrib = mainGame->cbAttribute->getItemData(mainGame->cbAttribute->getSelected());
-				filter_race = mainGame->cbRace->getItemData(mainGame->cbRace->getSelected());
-				filter_setcode = mainGame->cbSetCode->getItemData(mainGame->cbSetCode->getSelected());
-				const wchar_t* pstr = mainGame->ebAttack->getText();
+				filter_attrib = _ComboBox[COMBOBOX_ATTRIBUTE]->getItemData(_ComboBox[COMBOBOX_ATTRIBUTE]->getSelected());
+				filter_race = _ComboBox[COMBOBOX_RACE]->getItemData(_ComboBox[COMBOBOX_RACE]->getSelected());
+				filter_setcode = _ComboBox[COMBOBOX_SETCODE]->getItemData(_ComboBox[COMBOBOX_SETCODE]->getSelected());
+				const wchar_t* pstr = _editBox[EDITBOX_ATTACK]->getText();
 				if(*pstr == 0) filter_atktype = 0;
 				else {
 					if(*pstr == L'=') {
@@ -726,7 +658,7 @@ void DeckBuilder::FilterStart(){
 						filter_atktype = 6;
 					} else filter_atktype = 0;
 				}
-				pstr = mainGame->ebDefence->getText();
+				pstr = _editBox[EDITBOX_DEFENCE]->getText();
 				if(*pstr == 0) filter_deftype = 0;
 				else {
 					if(*pstr == L'=') {
@@ -755,7 +687,7 @@ void DeckBuilder::FilterStart(){
 						filter_deftype = 6;
 					} else filter_deftype = 0;
 				}
-				pstr = mainGame->ebStar->getText();
+				pstr = _editBox[EDITBOX_LEVEL]->getText();
 				if(*pstr == 0) filter_lvtype = 0;
 				else {
 					if(*pstr == L'=') {
@@ -782,7 +714,7 @@ void DeckBuilder::FilterStart(){
 						}
 					} else filter_lvtype = 0;
 				}
-				pstr = mainGame->ebScale->getText();
+				pstr = _editBox[EDITBOX_SCALE]->getText();
 				if (*pstr == 0) filter_scltype = 0;
 				else {
 					if (*pstr == L'=') {
@@ -817,15 +749,15 @@ void DeckBuilder::FilterStart(){
 				}
 }
 
-void DeckBuilder::FilterCards(bool checkDescription) {
+void GUIDeckEdit::FilterCards(bool checkDescription) {
 	results.clear();
-	const wchar_t* pstr = mainGame->ebCardName->getText();
+	const wchar_t* pstr = _editBox[EDITBOX_KEYWORD]->getText();
 	int trycode = BufferIO::GetVal(pstr);
 	if(dataManager.GetData(trycode, 0)) {
 		auto ptr = dataManager.GetCodePointer(trycode); // verified by GetData()
 		results.push_back(ptr);
-		mainGame->scrFilter->setVisible(false);
-		mainGame->scrFilter->setPos(0);
+		scrFilter->setVisible(false);
+		scrFilter->setPos(0);
 		myswprintf(result_string, L"%d", results.size());
 		return;
 	}
@@ -925,17 +857,17 @@ void DeckBuilder::FilterCards(bool checkDescription) {
 	}
 	myswprintf(result_string, L"%d", results.size());
 	if(results.size() > 7) {
-		mainGame->scrFilter->setVisible(true);
-		mainGame->scrFilter->setMax(results.size() - 7);
-		mainGame->scrFilter->setPos(0);
+		scrFilter->setVisible(true);
+		scrFilter->setMax(results.size() - 7);
+		scrFilter->setPos(0);
 	} else {
-		mainGame->scrFilter->setVisible(false);
-		mainGame->scrFilter->setPos(0);
+		scrFilter->setVisible(false);
+		scrFilter->setPos(0);
 	}
 	SortList();
 }
 
-bool DeckBuilder::CardNameCompare(const wchar_t *sa, const wchar_t *sb)
+bool GUIDeckEdit::CardNameCompare(const wchar_t *sa, const wchar_t *sb)
 {
 	int i = 0;
 	int j = 0;
@@ -963,29 +895,28 @@ bool DeckBuilder::CardNameCompare(const wchar_t *sa, const wchar_t *sb)
 	return false;
 }
 
-void DeckBuilder::SortList() {
-	switch (mainGame->cbSortType->getSelected()) {
+void GUIDeckEdit::SortList() {
+	auto left = results.begin();
+	const wchar_t* pstr = _editBox[EDITBOX_KEYWORD]->getText();
+	for (auto it = results.begin(); it != results.end(); ++it) {
+		if (wcscmp(pstr, dataManager.GetName((*it)->first)) == 0) {
+			std::iter_swap(left, it);
+			++left;
+		}
+	}
+	switch (_ComboBox[COMBOBOX_SORTTYPE]->getSelected()) {
 	case 0:
-		std::sort(results.begin(), results.end(), ClientCard::deck_sort_lv);
+		std::sort(left, results.end(), ClientCard::deck_sort_lv);
 		break;
 	case 1:
-		std::sort(results.begin(), results.end(), ClientCard::deck_sort_atk);
+		std::sort(left, results.end(), ClientCard::deck_sort_atk);
 		break;
 	case 2:
-		std::sort(results.begin(), results.end(), ClientCard::deck_sort_def);
+		std::sort(left, results.end(), ClientCard::deck_sort_def);
 		break;
 	case 3:
-		std::sort(results.begin(), results.end(), ClientCard::deck_sort_name);
+		std::sort(left, results.end(), ClientCard::deck_sort_name);
 		break;
-	}
-	const wchar_t* pstr = mainGame->ebCardName->getText();
-	for (size_t i = 0, pos = 0; i < results.size(); ++i) {
-		code_pointer ptr = results[i];
-		if (wcscmp(pstr, dataManager.GetName(ptr->first)) == 0) {
-			results.insert(results.begin() + pos, ptr);
-			results.erase(results.begin() + i + 1);
-			pos++;
-		}
 	}
 }
 

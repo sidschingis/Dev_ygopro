@@ -150,12 +150,22 @@ int ReplayMode::ReplayThread(void* param) {
 		mainGame->dInfo.isReplaySkiping = false;
 	int len = 0;
 	while (is_continuing && !exit_pending) {
-		int result = process(pduel);
-		len = result & 0xffff;
-		/*int flag = result >> 16;*/
-		if (len > 0) {
-			get_message(pduel, (byte*)engineBuffer);
-			is_continuing = ReplayAnalyze(engineBuffer, len);
+		if (!mainGame->dInfo.isYRP2) {
+			int result = process(pduel);
+			len = result & 0xffff;
+			/*int flag = result >> 16;*/
+			if (len > 0) {
+				get_message(pduel, (byte*)engineBuffer);
+				is_continuing = ReplayAnalyze(engineBuffer, len);
+			}
+		}
+		else {
+			len = cur_replay.ReadInt16();
+			if (len > 0) {
+				char *msg = new char[len];
+				cur_replay.ReadData(msg, len);
+				is_continuing = ReplayAnalyze(msg, len);
+			}
 		}
 	}
 	if(mainGame->dInfo.isReplaySkiping) {
@@ -181,8 +191,7 @@ int ReplayMode::ReplayThread(void* param) {
 		mainGame->closeSignal.Set();
 		mainGame->closeDoneSignal.Wait();
 		mainGame->gMutex.Lock();
-		mainGame->ShowElement(mainGame->wReplay);
-		mainGame->device->setEventReceiver(&mainGame->menuHandler);
+		mainGame->wReplayList.Show();
 		mainGame->gMutex.Unlock();
 	}
 	return 0;
@@ -338,6 +347,8 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 				mainGame->dField.RefreshAllCards();
 				mainGame->gMutex.Unlock();
 			}
+			if (mainGame->dInfo.isYRP2)
+				return false;
 			pbuf += 2;
 			DuelClient::ClientAnalyze(offset, pbuf - offset);
 			return false;
@@ -349,7 +360,7 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 8 + 2;
 			ReplayRefresh();
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_SELECT_IDLECMD: {
 			player = BufferIO::ReadInt8(pbuf);
@@ -366,23 +377,23 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 11 + 3;
 			ReplayRefresh();
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_SELECT_EFFECTYN: {
 			player = BufferIO::ReadInt8(pbuf);
 			pbuf += 8;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_SELECT_YESNO: {
 			player = BufferIO::ReadInt8(pbuf);
 			pbuf += 4;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_SELECT_OPTION: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 4;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_SELECT_CARD:
 		case MSG_SELECT_TRIBUTE: {
@@ -390,31 +401,31 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			pbuf += 3;
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 8;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_SELECT_CHAIN: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadInt8(pbuf);
-			pbuf += 10 + count * 12;
-			return ReadReplayResponse();
+			pbuf += 10 + count * 13;
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_SELECT_PLACE:
 		case MSG_SELECT_DISFIELD: {
 			player = BufferIO::ReadInt8(pbuf);
 			pbuf += 5;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_SELECT_POSITION: {
 			player = BufferIO::ReadInt8(pbuf);
 			pbuf += 5;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_SELECT_COUNTER: {
 			player = BufferIO::ReadInt8(pbuf);
 			pbuf += 3;
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 8;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_SELECT_SUM: {
 			pbuf++;
@@ -424,14 +435,14 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			pbuf += count * 11;
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 11;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_SORT_CARD:
 		case MSG_SORT_CHAIN: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 7;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_CONFIRM_DECKTOP: {
 			player = BufferIO::ReadInt8(pbuf);
@@ -516,9 +527,62 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			/*int cp = pbuf[11];*/
 			pbuf += 16;
 			DuelClient::ClientAnalyze(offset, pbuf - offset);
+			if (mainGame->dInfo.isYRP2)
+				return true;
 			if(cl && !(cl & 0x80) && (pl != cl || pc != cc))
 				ReplayRefreshSingle(cc, cl, cs);
 			break;
+		}
+		case MSG_START: {
+			mainGame->showcardcode = 11;
+			mainGame->showcarddif = 30;
+			mainGame->showcardp = 0;
+			mainGame->showcard = 101;
+			mainGame->WaitFrameSignal(40);
+			mainGame->showcard = 0;
+			mainGame->gMutex.Lock();
+			int playertype = BufferIO::ReadInt8(pbuf);
+			mainGame->dInfo.isFirst = (playertype & 0xf) ? false : true;
+			if (playertype & 0xf0)
+				mainGame->dInfo.player_type = 7;
+			if (mainGame->dInfo.isTag) {
+				if (mainGame->dInfo.isFirst)
+					mainGame->dInfo.tag_player[1] = true;
+				else
+					mainGame->dInfo.tag_player[0] = true;
+			}
+			mainGame->dInfo.lp[mainGame->LocalPlayer(0)] = BufferIO::ReadInt32(pbuf);
+			mainGame->dInfo.lp[mainGame->LocalPlayer(1)] = BufferIO::ReadInt32(pbuf);
+			myswprintf(mainGame->dInfo.strLP[0], L"%d", mainGame->dInfo.lp[0]);
+			myswprintf(mainGame->dInfo.strLP[1], L"%d", mainGame->dInfo.lp[1]);
+			int deckc = BufferIO::ReadInt16(pbuf);
+			int extrac = BufferIO::ReadInt16(pbuf);
+			mainGame->dField.Initial(mainGame->LocalPlayer(0), deckc, extrac);
+			deckc = BufferIO::ReadInt16(pbuf);
+			extrac = BufferIO::ReadInt16(pbuf);
+			mainGame->dField.Initial(mainGame->LocalPlayer(1), deckc, extrac);
+			mainGame->dInfo.turn = 0;
+			mainGame->dInfo.strTurn[0] = 0;
+			mainGame->dInfo.is_shuffling = false;
+			mainGame->gMutex.Unlock();
+			return true;
+		}
+		case MSG_UPDATE_DATA: {
+			int player = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
+			int location = BufferIO::ReadInt8(pbuf);
+			mainGame->gMutex.Lock();
+			mainGame->dField.UpdateFieldCard(player, location, pbuf);
+			mainGame->gMutex.Unlock();
+			return true;
+		}
+		case MSG_UPDATE_CARD: {
+			int player = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
+			int loc = BufferIO::ReadInt8(pbuf);
+			int seq = BufferIO::ReadInt8(pbuf);
+			mainGame->gMutex.Lock();
+			mainGame->dField.UpdateCard(player, loc, seq, pbuf);
+			mainGame->gMutex.Unlock();
+			return true;
 		}
 		case MSG_POS_CHANGE: {
 			pbuf += 9;
@@ -741,26 +805,31 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 		case MSG_ANNOUNCE_RACE: {
 			player = BufferIO::ReadInt8(pbuf);
 			pbuf += 5;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_ANNOUNCE_ATTRIB: {
 			player = BufferIO::ReadInt8(pbuf);
 			pbuf += 5;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_ANNOUNCE_CARD: {
 			player = BufferIO::ReadInt8(pbuf);
 			pbuf += 4;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_ANNOUNCE_NUMBER: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += 4 * count;
-			return ReadReplayResponse();
+			return mainGame->dInfo.isYRP2 ? true : ReadReplayResponse();
 		}
 		case MSG_CARD_HINT: {
 			pbuf += 9;
+			DuelClient::ClientAnalyze(offset, pbuf - offset);
+			break;
+		}
+		case MSG_PLAYER_HINT: {
+			pbuf += 6;
 			DuelClient::ClientAnalyze(offset, pbuf - offset);
 			break;
 		}
@@ -775,6 +844,9 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			ReplayRefreshDeck(player);
 			ReplayRefreshExtra(player);
 			break;
+		}
+		default: {
+			return mainGame->dInfo.isYRP2 ? true : false;
 		}
 		}
 		if(pauseable) {
@@ -800,6 +872,8 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 	return true;
 }
 void ReplayMode::ReplayRefresh(int flag) {
+	if (mainGame->dInfo.isYRP2)
+		return;
 	unsigned char queryBuffer[0x2000];
 	/*int len = */query_field_card(pduel, 0, LOCATION_MZONE, flag, queryBuffer, 0);
 	mainGame->dField.UpdateFieldCard(mainGame->LocalPlayer(0), LOCATION_MZONE, (char*)queryBuffer);
@@ -815,26 +889,36 @@ void ReplayMode::ReplayRefresh(int flag) {
 	mainGame->dField.UpdateFieldCard(mainGame->LocalPlayer(1), LOCATION_HAND, (char*)queryBuffer);
 }
 void  ReplayMode::ReplayRefreshHand(int player, int flag) {
+	if (mainGame->dInfo.isYRP2)
+		return;
 	unsigned char queryBuffer[0x2000];
 	/*int len = */query_field_card(pduel, player, LOCATION_HAND, flag, queryBuffer, 0);
 	mainGame->dField.UpdateFieldCard(mainGame->LocalPlayer(player), LOCATION_HAND, (char*)queryBuffer);
 }
 void ReplayMode::ReplayRefreshGrave(int player, int flag) {
+	if (mainGame->dInfo.isYRP2)
+		return;
 	unsigned char queryBuffer[0x2000];
 	/*int len = */query_field_card(pduel, player, LOCATION_GRAVE, flag, queryBuffer, 0);
 	mainGame->dField.UpdateFieldCard(mainGame->LocalPlayer(player), LOCATION_GRAVE, (char*)queryBuffer);
 }
 void ReplayMode::ReplayRefreshDeck(int player, int flag) {
+	if (mainGame->dInfo.isYRP2)
+		return;
 	unsigned char queryBuffer[0x2000];
 	/*int len = */query_field_card(pduel, player, LOCATION_DECK, flag, queryBuffer, 0);
 	mainGame->dField.UpdateFieldCard(mainGame->LocalPlayer(player), LOCATION_DECK, (char*)queryBuffer);
 }
 void ReplayMode::ReplayRefreshExtra(int player, int flag) {
+	if (mainGame->dInfo.isYRP2)
+		return;
 	unsigned char queryBuffer[0x2000];
 	/*int len = */query_field_card(pduel, player, LOCATION_EXTRA, flag, queryBuffer, 0);
 	mainGame->dField.UpdateFieldCard(mainGame->LocalPlayer(player), LOCATION_EXTRA, (char*)queryBuffer);
 }
 void ReplayMode::ReplayRefreshSingle(int player, int location, int sequence, int flag) {
+	if (mainGame->dInfo.isYRP2)
+		return;
 	unsigned char queryBuffer[0x2000];
 	/*int len = */query_card(pduel, player, location, sequence, flag, queryBuffer, 0);
 	mainGame->dField.UpdateCard(mainGame->LocalPlayer(player), location, sequence, (char*)queryBuffer);

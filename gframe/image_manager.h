@@ -27,6 +27,7 @@ public:
 	bool Initial();
 	void SetDevice(irr::IrrlichtDevice* dev);
 	void ClearTexture();
+	irr::video::ITexture* LoadTexture(const char* texture);
 	void RemoveTexture(int code);
 	void LoadSleeve(int player, wchar_t* site, wchar_t* dir);
 	void LoadPendingTextures();

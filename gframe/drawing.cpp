@@ -106,61 +106,61 @@ void Game::DrawBackGround() {
 	//select field
 	if(dInfo.curMsg == MSG_SELECT_PLACE || dInfo.curMsg == MSG_SELECT_DISFIELD) {
 		float cv[4] = {0.0f, 0.0f, 1.0f, 1.0f};
-		int filter = 0x1;
+		unsigned int filter = 0x1;
 		for (int i = 0; i < 5; ++i, filter <<= 1) {
-			if ((dField.selectable_field & filter) > 0)
+			if (dField.selectable_field & filter)
 				DrawSelectionLine(&matManager.vFields[16 + i * 4], !(dField.selected_field & filter), 2, cv);
 		}
 		filter = 0x100;
 		for (int i = 0; i < 8; ++i, filter <<= 1) {
-			if ((dField.selectable_field & filter) > 0)
+			if (dField.selectable_field & filter)
 				DrawSelectionLine(&matManager.vFields[36 + i * 4], !(dField.selected_field & filter), 2, cv);
 		}
 		filter = 0x10000;
 		for (int i = 0; i < 5; ++i, filter <<= 1) {
-			if ((dField.selectable_field & filter) > 0)
+			if (dField.selectable_field & filter)
 				DrawSelectionLine(&matManager.vFields[84 + i * 4], !(dField.selected_field & filter), 2, cv);
 		}
 		filter = 0x1000000;
 		for (int i = 0; i < 8; ++i, filter <<= 1) {
-			if ((dField.selectable_field & filter) > 0)
+			if (dField.selectable_field & filter)
 				DrawSelectionLine(&matManager.vFields[104 + i * 4], !(dField.selected_field & filter), 2, cv);
 		}
 	}
 	//disabled field
 	{
 		/*float cv[4] = {0.0f, 0.0f, 1.0f, 1.0f};*/
-		int filter = 0x1;
+		unsigned int filter = 0x1;
 		for (int i = 0; i < 5; ++i, filter <<= 1) {
-			if ((dField.disabled_field & filter) > 0) {
+			if (dField.disabled_field & filter) {
 				driver->draw3DLine(matManager.vFields[16 + i * 4].Pos, matManager.vFields[16 + i * 4 + 3].Pos, 0xffffffff);
 				driver->draw3DLine(matManager.vFields[16 + i * 4 + 1].Pos, matManager.vFields[16 + i * 4 + 2].Pos, 0xffffffff);
 			}
 		}
 		filter = 0x100;
 		for (int i = 0; i < 8; ++i, filter <<= 1) {
-			if ((dField.disabled_field & filter) > 0) {
+			if (dField.disabled_field & filter) {
 				driver->draw3DLine(matManager.vFields[36 + i * 4].Pos, matManager.vFields[36 + i * 4 + 3].Pos, 0xffffffff);
 				driver->draw3DLine(matManager.vFields[36 + i * 4 + 1].Pos, matManager.vFields[36 + i * 4 + 2].Pos, 0xffffffff);
 			}
 		}
 		filter = 0x10000;
 		for (int i = 0; i < 5; ++i, filter <<= 1) {
-			if ((dField.disabled_field & filter) > 0) {
+			if (dField.disabled_field & filter) {
 				driver->draw3DLine(matManager.vFields[84 + i * 4].Pos, matManager.vFields[84 + i * 4 + 3].Pos, 0xffffffff);
 				driver->draw3DLine(matManager.vFields[84 + i * 4 + 1].Pos, matManager.vFields[84 + i * 4 + 2].Pos, 0xffffffff);
 			}
 		}
 		filter = 0x1000000;
 		for (int i = 0; i < 8; ++i, filter <<= 1) {
-			if ((dField.disabled_field & filter) > 0) {
+			if (dField.disabled_field & filter) {
 				driver->draw3DLine(matManager.vFields[104 + i * 4].Pos, matManager.vFields[104 + i * 4 + 3].Pos, 0xffffffff);
 				driver->draw3DLine(matManager.vFields[104 + i * 4 + 1].Pos, matManager.vFields[104 + i * 4 + 2].Pos, 0xffffffff);
 			}
 		}
 	}
 	//current sel
-	if (dField.hovered_location != 0 && dField.hovered_location != 2) {
+	if (dField.hovered_location != 0 && dField.hovered_location != 2 && dField.hovered_location != POSITION_HINT) {
 		int index = 0;
 		if (dField.hovered_controler == 0) {
 			if (dField.hovered_location == LOCATION_DECK) index = 0;
@@ -321,6 +321,12 @@ void Game::DrawMisc() {
 			matManager.vFields[128].Pos.Y - (matManager.vFields[128].Pos.Y - matManager.vFields[130].Pos.Y) / 2, 0.03f));
 		driver->setTransform(irr::video::ETS_WORLD, im);
 		driver->drawVertexPrimitiveList(matManager.vActivate, 4, matManager.iRectangle, 2);	
+	}
+	if (dField.conti_act) {
+		im.setTranslation(vector3df(matManager.vFields[136].Pos.X - (matManager.vFields[136].Pos.X - matManager.vFields[137].Pos.X) / 2,
+			matManager.vFields[136].Pos.Y - (matManager.vFields[136].Pos.Y - matManager.vFields[138].Pos.Y) / 2, 0.03f));
+		driver->setTransform(irr::video::ETS_WORLD, im);
+		driver->drawVertexPrimitiveList(matManager.vActivate, 4, matManager.iRectangle, 2);
 	}
 	if(dField.chains.size() > 1) {
 		for(size_t i = 0; i < dField.chains.size(); ++i) {
@@ -897,20 +903,18 @@ void Game::DrawThumb(code_pointer cp, position2di pos, std::unordered_map<int, i
 
 	if (drag) {
 		recti dragloc = recti(pos.X, pos.Y, pos.X + width * mainGame->window_size.Width / 1024, pos.Y + height * mainGame->window_size.Height / 640);
+		recti limitloc = recti(pos.X, pos.Y, pos.X + 20 * mainGame->window_size.Width / 1024, pos.Y + 20 * mainGame->window_size.Height / 640);
 		driver->draw2DImage(img, dragloc, rect<s32>(0, 0, size.Width, size.Height));
 		if (lflist->count(lcode)) {
 			switch ((*lflist)[lcode]) {
 			case 0:
-				driver->draw2DImage(imageManager.tLim, mainGame->Resize(pos.X, pos.Y, pos.X + 20 * mainGame->window_size.Width / 1024, 
-					pos.Y + 20 * mainGame->window_size.Height / 640), recti(0, 0, 64, 64), 0, 0, true);
+				driver->draw2DImage(imageManager.tLim, limitloc, rect<s32>(0, 0, 64, 64), 0, 0, true);
 				break;
 			case 1:
-				driver->draw2DImage(imageManager.tLim, mainGame->Resize(pos.X, pos.Y, pos.X + 20 * mainGame->window_size.Width / 1024, 
-					pos.Y + 20 * mainGame->window_size.Height / 640), recti(64, 0, 128, 64), 0, 0, true);
+				driver->draw2DImage(imageManager.tLim, limitloc, rect<s32>(64, 0, 128, 64), 0, 0, true);
 				break;
 			case 2:
-				driver->draw2DImage(imageManager.tLim, mainGame->Resize(pos.X, pos.Y, pos.X + 20 * mainGame->window_size.Width / 1024,
-					pos.Y + 20 * mainGame->window_size.Height / 640), recti(0, 64, 64, 128), 0, 0, true);
+				driver->draw2DImage(imageManager.tLim, limitloc, rect<s32>(0, 64, 64, 128), 0, 0, true);
 				break;
 			}
 		}
@@ -978,8 +982,8 @@ void Game::DrawDeckBd() {
 		dx = 436.0f / (lx - 1);
 	}
 	for(size_t i = 0; i < deckManager.current_deck.main.size(); ++i) {
-		DrawThumb(deckManager.current_deck.main[i], position2di(314 + (i % lx) * dx, 164 + (i / lx) * 68), deckBuilder.filterList);
-		if(deckBuilder.hovered_pos == 1 && deckBuilder.hovered_seq == (int)i)
+		DrawThumb(deckManager.current_deck.main[i], position2di(314 + (i % lx) * dx, 164 + (i / lx) * 68), wEdit.filterList);
+		if(wEdit.hovered_pos == 1 && wEdit.hovered_seq == (int)i)
 			driver->draw2DRectangleOutline(mainGame->Resize(313 + (i % lx) * dx, 163 + (i / lx) * 68, 359 + (i % lx) * dx, 228 + (i / lx) * 68));
 	}
 
@@ -1001,8 +1005,8 @@ void Game::DrawDeckBd() {
 		dx = 436.0f / 9;
 	else dx = 436.0f / (deckManager.current_deck.extra.size() - 1);
 	for(size_t i = 0; i < deckManager.current_deck.extra.size(); ++i) {
-		DrawThumb(deckManager.current_deck.extra[i], position2di(314 + i * dx, 466), deckBuilder.filterList);
-		if(deckBuilder.hovered_pos == 2 && deckBuilder.hovered_seq == (int)i)
+		DrawThumb(deckManager.current_deck.extra[i], position2di(314 + i * dx, 466), wEdit.filterList);
+		if(wEdit.hovered_pos == 2 && wEdit.hovered_seq == (int)i)
 			driver->draw2DRectangleOutline(mainGame->Resize(313 + i * dx, 465, 359 + i * dx, 531));
 	}
 
@@ -1024,22 +1028,22 @@ void Game::DrawDeckBd() {
 		dx = 436.0f / 9;
 	else dx = 436.0f / (deckManager.current_deck.side.size() - 1);
 	for(size_t i = 0; i < deckManager.current_deck.side.size(); ++i) {
-		DrawThumb(deckManager.current_deck.side[i], position2di(314 + i * dx, 564), deckBuilder.filterList);
-		if(deckBuilder.hovered_pos == 3 && deckBuilder.hovered_seq == (int)i)
+		DrawThumb(deckManager.current_deck.side[i], position2di(314 + i * dx, 564), wEdit.filterList);
+		if(wEdit.hovered_pos == 3 && wEdit.hovered_seq == (int)i)
 			driver->draw2DRectangleOutline(mainGame->Resize(313 + i * dx, 563, 359 + i * dx, 629));
 	}
 
 	//search results
 	DrawRectangle(driver, mainGame->Resize(805, 137, 915, 157));
 	DrawShadowA(textFont, dataManager.GetSysString(1333), mainGame->Resize(809, 136, 914, 156));
-	DrawShadowA(numFont, deckBuilder.result_string, mainGame->Resize(874, 136, 934, 156));
+	DrawShadowA(numFont, wEdit.result_string, mainGame->Resize(874, 136, 934, 156));
 	DrawRectangle(driver, mainGame->Resize(805, 160, 1020, 630));
 
-	for(size_t i = 0; i < 7 && i + mainGame->scrFilter->getPos() < deckBuilder.results.size(); ++i) {
-		code_pointer ptr = deckBuilder.results[i + mainGame->scrFilter->getPos()];
-		if(deckBuilder.hovered_pos == 4 && deckBuilder.hovered_seq == (int)i)
+	for(size_t i = 0; i < 7 && i + mainGame->wEdit.GetScrollBar()->getPos() < wEdit.results.size(); ++i) {
+		code_pointer ptr = wEdit.results[i + mainGame->wEdit.GetScrollBar()->getPos()];
+		if(wEdit.hovered_pos == 4 && wEdit.hovered_seq == (int)i)
 			driver->draw2DRectangle(0x80000000, mainGame->Resize(806, 164 + i * 66, 1019, 230 + i * 66));
-		DrawThumb(ptr, position2di(810, 165 + i * 66), deckBuilder.filterList);
+		DrawThumb(ptr, position2di(810, 165 + i * 66), wEdit.filterList);
 		if(ptr->second.type & TYPE_MONSTER) {
 			int form = 0x2605;
 			if (ptr->second.type & TYPE_XYZ) ++form;
@@ -1080,8 +1084,8 @@ void Game::DrawDeckBd() {
 			DrawShadowB(textFont, textBuffer, mainGame->Resize(859, 208 + i * 66, 955, 229 + i * 66));
 		}
 	}
-	if(deckBuilder.is_draging) {
-		DrawThumb(deckBuilder.draging_pointer, position2di(deckBuilder.dragx - 22, deckBuilder.dragy - 32), deckBuilder.filterList, true);
+	if(wEdit.is_draging) {
+		DrawThumb(wEdit.draging_pointer, position2di(wEdit.dragx - 22, wEdit.dragy - 32), wEdit.filterList, true);
 	}
 }
 }

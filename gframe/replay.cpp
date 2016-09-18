@@ -123,7 +123,7 @@ namespace ygo {
 		is_recording = false;
 	}
 	void Replay::SaveReplay(const wchar_t* name) {
-		wchar_t fname[64];
+		wchar_t fname[256];
 		myswprintf(fname, L"./replay/%ls.yrp", name);
 #ifdef WIN32
 		fp = _wfopen(fname, L"wb");
@@ -214,7 +214,7 @@ namespace ygo {
 		if (!is_replaying)
 			return -1;
 		short ret = *((short*)pdata);
-		pdata += 4;
+		pdata += 2;
 		return ret;
 	}
 	char Replay::ReadInt8() {

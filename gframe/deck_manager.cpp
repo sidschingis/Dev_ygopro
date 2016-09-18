@@ -38,7 +38,32 @@ void DeckManager::LoadLFList() {
 			if(linebuf[p] == 0)
 				continue;
 			linebuf[p++] = 0;
-			sa = p;
+			sa = p;			
+			if (!strcmp(linebuf,"TYPE_XYZ") | !strcmp(linebuf, "TYPE_SYNCHRO") | !strcmp(linebuf, "TYPE_FUSION") | !strcmp(linebuf, "TYPE_PENDULUM") |
+				!strcmp(linebuf, "TYPE_SPELL") | !strcmp(linebuf, "TYPE_TRAP") | !strcmp(linebuf, "TYPE_RITUAL") | !strcmp(linebuf, "TYPE_EFFECT"))
+			{
+				while (linebuf[p] == ' ' || linebuf[p] == '\t') p++;
+				while (linebuf[p] != ' ' && linebuf[p] != '\t' && linebuf[p] != 0) p++;
+				linebuf[p] = 0;
+				count = atoi(&linebuf[sa]);
+				if(!strcmp(linebuf, "TYPE_XYZ"))
+					AddBLType(cur, TYPE_XYZ, count);
+				if (!strcmp(linebuf, "TYPE_SYNCHRO"))
+					AddBLType(cur, TYPE_SYNCHRO, count);
+				if (!strcmp(linebuf, "TYPE_FUSION"))
+					AddBLType(cur, TYPE_FUSION, count);
+				if (!strcmp(linebuf, "TYPE_PENDULUM"))
+					AddBLType(cur, TYPE_PENDULUM, count);
+				if (!strcmp(linebuf, "TYPE_SPELL"))
+					AddBLType(cur, TYPE_SPELL, count);
+				if (!strcmp(linebuf, "TYPE_TRAP"))
+					AddBLType(cur, TYPE_TRAP, count);
+				if (!strcmp(linebuf, "TYPE_RITUAL"))
+					AddBLType(cur, TYPE_RITUAL, count);
+				if (!strcmp(linebuf, "TYPE_EFFECT"))
+					AddBLType(cur, TYPE_EFFECT, count);
+				continue;
+			}
 			code = atoi(linebuf);
 			if(code == 0)
 				continue;
@@ -57,6 +82,17 @@ void DeckManager::LoadLFList() {
 	nolimit.hash = 0;
 	nolimit.content = new std::unordered_map<int, int>;
 	_lfList.push_back(nolimit);
+}
+void DeckManager::AddBLType(LFList* cur, unsigned int type, int count) {
+	int code = 0;
+	if (cur == NULL) return;
+	for (code_pointer ptr = dataManager._datas.begin(); ptr != dataManager._datas.end(); ++ptr) {
+		if (ptr->second.type & type) {
+			code = ptr->second.code;
+			(*cur->content)[code] = count;
+			cur->hash = cur->hash ^ ((code << 18) | (code >> 14)) ^ ((code << (27 + count)) | (code >> (5 - count)));
+		}
+	}
 }
 wchar_t* DeckManager::GetLFListName(int lfhash) {
 	for(size_t i = 0; i < _lfList.size(); ++i) {
