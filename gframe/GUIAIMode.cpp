@@ -105,9 +105,9 @@ namespace ygo {
 						break;
 					}
 					Hide();
-					char args[256];
-					sprintf(args, "%ls %ls 0x%X", mainGame->gameConf.botname, _comboBox[COMBOBOX_DBDECKS]->getItem(GetComboBoxIndex(COMBOBOX_DBDECKS)) , PRO_VERSION);
-					ShellExecute(NULL, "open", "devbot.exe", args, NULL, IsChecked(CHECKBOX_AI_DEBUG) ? SW_SHOWDEFAULT : SW_HIDE);
+					wchar_t args[256];
+					swprintf(args, L"%ls %ls 0x%X", mainGame->gameConf.botname, _comboBox[COMBOBOX_DBDECKS]->getItem(GetComboBoxIndex(COMBOBOX_DBDECKS)) , PRO_VERSION);
+					ShellExecute(NULL, L"open", L"devbot.exe", args, NULL, IsChecked(CHECKBOX_AI_DEBUG) ? SW_SHOWDEFAULT : SW_HIDE);
 					break;
 				}
 				case BUTTON_HOST_CANCEL: {
