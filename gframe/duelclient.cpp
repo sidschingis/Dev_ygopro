@@ -859,10 +859,8 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			seq =  BufferIO::ReadInt8(pbuf);
 			desc =  BufferIO::ReadInt32(pbuf);
 			pcard = mainGame->dField.GetCard(con, loc, seq);
-			if (!pcard)
-				continue;
 			mainGame->dField.activatable_cards.push_back(pcard);
-			mainGame->dField.activatable_descs.push_back(desc);
+			mainGame->dField.activatable_descs.push_back(std::make_pair(desc, 0));
 			pcard->cmdFlag |= COMMAND_ACTIVATE;
 			if (pcard->location == LOCATION_GRAVE)
 				mainGame->dField.grave_act = true;
@@ -988,10 +986,8 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			seq = BufferIO::ReadInt8(pbuf);
 			desc = BufferIO::ReadInt32(pbuf);
 			pcard = mainGame->dField.GetCard(con, loc, seq);
-			if (!pcard)
-				continue;
 			mainGame->dField.activatable_cards.push_back(pcard);
-			mainGame->dField.activatable_descs.push_back(desc);
+			mainGame->dField.activatable_descs.push_back(std::make_pair(desc, 0));
 			pcard->cmdFlag |= COMMAND_ACTIVATE;
 			if (pcard->location == LOCATION_GRAVE)
 				mainGame->dField.grave_act = true;
@@ -1141,8 +1137,6 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		mainGame->dField.activatable_cards.clear();
 		mainGame->dField.activatable_descs.clear();
 		mainGame->dField.conti_cards.clear();
-		mainGame->dField.reset_descs.clear();
-		mainGame->dField.conti_descs.clear();
 		for (int i = 0; i < count; ++i) {
 			int flag = BufferIO::ReadInt8(pbuf);
 			code = BufferIO::ReadInt32(pbuf);
@@ -1152,25 +1146,21 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			ss = BufferIO::ReadInt8(pbuf);
 			desc = BufferIO::ReadInt32(pbuf);
 			pcard = mainGame->dField.GetCard(c, l, s, ss);
-			if(!pcard)
-				continue;
 			mainGame->dField.activatable_cards.push_back(pcard);
-			mainGame->dField.activatable_descs.push_back(desc);
+			mainGame->dField.activatable_descs.push_back(std::make_pair(desc, flag));
 			pcard->is_selected = false;
-			if(code == 0x1) {
+			if(code == EDESC_OPERATION) {
 				pcard->is_conti = true;
 				pcard->chain_code = code;
 				mainGame->dField.conti_cards.push_back(pcard);
 				mainGame->dField.conti_act = true;
-				mainGame->dField.conti_descs.insert(desc);
 				conti_exist = true;
 			}
 			else {
 				pcard->chain_code = code;
 				pcard->is_selectable = true;
-				if (flag == 0x2) {
+				if (flag == EDESC_RESET) {
 					pcard->cmdFlag |= COMMAND_RESET;
-					mainGame->dField.reset_descs.insert(desc);
 				}
 				else
 					pcard->cmdFlag |= COMMAND_ACTIVATE;
