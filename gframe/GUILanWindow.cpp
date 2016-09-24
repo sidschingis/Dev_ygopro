@@ -65,7 +65,6 @@ namespace ygo {
 		wLan->setRelativePosition(mainGame->ResizeWin(220, 100, 800, 520));
 	}
 	void GUILanWindow::Show() {
-		//mainGame->PopupElement(wLan);
 		wLan->setVisible(true);
 		mainGame->device->setEventReceiver(&mainGame->wLan);
 	}
@@ -105,6 +104,26 @@ namespace ygo {
 			}
 			break;
 			}
+		}
+		case irr::gui::EGET_LISTBOX_CHANGED: {
+			s32 id = event.GUIEvent.Caller->getID();
+			switch (id) {
+			case LISTBOX_LAN_HOST: {
+				int sel = lstHostList->getSelected();
+				if (sel == -1)
+					break;
+				int addr = DuelClient::hosts[sel].ipaddr;
+				int port = DuelClient::hosts[sel].port;
+				wchar_t buf[20];
+				myswprintf(buf, L"%d.%d.%d.%d", addr & 0xff, (addr >> 8) & 0xff, (addr >> 16) & 0xff, (addr >> 24) & 0xff);
+				_editBox[EDITBOX_JOINIP]->setText(buf);
+				myswprintf(buf, L"%d", port);
+				_editBox[EDITBOX_JOINPORT]->setText(buf);
+				_editBox[EDITBOX_JOINPASSWORD]->setText(L"");
+				break;
+			}
+			}
+			break;
 		}
 		break;
 		}
