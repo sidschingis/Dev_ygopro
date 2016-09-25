@@ -65,6 +65,12 @@ bool DuelClient::StartClient(unsigned int ip, unsigned short port, bool create_g
 void DuelClient::ConnectTimeout(evutil_socket_t fd, short events, void* arg) {
 	if(connect_state == 0x7)
 		return;
+	if (!mainGame->dInfo.isLan) {
+		mainGame->gMutex.Lock();
+		mainGame->env->addMessageBox(L"", dataManager.GetSysString(1400));
+		mainGame->gMutex.Unlock();
+		return;
+	}
 	if(!is_closing) {
 		mainGame->wLan.Show();
 		mainGame->gMutex.Lock();

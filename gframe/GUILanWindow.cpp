@@ -82,6 +82,7 @@ namespace ygo {
 			case irr::gui::EGET_BUTTON_CLICKED: {
 				switch (id) {
 				case BUTTON_JOIN_HOST: {
+					mainGame->dInfo.isLan = true;
 					OnJoinHost();
 					break;
 				}
@@ -95,6 +96,7 @@ namespace ygo {
 					break;
 				}
 				case BUTTON_CREATE_HOST: {
+					mainGame->dInfo.isLan = true;
 					mainGame->wLan.Hide();
 					mainGame->wHost.Show();
 					break;
@@ -155,5 +157,9 @@ namespace ygo {
 		if (DuelClient::StartClient(remote_addr, remote_port, false)) {
 			mainGame->wLan.Hide();
 		}
+	}
+	void GUILanWindow::OnCreateHost() {
+		mainGame->wLan.Hide();
+		mainGame->wHost.Show();
 	}
 }

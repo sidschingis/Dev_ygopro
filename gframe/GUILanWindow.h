@@ -21,6 +21,7 @@ namespace ygo {
 		void AddHost(const wchar_t* host);
 		bool isVisible() { return wLan->isVisible(); };
 		void OnJoinHost();
+		void OnCreateHost();
 	private:
 		
 		irr::gui::IGUIWindow* wLan;

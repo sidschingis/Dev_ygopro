@@ -111,18 +111,38 @@ namespace ygo {
 				switch (id) {
 				case BUTTON_HOST_CONFIRM: {
 					BufferIO::CopyWStr(_editBox[EDITBOX_SERVERNAME]->getText(), mainGame->gameConf.gamename, 20);
-					if(!NetServer::StartServer(mainGame->gameConf.serverport))
-						break;
-					if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
-						NetServer::StopServer();
-						break;
+					if (mainGame->dInfo.isLan) {
+						if (!NetServer::StartServer(mainGame->gameConf.serverport))
+							break;
+						if (!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
+							NetServer::StopServer();
+							break;
+						}
 					}
-					//char ip[20];
-					//BufferIO::CopyWStr(L"127.0.0.1", ip, 20);
-					//if (!DuelClient::StartClient(0x7f000001, 7911, true)) {
-					//	NetServer::StopServer();
-					//	break;
-					//}
+					else {
+						char ip[20];
+						int i = 0;
+						wchar_t* pstr = (wchar_t *)mainGame->wLan.GetText(EDITBOX_JOINIP);
+						while (*pstr && i < 16)
+							ip[i++] = *pstr++;
+						ip[i] = 0;
+
+						struct addrinfo hints;
+						memset(&hints, 0, sizeof(struct addrinfo));
+						hints.ai_family = AF_INET;    /* Allow IPv4 or IPv6 */
+						hints.ai_socktype = SOCK_STREAM; /* Datagram socket */
+						hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
+						hints.ai_protocol = 0;          /* Any protocol */
+						hints.ai_canonname = NULL;
+						hints.ai_addr = NULL;
+						hints.ai_next = NULL;
+						BufferIO::CopyWStr((wchar_t *)mainGame->wLan.GetText(EDITBOX_JOINIP), ip, 20);
+						unsigned int remote_addr = htonl(inet_addr(ip));
+						unsigned int remote_port = _wtoi(mainGame->wLan.GetText(EDITBOX_JOINPORT));
+						BufferIO::CopyWStr(mainGame->wLan.GetText(EDITBOX_JOINIP), mainGame->gameConf.lastip, 20);
+						BufferIO::CopyWStr(mainGame->wLan.GetText(EDITBOX_JOINPORT), mainGame->gameConf.lastport, 20);
+						DuelClient::StartClient(remote_addr, remote_port, false);
+					}
 					_buttons[BUTTON_HOST_CONFIRM]->setEnabled(false);
 					_buttons[BUTTON_HOST_CANCEL]->setEnabled(false);
 					break;
@@ -130,6 +150,7 @@ namespace ygo {
 				case BUTTON_HOST_CANCEL: {
 					Hide();
 					mainGame->wLan.Show();
+					mainGame->dInfo.isLan = false;
 					break;
 				}
 				break;

@@ -64,6 +64,7 @@ struct DuelInfo {
 	bool isStarted;
 	bool isReplay;
 	bool isYRP2;
+	bool isLan;
 	bool isReplaySkiping;
 	bool isFirst;
 	bool isTag;

@@ -25,12 +25,14 @@ int main(int argc, char* argv[]) {
 	for(int i = 1; i < argc; ++i) {
 		/*command line args:
 		 * -j: join host (host info from system.conf)
-		 * -f: forced join host (host info from system.conf, immediately set ready)
+		 * -c: create host (host info from system.conf)
 		 * -d: deck edit
-		 * -r: replay */
+		 * -r: replay
+		 * -s: single mode
+		 * -ai: AI mode*/
 		if(argv[i][0] == '-' && argv[i][1] == 'e') {
 			ygo::dataManager.LoadDB(&argv[i][2]);
-		} else if(!strcmp(argv[i], "-j") || !strcmp(argv[i], "-f") || !strcmp(argv[i], "-d") || !strcmp(argv[i], "-r") 
+		} else if(!strcmp(argv[i], "-j") || !strcmp(argv[i], "-c") || !strcmp(argv[i], "-d") || !strcmp(argv[i], "-r") 
 			|| !strcmp(argv[i], "-s") || !strcmp(argv[i], "-ai")) {
 			exit_on_return = true;
 			irr::SEvent event;
@@ -39,9 +41,9 @@ int main(int argc, char* argv[]) {
 			if(!strcmp(argv[i], "-j")) {
 				ygo::mainGame->wMenu.Hide();
 				ygo::mainGame->wLan.OnJoinHost();
-			} else if(!strcmp(argv[i], "-f")) {
+			} else if(!strcmp(argv[i], "-c")) {
 				ygo::mainGame->wMenu.Hide();
-				ygo::mainGame->wLan.OnJoinHost();
+				ygo::mainGame->wLan.OnCreateHost();
 			} else if(!strcmp(argv[i], "-d")) {
 				event.GUIEvent.Caller = ygo::mainGame->wMenu.GetBtnElement(BUTTON_DECK_EDIT);
 				ygo::mainGame->device->postEventFromUser(event);
