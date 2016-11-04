@@ -8,7 +8,6 @@
 #include "../ocgcore/mtrandom.h"
 
 namespace ygo {
-
 	TagDuel::TagDuel() {
 		game_started = false;
 		for (int i = 0; i < 4; ++i) {
@@ -657,9 +656,9 @@ namespace ygo {
 			}
 			case MSG_SELECT_COUNTER: {
 				player = BufferIO::ReadInt8(pbuf);
-				pbuf += 3;
+				pbuf += 4;
 				count = BufferIO::ReadInt8(pbuf);
-				pbuf += count * 8;
+				pbuf += count * 9;
 				WaitforResponse(player);
 				NetServer::SendBufferToPlayer(cur_player[player], STOC_GAME_MSG, offset, pbuf - offset);
 				return 1;
@@ -1625,5 +1624,4 @@ namespace ygo {
 			event_del(sd->etimer);
 		}
 	}
-
 }

@@ -8,7 +8,6 @@
 #include "../ocgcore/mtrandom.h"
 
 namespace ygo {
-
 	SingleDuel::SingleDuel(bool is_match) {
 		game_started = false;
 		match_mode = is_match;
@@ -733,9 +732,9 @@ namespace ygo {
 			}
 			case MSG_SELECT_COUNTER: {
 				player = BufferIO::ReadInt8(pbuf);
-				pbuf += 3;
+				pbuf += 4;
 				count = BufferIO::ReadInt8(pbuf);
-				pbuf += count * 8;
+				pbuf += count * 9;
 				WaitforResponse(player);
 				NetServer::SendBufferToPlayer(players[player], STOC_GAME_MSG, offset, pbuf - offset);
 				return 1;
@@ -1533,5 +1532,4 @@ namespace ygo {
 			event_del(sd->etimer);
 		}
 	}
-
 }

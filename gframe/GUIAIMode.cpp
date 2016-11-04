@@ -10,7 +10,6 @@
 #endif
 
 namespace ygo {
-
 	void GUIAIMode::Load() {
 		wchar_t strbuf[256];
 		IGUIEnvironment* env = mainGame->env;
@@ -64,9 +63,9 @@ namespace ygo {
 	}
 
 	bool GUIAIMode::IsChecked(unsigned int item) {
-		auto cdit = _checkBox.find(item);\
-		if (cdit == _checkBox.end())
-			return false;
+		auto cdit = _checkBox.find(item); \
+			if (cdit == _checkBox.end())
+				return false;
 		return _checkBox[item]->isChecked();
 	}
 
@@ -97,17 +96,17 @@ namespace ygo {
 				switch (id) {
 				case BUTTON_HOST_CONFIRM: {
 					mainGame->is_aimode = true;
-					if(!NetServer::StartServer(7911))
+					if (!NetServer::StartServer(7911))
 						break;
-					if(!DuelClient::StartClient(0x7f000001, 7911)) {
+					if (!DuelClient::StartClient(0x7f000001, 7911)) {
 						NetServer::StopServer();
 						mainGame->is_aimode = false;
 						break;
 					}
 					Hide();
-					char args[256];
-					sprintf(args, "%ls %ls 0x%X", mainGame->gameConf.botname, _comboBox[COMBOBOX_DBDECKS]->getItem(GetComboBoxIndex(COMBOBOX_DBDECKS)) , PRO_VERSION);
-					ShellExecute(NULL, "open", "devbot.exe", args, NULL, IsChecked(CHECKBOX_AI_DEBUG) ? SW_SHOWDEFAULT : SW_HIDE);
+					wchar_t args[256];
+					wsprintf(args, L"%ls %ls 0x%X", mainGame->gameConf.botname, _comboBox[COMBOBOX_DBDECKS]->getItem(GetComboBoxIndex(COMBOBOX_DBDECKS)), PRO_VERSION);
+					ShellExecute(NULL, L"open", L"devbot.exe", args, NULL, IsChecked(CHECKBOX_AI_DEBUG) ? SW_SHOWDEFAULT : SW_HIDE);
 					break;
 				}
 				case BUTTON_HOST_CANCEL: {
@@ -116,13 +115,13 @@ namespace ygo {
 					mainGame->wMenu.Show();
 					break;
 				}
-				break;
+										 break;
 				}
 			}
-			break;
+												break;
 			}
 		}
-		break;
+								 break;
 		}
 		return false;
 	}
