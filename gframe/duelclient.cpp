@@ -1165,7 +1165,7 @@ namespace ygo {
 				mainGame->dField.activatable_cards.push_back(pcard);
 				mainGame->dField.activatable_descs.push_back(std::make_pair(desc, flag));
 				pcard->is_selected = false;
-				if (code == EDESC_OPERATION) {
+				if (flag == EDESC_OPERATION) {
 					pcard->is_conti = true;
 					pcard->chain_code = code;
 					mainGame->dField.conti_cards.push_back(pcard);
