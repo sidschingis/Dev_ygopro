@@ -604,6 +604,7 @@ void Game::LoadConfig() {
 	gameConf.control_mode = 0;
 	gameConf.chkHideSetname = 0;
 	gameConf.chkHideChainButton = 0;
+	gameConf.chkHideHintButton = 0;
 	gameConf.old_replay_mode = 0;
 	BufferIO::CopyWStr(L"DevBot", gameConf.botname, 20);
 	fseek(fp, 0, SEEK_END);
@@ -691,6 +692,8 @@ void Game::LoadConfig() {
 			gameConf.chkHideSetname = atoi(valbuf) > 0;
 		} else if (!strcmp(strbuf, "hide_chain_button")) {
 			gameConf.chkHideChainButton = atoi(valbuf) > 0;
+		} else if (!strcmp(strbuf, "hide_hint_button")) {
+			gameConf.chkHideHintButton = atoi(valbuf) > 0;
 		} else if (!strcmp(strbuf, "old_replay_mode")) {
 			gameConf.old_replay_mode = atoi(valbuf) > 0;
 		} else if (!strcmp(strbuf, "botname")) {

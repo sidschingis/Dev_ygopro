@@ -44,6 +44,7 @@ struct Config {
 	bool nodelay;
 	bool chkHideSetname;
 	bool chkHideChainButton;
+	bool chkHideHintButton;
 	bool enablesound;
 	double soundvolume;
 	bool enablemusic;

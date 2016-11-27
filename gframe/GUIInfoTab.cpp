@@ -46,6 +46,8 @@ namespace ygo {
 		_checkBox[CHECKBOX_HIDESETNAMES]->setChecked(mainGame->gameConf.chkHideSetname != 0);
 		_checkBox[CHECKBOX_HIDE_CHAINBUTTONS] = env->addCheckBox(false, rect<s32>(150, 80, 410, 105), tabSystem, CHECKBOX_HIDE_CHAINBUTTONS, dataManager.GetSysString(1355));
 		_checkBox[CHECKBOX_HIDE_CHAINBUTTONS]->setChecked(mainGame->gameConf.chkHideChainButton != 0);
+		_checkBox[CHECKBOX_HIDE_HINTBUTTON] = env->addCheckBox(false, rect<s32>(150, 110, 410, 135), tabSystem, CHECKBOX_HIDE_HINTBUTTON, dataManager.GetSysString(1356));
+		_checkBox[CHECKBOX_HIDE_HINTBUTTON]->setChecked(mainGame->gameConf.chkHideHintButton != 0);
 		_checkBox[CHECKBOX_ENABLE_SOUND] = env->addCheckBox(mainGame->gameConf.enablesound, rect<s32>(20, 230, 280, 255), tabSystem, CHECKBOX_ENABLE_SOUND, dataManager.GetSysString(2046));
 		scrSound = env->addScrollBar(true, rect<s32>(20, 260, 280, 270), tabSystem, SCROLL_SOUND);
 		scrSound->setMax(100);
