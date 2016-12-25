@@ -121,21 +121,21 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_CHAIN_IGNORE: {
-				mainGame->ignore_chain = mainGame->btnChainIgnore->isPressed();
+				mainGame->ignore_chain = true;
 				mainGame->always_chain = false;
 				mainGame->chain_when_avail = false;
 				UpdateChainButtons();
 				break;
 			}
 			case BUTTON_CHAIN_ALWAYS: {
-				mainGame->always_chain = mainGame->btnChainAlways->isPressed();
+				mainGame->always_chain = true;
 				mainGame->ignore_chain = false;
 				mainGame->chain_when_avail = false;
 				UpdateChainButtons();
 				break;
 			}
 			case BUTTON_CHAIN_WHENAVAIL: {
-				mainGame->chain_when_avail = mainGame->btnChainWhenAvail->isPressed();
+				mainGame->chain_when_avail = true;
 				mainGame->always_chain = false;
 				mainGame->ignore_chain = false;
 				UpdateChainButtons();
