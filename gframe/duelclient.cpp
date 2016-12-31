@@ -876,7 +876,7 @@ namespace ygo {
 				desc = BufferIO::ReadInt32(pbuf);
 				pcard = mainGame->dField.GetCard(con, loc, seq);
 				mainGame->dField.activatable_cards.push_back(pcard);
-				mainGame->dField.activatable_descs.push_back(std::make_pair(desc, 0));
+				mainGame->dField.activatable_descs.push_back(std::make_pair(desc,	0));
 				pcard->cmdFlag |= COMMAND_ACTIVATE;
 				if (pcard->location == LOCATION_GRAVE)
 					mainGame->dField.grave_act = true;
@@ -3293,7 +3293,7 @@ namespace ygo {
 		*((int*)response_buf) = respI;
 		response_len = 4;
 	}
-	void DuelClient::SetResponseB(unsigned char * respB, unsigned char len) {
+	void DuelClient::SetResponseB(void char * respB, unsigned char len) {
 		memcpy(response_buf, respB, len);
 		response_len = len;
 	}

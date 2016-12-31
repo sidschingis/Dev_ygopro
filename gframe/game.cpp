@@ -19,7 +19,7 @@
 #include <dirent.h>
 #endif
 
-const unsigned short PRO_VERSION = 0x133B;
+const unsigned short PRO_VERSION = 0x133D;
 const wchar_t* CLIENT_NAME = L"Recode";
 
 
