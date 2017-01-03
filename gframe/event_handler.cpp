@@ -484,6 +484,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 						std::sort(selectable_cards.begin(), selectable_cards.end());
 						auto eit = std::unique(selectable_cards.begin(), selectable_cards.end());
 						selectable_cards.erase(eit, selectable_cards.end());
+						conti_selecting = true;
 						break;
 					}
 					}

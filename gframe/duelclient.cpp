@@ -944,7 +944,7 @@ namespace ygo {
 					pcard->SetCode(code);
 					mainGame->dField.deck_act = true;
 				}
-				if (pcard->location == LOCATION_GRAVE)
+				else if (pcard->location == LOCATION_GRAVE)
 					mainGame->dField.grave_act = true;
 				else if (pcard->location == LOCATION_REMOVED)
 					mainGame->dField.remove_act = true;
@@ -961,8 +961,6 @@ namespace ygo {
 				loc = BufferIO::ReadInt8(pbuf);
 				seq = BufferIO::ReadInt8(pbuf);
 				pcard = mainGame->dField.GetCard(con, loc, seq);
-				if (!pcard)
-					continue;
 				mainGame->dField.reposable_cards.push_back(pcard);
 				pcard->cmdFlag |= COMMAND_REPOS;
 			}
@@ -974,8 +972,6 @@ namespace ygo {
 				loc = BufferIO::ReadInt8(pbuf);
 				seq = BufferIO::ReadInt8(pbuf);
 				pcard = mainGame->dField.GetCard(con, loc, seq);
-				if (!pcard)
-					continue;
 				mainGame->dField.msetable_cards.push_back(pcard);
 				pcard->cmdFlag |= COMMAND_MSET;
 			}
@@ -987,8 +983,6 @@ namespace ygo {
 				loc = BufferIO::ReadInt8(pbuf);
 				seq = BufferIO::ReadInt8(pbuf);
 				pcard = mainGame->dField.GetCard(con, loc, seq);
-				if (!pcard)
-					continue;
 				mainGame->dField.ssetable_cards.push_back(pcard);
 				pcard->cmdFlag |= COMMAND_SSET;
 			}
@@ -1105,8 +1099,6 @@ namespace ygo {
 					pcard = mainGame->dField.GetCard(c, l & 0x7f, s)->overlayed[ss];
 				else
 					pcard = mainGame->dField.GetCard(c, l, s);
-				if (!pcard)
-					continue;
 				if (code != 0 && pcard->code != code)
 					pcard->SetCode(code);
 				pcard->select_seq = i;
@@ -1166,18 +1158,15 @@ namespace ygo {
 				mainGame->dField.activatable_descs.push_back(std::make_pair(desc, flag));
 				pcard->is_selected = false;
 				if (flag == EDESC_OPERATION) {
-					pcard->is_conti = true;
 					pcard->chain_code = code;
 					mainGame->dField.conti_cards.push_back(pcard);
 					mainGame->dField.conti_act = true;
 					conti_exist = true;
 				}
 				else {
-					pcard->chain_code = code;
 					pcard->is_selectable = true;
-					if (flag == EDESC_RESET) {
+					if (flag == EDESC_RESET)
 						pcard->cmdFlag |= COMMAND_RESET;
-					}
 					else
 						pcard->cmdFlag |= COMMAND_ACTIVATE;
 					if (l == LOCATION_GRAVE)
@@ -1190,7 +1179,7 @@ namespace ygo {
 						panelmode = true;
 				}
 			}
-			if (!forced && (mainGame->ignore_chain || ((count == 0 || specount == 0) && !mainGame->always_chain))) {
+			if (!forced && (mainGame->ignore_chain || ((count == 0 || specount == 0) && !mainGame->always_chain)) && (count == 0 || !mainGame->chain_when_avail)) {
 				SetResponseI(-1);
 				mainGame->dField.ClearChainSelect();
 				if (mainGame->wInfoTab.IsChecked(CHECKBOX_WAITCHAIN) && !mainGame->ignore_chain) {
@@ -1199,7 +1188,7 @@ namespace ygo {
 				DuelClient::SendResponse();
 				return true;
 			}
-			if (mainGame->wInfoTab.IsChecked(CHECKBOX_AUTOCHAIN) && forced) {
+			if (mainGame->wInfoTab.IsChecked(CHECKBOX_AUTOCHAIN) && forced && !(mainGame->always_chain || mainGame->chain_when_avail)) {
 				SetResponseI(0);
 				mainGame->dField.ClearChainSelect();
 				DuelClient::SendResponse();
@@ -1302,7 +1291,7 @@ namespace ygo {
 		case MSG_SELECT_POSITION: {
 			/*int selecting_player = */BufferIO::ReadInt8(pbuf);
 			unsigned int code = (unsigned int)BufferIO::ReadInt32(pbuf);
-			unsigned int positions = (unsigned int)BufferIO::ReadInt8(pbuf);
+			int positions = (unsigned int)BufferIO::ReadInt8(pbuf);
 			if (positions == 0x1 || positions == 0x2 || positions == 0x4 || positions == 0x8) {
 				SetResponseI(positions);
 				return true;
@@ -2212,7 +2201,7 @@ namespace ygo {
 			return true;
 		}
 		case MSG_FIELD_DISABLED: {
-			int disabled = BufferIO::ReadInt32(pbuf);
+			unsigned int disabled = BufferIO::ReadInt32(pbuf);
 			if (!mainGame->dInfo.isFirst)
 				disabled = (disabled >> 16) | (disabled << 16);
 			mainGame->dField.disabled_field = disabled;
@@ -3293,7 +3282,7 @@ namespace ygo {
 		*((int*)response_buf) = respI;
 		response_len = 4;
 	}
-	void DuelClient::SetResponseB(void* respB, unsigned char len) {
+	void DuelClient::SetResponseB(void * respB, unsigned char len) {
 		memcpy(response_buf, respB, len);
 		response_len = len;
 	}
@@ -3329,6 +3318,9 @@ namespace ygo {
 			break;
 		}
 		case MSG_SELECT_SUM: {
+			for (int i = 0; i < mainGame->dField.must_select_count; ++i) {
+				mainGame->dField.selected_cards[i]->is_selected = false;
+			}
 			for (size_t i = 0; i < mainGame->dField.selectsum_all.size(); ++i) {
 				mainGame->dField.selectsum_all[i]->is_selectable = false;
 				mainGame->dField.selectsum_all[i]->is_selected = false;
