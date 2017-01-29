@@ -2645,11 +2645,17 @@ namespace ygo {
 			ClientCard* pc1 = mainGame->dField.GetCard(c1, l1, s1);
 			ClientCard* pc2 = mainGame->dField.GetCard(c2, l2, s2);
 			if (mainGame->dInfo.isReplay && mainGame->dInfo.isReplaySkiping) {
+				if (pc1->equipTarget)
+					pc1->equipTarget->equipped.erase(pc1);
 				pc1->cardTarget.erase(pc2);
 				pc2->ownerTarget.erase(pc1);
 			}
 			else {
 				mainGame->gMutex.Lock();
+				if (pc1->equipTarget) {
+					pc1->equipTarget->is_showequip = false;
+					pc1->equipTarget->equipped.erase(pc1);
+				}
 				pc1->cardTarget.erase(pc2);
 				pc2->ownerTarget.erase(pc1);
 				if (mainGame->dField.hovered_card == pc1)
