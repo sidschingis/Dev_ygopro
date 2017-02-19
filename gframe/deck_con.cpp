@@ -218,6 +218,7 @@ bool GUIDeckEdit::OnEvent(const irr::SEvent& event) {
 					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1071), TYPE_MONSTER + TYPE_FLIP);
 					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1072), TYPE_MONSTER + TYPE_TOON);
 					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1074), TYPE_MONSTER + TYPE_PENDULUM);
+					_ComboBox[COMBOBOX_MAINTYPE2]->addItem(dataManager.GetSysString(1075), TYPE_MONSTER + TYPE_SPSUMMON);
 					break;
 				}
 				case 2: {

@@ -81,7 +81,7 @@ namespace ygo {
 		
 		_ComboBox[COMBOBOX_RACE] = mainGame->env->addComboBox(rect<s32>(60, 49, 190, 69), wFilter, COMBOBOX_RACE);
 		_ComboBox[COMBOBOX_RACE]->addItem(dataManager.GetSysString(1310), 0);
-		for (int filter = 0x1; filter != 0x1000000; filter <<= 1)
+		for (int filter = 0x1; filter != 0x2000000; filter	 <<= 1)
 			_ComboBox[COMBOBOX_RACE]->addItem(dataManager.FormatRace(filter), filter);
 		
 		_editBox[EDITBOX_ATTACK] = mainGame->env->addEditBox(L"", rect<s32>(260, 26, 340, 46), true, wFilter, EDITBOX_ATTACK);
