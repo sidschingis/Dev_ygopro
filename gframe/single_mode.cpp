@@ -10,6 +10,8 @@ namespace ygo {
 	bool SingleMode::is_closing = false;
 	bool SingleMode::is_continuing = false;
 
+	static byte buffer[0x20000];
+
 	bool SingleMode::StartPlay() {
 		Thread::NewThread(SinglePlayThread, 0);
 		return true;
@@ -33,7 +35,8 @@ namespace ygo {
 		size_t slen = BufferIO::EncodeUTF8(fname, fname2);
 		mtrandom rnd;
 		time_t seed = time(0);
-		rnd.reset(seed);
+		rnd.reset(seed); 
+		set_script_reader((script_reader)ScriptReader);
 		set_card_reader((card_reader)DataManager::CardReader);
 		set_message_handler((message_handler)MessageHandler);
 		pduel = create_duel(rnd.rand());
@@ -782,6 +785,31 @@ namespace ygo {
 		/*len = */query_field_card(pduel, 1, LOCATION_REMOVED, flag, queryBuffer, 0);
 		mainGame->dField.UpdateFieldCard(mainGame->LocalPlayer(1), LOCATION_REMOVED, (char*)queryBuffer);
 	}
+
+	byte* SingleMode::ScriptReader(const char* script_name, int* slen) {
+		FILE *fp;
+		#ifdef _WIN32
+			wchar_t fname[256];
+			BufferIO::DecodeUTF8(script_name, fname);
+			fp = _wfopen(fname, L"rb");
+		#else
+			fp = fopen(script_name, "rb");
+		#endif
+			if (!fp)
+			return 0;
+		fseek(fp, 0, SEEK_END);
+		unsigned int len = ftell(fp);
+		if (len > sizeof(buffer)) {
+			fclose(fp);
+			return 0;
+		}
+		fseek(fp, 0, SEEK_SET);
+		fread(buffer, len, 1, fp);
+		fclose(fp);
+		*slen = len;
+		return buffer;
+	}
+
 	int SingleMode::MessageHandler(long fduel, int type) {
 		if (!enable_log)
 			return 0;
